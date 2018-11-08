@@ -273,6 +273,13 @@ DoesNuzlockeModePreventCapture:
 	bit NUZLOCKE_MODE, a
 	jr z, .no
 
+	; Is special encounter?
+	ld a, [BattleType]
+	cp BATTLETYPE_GROTTO
+	jr z, .no
+	cp BATTLETYPE_TRAP ; or BATTLETYPE_FORCEITEM, BATTLETYPE_RED_GYARADOS, BATTLETYPE_LEGENDARY
+	jr nc, .no
+
 	; Is enemy shiny?
 	farcall BattleCheckEnemyShininess
 	jr c, .no
