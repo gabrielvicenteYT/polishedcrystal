@@ -1,6 +1,6 @@
 GetTrainerEVsDVsAndPersonality: ; 270c4
-; Return the EVs, DVs and Personality of OtherTrainerClass in bc
-	ld a, [OtherTrainerClass]
+; Return the EVs, DVs and Personality of wOtherTrainerClass in bc
+	ld a, [wOtherTrainerClass]
 	dec a
 	ld c, a
 	ld b, 0
@@ -15,15 +15,15 @@ rept 6
 	inc de
 endr
 	ld a, [hli]
-	ld [DVAndPersonalityBuffer], a
+	ld [wDVAndPersonalityBuffer], a
 	ld a, [hli]
-	ld [DVAndPersonalityBuffer + 1], a
+	ld [wDVAndPersonalityBuffer + 1], a
 	ld a, [hli]
-	ld [DVAndPersonalityBuffer + 2], a
+	ld [wDVAndPersonalityBuffer + 2], a
 	ld a, [hli]
-	ld [DVAndPersonalityBuffer + 3], a
+	ld [wDVAndPersonalityBuffer + 3], a
 	ld a, [hli]
-	ld [DVAndPersonalityBuffer + 4], a
+	ld [wDVAndPersonalityBuffer + 4], a
 	ret
 ; 270d6
 
@@ -90,7 +90,11 @@ TrainerClassDVsAndPersonality: ; 270d6
 	db  48, $AA, $CC, $EE, ABILITY_1 | QUIRKY, FEMALE ; hex maniac
 	db  48, $CC, $CC, $CC, ABILITY_1 | QUIRKY, MALE   ; sage
 	db  48, $CC, $CC, $CC, ABILITY_1 | QUIRKY, FEMALE ; medium
-	db  56, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; kimono girl
+	db  56, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; kimono girl 1
+	db  56, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; kimono girl 2
+	db  56, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; kimono girl 3
+	db  56, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; kimono girl 4
+	db  56, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; kimono girl 5
 	db  56, $DD, $DD, $DD, ABILITY_1 | QUIRKY, MALE   ; elder
 	db  48, $CC, $CC, $CC, ABILITY_1 | QUIRKY, FEMALE ; sr&jr
 	db  48, $CC, $CC, $CC, ABILITY_1 | QUIRKY, MALE   ; couple
@@ -121,6 +125,7 @@ TrainerClassDVsAndPersonality: ; 270d6
 	db  72, $DD, $DD, $DD, ABILITY_1 | QUIRKY, MALE   ; tamer
 	db  72, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; artist
 	db  72, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; aroma lady
+	db  72, $DD, $DD, $DD, ABILITY_1 | QUIRKY, MALE   ; waiter
 	db  72, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; waitress
 	db  72, $DD, $DD, $DD, ABILITY_1 | QUIRKY, MALE   ; sightseerm
 	db  72, $DD, $DD, $DD, ABILITY_1 | QUIRKY, FEMALE ; sightseerf

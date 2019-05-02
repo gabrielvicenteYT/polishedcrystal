@@ -3,6 +3,7 @@ hPushOAM           EQU $ff80 ; 10 bytes
 
 hROMBankBackup     EQU $ff8a
 hBuffer            EQU $ff8b
+hLYOverrideStackCopyAmount EQU $ff8c
 
 hRTCDayHi          EQU $ff8d
 hRTCDayLo          EQU $ff8e
@@ -39,14 +40,14 @@ hObjectStructIndexBuffer EQU $ffb0
 hConnectionStripLength EQU $ffaf
 hConnectedMapWidth EQU $ffb0
 
+hMapBorderBlock     EQU $ffad
+hMapWidthPlus6      EQU $ffae
+
 hPredefTemp        EQU $ffb1
 
 ; can only use the bytes reserved for hPredefTemp in contained functions, unless you know what you're doing
 
-hBuffer2           EQU $ffb1
-hBuffer3           EQU $ffb2
-
-hPastLeadingZeroes EQU $ffb3
+hLZAddress         EQU $ffb1
 
 ; Arithmetic addresses aren't seperate, to simplify
 ; chain usage. The exact format is (all big endian):
@@ -65,6 +66,11 @@ hMultiplier        EQU $ffb7 ; 1 byte long
 hProduct           EQU $ffb3 ; result (4 bytes long)
 
 hMathBuffer        EQU $ffb8
+
+hTilesetPalettesHigh   EQU $ffb3
+
+hMetatileCountWidth    EQU $ffb3
+hMetatileCountHeight   EQU $ffb4
 
 hPrintNum1         EQU $ffb3
 hPrintNum2         EQU $ffb4
@@ -114,14 +120,14 @@ hBGMapMode         EQU $ffd4
 ; 0 - top third
 ; 1 - middle third
 ; 2 - bottom third
-hBGMapThird        EQU $ffd5
+hBGMapHalf         EQU $ffd5
 hBGMapAddress      EQU $ffd6
 
 hOAMUpdate         EQU $ffd8
 hSPBuffer          EQU $ffd9
 
 hBGMapUpdate       EQU $ffdb
-hFFDC              EQU $ffdc
+hBGMapTileCount    EQU $ffdc
 
 hMapAnims          EQU $ffde
 hTileAnimFrame     EQU $ffdf
@@ -141,13 +147,25 @@ hDMATransfer       EQU $ffe8
 
 hFarCallSavedA     EQU $ffe9
 
+hDelayFrameLY      EQU $ffea
+
 hClockResetTrigger EQU $ffeb
 
 hMPState           EQU $ffed
 hMPBuffer          EQU $ffee
+
+hRequested2bpp         EQU $fff1
+hRequested1bpp         EQU $fff2
+hRequestedVTileDest    EQU $fff3
+hRequestedVTileSource  EQU $fff5
+
 hTmpd              EQU $fff7
 hTmpe              EQU $fff8
 
 hFastMusicUpdate   EQU $fff9
+
+hRequestOpaque1bpp EQU $fffb
+
+hTilesetGFXBank EQU $fffc
 
 HRAM_END EQU $ffff

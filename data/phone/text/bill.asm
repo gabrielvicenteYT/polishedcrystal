@@ -44,7 +44,7 @@ BillPhoneNotFullText: ; 0x1b452a
 
 	para "<PLAYER>, your Box"
 	line "has room for @"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text ""
 	cont "more #mon."
 
@@ -59,7 +59,7 @@ BillPhoneNearlyFullText: ; 0x1b4587
 	para "<PLAYER>, your Box"
 	line "has room for only"
 	cont "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text " more #mon."
 
 	para "Maybe you should"
@@ -157,7 +157,7 @@ BillPhoneSecondBadgeText:
 	line "Wonder Trading."
 
 	para "You might get a"
-	line "weird Pokemon"
+	line "weird #mon"
 	cont "in exchange."
 
 	para "That's all."

@@ -1,13 +1,13 @@
 SpecialHoOhChamber: ; 0x8addb
-	ld hl, PartySpecies
+	ld hl, wPartySpecies
 	ld a, [hl]
-	ld [CurPartySpecies], a
-	ld [CurSpecies], a
+	ld [wCurPartySpecies], a
+	ld [wCurSpecies], a
 	call GetBaseData
-	ld a, [BaseType1]
+	ld a, [wBaseType1]
 	cp FAIRY
 	jr z, .open
-	ld a, [BaseType2]
+	ld a, [wBaseType2]
 	cp FAIRY
 	ret nz
 
@@ -22,12 +22,12 @@ SpecialOmanyteChamber: ; 8adef
 	ret nz
 
 	ld a, WATER_STONE
-	ld [CurItem], a
-	ld hl, NumItems
+	ld [wCurItem], a
+	ld hl, wNumItems
 	call CheckItem
 	jr c, .open
 
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	ld b, a
 	inc b
 .loop
@@ -35,7 +35,7 @@ SpecialOmanyteChamber: ; 8adef
 	ret z
 	ld a, b
 	dec a
-	ld [CurPartyMon], a
+	ld [wCurPartyMon], a
 	push bc
 	ld a, MON_ITEM
 	call GetPartyParamLocation
@@ -82,7 +82,7 @@ SpecialKabutoChamber: ; 8ae4e
 ; 8ae68
 
 Special_DisplayUnownWords: ; 8ae68
-	ld a, [ScriptVar]
+	ld a, [wScriptVar]
 	ld hl, UnownWallMenuDataHeaders
 	and a
 	jr z, .load
@@ -105,7 +105,7 @@ Special_DisplayUnownWords: ; 8ae68
 	ld de, $14
 	add hl, de
 	add hl, de
-	ld a, [ScriptVar]
+	ld a, [wScriptVar]
 	ld c, a
 	ld de, UnownWallWords
 	and a
@@ -120,10 +120,10 @@ Special_DisplayUnownWords: ; 8ae68
 
 .copy
 	call .CopyWord
-	ld bc, AttrMap - TileMap
+	ld bc, wAttrMap - wTileMap
 	add hl, bc
 	call .FillAttr
-	call WaitBGMap2
+	call ApplyAttrAndTilemapInVBlank
 	call JoyWaitAorB
 	call PlayClickSFX
 	jp CloseWindow

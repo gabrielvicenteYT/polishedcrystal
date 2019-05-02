@@ -111,11 +111,11 @@ RunTradeAnimSequence: ; 28fa1
 	push af
 	xor a
 	ld [hMapAnims], a
-	ld hl, VramState
+	ld hl, wVramState
 	ld a, [hl]
 	push af
 	res 0, [hl] ; overworld sprite updating on
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
@@ -129,9 +129,9 @@ RunTradeAnimSequence: ; 28fa1
 	call DoTradeAnimation
 	jr nc, .anim_loop
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	pop af
-	ld [VramState], a
+	ld [wVramState], a
 	pop af
 	ld [hMapAnims], a
 	ret
@@ -368,7 +368,7 @@ TradeAnim_InitTubeAnim: ; 2914e
 	pop bc
 	ld [hl], b
 
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld b, CGB_TRADE_TUBE
 	call GetCGBLayout
 	ld a, %11100100 ; 3,2,1,0
@@ -474,7 +474,7 @@ TradeAnim_TubeToPlayer8: ; 29229
 	ld [hWY], a
 	call EnableLCD
 	call LoadTradeBallAndCableGFX
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call TradeAnim_NormalPals
 	jp TradeAnim_AdvanceScriptPointer
 ; 2925d
@@ -613,7 +613,7 @@ TradeAnim_PlaceTrademonStatsOnTubeAnim: ; 292f6
 	ld bc, 6
 	pop af
 	call ByteFill
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call WaitTop
 	ld a, VBGMap0 / $100
 	ld [hBGMapAddress + 1], a
@@ -630,7 +630,7 @@ TradeAnim_EnterLinkTube1: ; 29348
 	ld de, TradeLinkTubeTilemap
 	lb bc, 3, 12
 	call TradeAnim_CopyBoxFromDEtoHL
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld b, CGB_TRADE_TUBE
 	call GetCGBLayout
 	ld a, %11100100 ; 3,2,1,0
@@ -720,7 +720,7 @@ TradeAnim_ScrollOutRight: ; 293ea
 	call WaitTop
 	ld a, VBGMap1 / $100
 	ld [hBGMapAddress + 1], a
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld a, $7
 	ld [hWX], a
 	xor a
@@ -744,7 +744,7 @@ TradeAnim_ScrollOutRight2: ; 2940c
 .done
 	ld a, VBGMap1 / $100
 	ld [hBGMapAddress + 1], a
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld a, $7
 	ld [hWX], a
 	ld a, $90
@@ -757,11 +757,11 @@ TradeAnim_ScrollOutRight2: ; 2940c
 TradeAnim_ShowGivemonData: ; 2942e
 	call ShowPlayerTrademonStats
 	ld a, [wPlayerTrademonSpecies]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	ld a, [wPlayerTrademonPersonality]
-	ld [TempMonPersonality], a
+	ld [wTempMonPersonality], a
 	ld a, [wPlayerTrademonPersonality + 1]
-	ld [TempMonPersonality + 1], a
+	ld [wTempMonPersonality + 1], a
 	ld b, CGB_PLAYER_OR_MON_FRONTPIC_PALS
 	call GetCGBLayout
 	ld a, %11100100 ; 3,2,1,0
@@ -782,11 +782,11 @@ TradeAnim_ShowGivemonData: ; 2942e
 TradeAnim_ShowGetmonData: ; 29461
 	call ShowOTTrademonStats
 	ld a, [wOTTrademonSpecies]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	ld a, [wOTTrademonPersonality]
-	ld [TempMonPersonality], a
+	ld [wTempMonPersonality], a
 	ld a, [wOTTrademonPersonality + 1]
-	ld [TempMonPersonality + 1], a
+	ld [wTempMonPersonality + 1], a
 	ld b, CGB_PLAYER_OR_MON_FRONTPIC_PALS
 	call GetCGBLayout
 	ld a, %11100100 ; 3,2,1,0
@@ -805,8 +805,8 @@ TradeAnim_GetFrontpic: ; 29491
 	push af
 	predef GetVariant
 	pop af
-	ld [CurPartySpecies], a
-	ld [CurSpecies], a
+	ld [wCurPartySpecies], a
+	ld [wCurSpecies], a
 	call GetBaseData
 	pop de
 	predef GetFrontpic
@@ -817,10 +817,11 @@ TradeAnim_GetNickname: ; 294a9
 	push de
 	ld [wd265], a
 	call GetPokemonName
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	pop de
 	ld bc, NAME_LENGTH
-	jp CopyBytes
+	rst CopyBytes
+	ret
 ; 294bb
 
 TradeAnim_ShowGivemonFrontpic: ; 294bb
@@ -841,7 +842,7 @@ TradeAnim_ShowFrontpic: ; 294c3
 	ld [hGraphicStartTile], a
 	lb bc, 7, 7
 	predef PlaceGraphic
-	jp WaitBGMap
+	jp ApplyTilemapInVBlank
 ; 294e7
 
 TraideAnim_Wait80: ; 294e7
@@ -959,7 +960,7 @@ TrademonStats_Egg: ; 295a1
 ; 295d8
 
 TrademonStats_WaitBGMap: ; 295d8
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call WaitTop
 	ld a, VBGMap0 / $100
 	ld [hBGMapAddress + 1], a
@@ -1220,7 +1221,7 @@ TradeAnim_TakeCareOfText: ; 2975c
 	ld bc, 8 * SCREEN_WIDTH
 	ld a, " "
 	call ByteFill
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld hl, .Text_TakeGoodCareOfMon
 	call PrintText
 	call TradeAnim_Wait80Frames
@@ -1323,11 +1324,12 @@ LinkTradeAnim_LoadTradePlayerNames: ; 297ff
 	push de
 	ld de, wLinkPlayer1Name
 	ld bc, NAME_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	pop hl
 	ld de, wLinkPlayer2Name
 	ld bc, NAME_LENGTH
-	jp CopyBytes
+	rst CopyBytes
+	ret
 ; 29814
 
 LinkTradeAnim_LoadTradeMonSpecies: ; 29814

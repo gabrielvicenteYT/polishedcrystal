@@ -11,17 +11,17 @@ WonderTrade::
 	farcall SelectTradeOrDaycareMon
 	ret c
 
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 ;	cp EGG
 ;	jr nz, .check_gs_ball
 ;	ld hl, .Text_WonderTradeCantTradeEgg
 ;	jp PrintText
 
 .check_gs_ball
-	ld hl, PartyMon1Item
+	ld hl, wPartyMon1Item
 	ld bc, PARTYMON_STRUCT_LENGTH
-	ld a, [CurPartyMon]
-	call AddNTimes
+	ld a, [wCurPartyMon]
+	rst AddNTimes
 	ld b, [hl]
 	ld a, GS_BALL
 	cp b
@@ -30,10 +30,10 @@ WonderTrade::
 	jp PrintText
 
 .continue
-	ld hl, PartyMonNicknames
+	ld hl, wPartyMonNicknames
 	ld bc, PKMN_NAME_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	call CopyTradeName
 	ld hl, .Text_WonderTradeConfirm
 	call PrintText
@@ -57,7 +57,7 @@ WonderTrade::
 
 	call RestartMapMusic
 
-	ld hl, PartyMon1Item
+	ld hl, wPartyMon1Item
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld a, [de]
@@ -119,7 +119,7 @@ WonderTrade::
 	db "@"
 
 DoWonderTrade:
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	ld [wPlayerTrademonSpecies], a
 
 	; If you've beaten the Elite Four...
@@ -156,35 +156,35 @@ DoWonderTrade:
 	call GetTradeMonName
 	call CopyTradeName
 
-	ld hl, PartyMonOT
+	ld hl, wPartyMonOT
 	ld bc, NAME_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonOTName
 	call CopyTradeName
 
-	ld hl, PlayerName
+	ld hl, wPlayerName
 	ld de, wPlayerTrademonSenderName
 	call CopyTradeName
 
-	ld hl, PartyMon1ID
+	ld hl, wPartyMon1ID
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonID
 	call Trade_CopyTwoBytes
 
-	ld hl, PartyMon1DVs
+	ld hl, wPartyMon1DVs
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonDVs
 	call Trade_CopyThreeBytes
 
-	ld hl, PartyMon1Personality
+	ld hl, wPartyMon1Personality
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonPersonality
 	call Trade_CopyTwoBytes
 
-	ld hl, PartyMon1Species
+	ld hl, wPartyMon1Species
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld b, h
@@ -196,15 +196,15 @@ DoWonderTrade:
 	xor a
 	ld [wOTTrademonCaughtData], a
 
-	ld hl, PartyMon1Level
+	ld hl, wPartyMon1Level
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld a, [hl]
-	ld [CurPartyLevel], a
+	ld [wCurPartyLevel], a
 	ld a, [wOTTrademonSpecies]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	xor a
-	ld [MonType], a
+	ld [wMonType], a
 	ld [wPokemonWithdrawDepositParameter], a
 	farcall RemoveMonFromPartyOrBox
 	predef TryAddMonToParty
@@ -214,21 +214,21 @@ DoWonderTrade:
 	call GetTradeMonName
 	call CopyTradeName
 
-	ld hl, PartyMonNicknames
+	ld hl, wPartyMonNicknames
 	ld bc, PKMN_NAME_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonNickname
 	call CopyTradeName
 
 	call Random
-	ld [Buffer1], a
+	ld [wBuffer1], a
 	call Random
-	ld [Buffer1 + 1], a
-	ld hl, Buffer1
+	ld [wBuffer1 + 1], a
+	ld hl, wBuffer1
 	ld de, wOTTrademonID
 	call Trade_CopyTwoBytes
 
-	ld hl, PartyMon1ID
+	ld hl, wPartyMon1ID
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonID
@@ -242,7 +242,7 @@ DoWonderTrade:
 	ld de, wOTTrademonSenderName
 	call CopyTradeName
 
-	ld hl, PartyMonOT
+	ld hl, wPartyMonOT
 	ld bc, NAME_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonOTName
@@ -274,16 +274,16 @@ DoWonderTrade:
 
 	; Random DVs
 	call Random
-	ld [Buffer1], a
+	ld [wBuffer1], a
 	call Random
-	ld [Buffer1 + 1], a
+	ld [wBuffer1 + 1], a
 	call Random
-	ld [Buffer1 + 2], a
-	ld hl, Buffer1
+	ld [wBuffer1 + 2], a
+	ld hl, wBuffer1
 	ld de, wOTTrademonDVs
 	call Trade_CopyThreeBytes
 
-	ld hl, PartyMon1DVs
+	ld hl, wPartyMon1DVs
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonDVs
@@ -313,7 +313,7 @@ endr
 	ld b, a
 .not_shiny
 	ld a, b
-	ld [Buffer1], a
+	ld [wBuffer1], a
 	; Random gender (50-50)
 	call Random
 	and GENDER_MASK
@@ -350,18 +350,18 @@ endr
 	ld a, b
 	pop bc
 	add b
-	ld [Buffer1 + 1], a
-	ld hl, Buffer1
+	ld [wBuffer1 + 1], a
+	ld hl, wBuffer1
 	ld de, wOTTrademonPersonality
 	call Trade_CopyTwoBytes
 
-	ld hl, PartyMon1Personality
+	ld hl, wPartyMon1Personality
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonPersonality
 	call Trade_CopyTwoBytes
 
-	ld hl, PartyMon1Item
+	ld hl, wPartyMon1Item
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	call GetWonderTradeHeldItem
@@ -372,15 +372,15 @@ endr
 	push bc
 	push de
 	push hl
-	ld a, [CurPartyMon]
+	ld a, [wCurPartyMon]
 	push af
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	dec a
-	ld [CurPartyMon], a
+	ld [wCurPartyMon], a
 	farcall ComputeNPCTrademonStats
 	farcall GivePokerusToWonderTradeMon
 	pop af
-	ld [CurPartyMon], a
+	ld [wCurPartyMon], a
 	pop hl
 	pop de
 	pop bc
@@ -402,35 +402,35 @@ GetGSBallPichu:
 	call GetTradeMonName
 	call CopyTradeName
 
-	ld hl, PartyMonOT
+	ld hl, wPartyMonOT
 	ld bc, NAME_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonOTName
 	call CopyTradeName
 
-	ld hl, PlayerName
+	ld hl, wPlayerName
 	ld de, wPlayerTrademonSenderName
 	call CopyTradeName
 
-	ld hl, PartyMon1ID
+	ld hl, wPartyMon1ID
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonID
 	call Trade_CopyTwoBytes
 
-	ld hl, PartyMon1DVs
+	ld hl, wPartyMon1DVs
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonDVs
 	call Trade_CopyThreeBytes
 
-	ld hl, PartyMon1Personality
+	ld hl, wPartyMon1Personality
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld de, wPlayerTrademonPersonality
 	call Trade_CopyTwoBytes
 
-	ld hl, PartyMon1Species
+	ld hl, wPartyMon1Species
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld b, h
@@ -440,21 +440,21 @@ GetGSBallPichu:
 	ld [wPlayerTrademonCaughtData], a
 	ld [wOTTrademonCaughtData], a
 
-	ld hl, PartyMon1Level
+	ld hl, wPartyMon1Level
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld a, 30
-	ld [CurPartyLevel], a
+	ld [wCurPartyLevel], a
 	ld a, [wOTTrademonSpecies]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	xor a
-	ld [MonType], a
+	ld [wMonType], a
 	ld [wPokemonWithdrawDepositParameter], a
 	farcall RemoveMonFromPartyOrBox
 	predef TryAddMonToParty
 
 	ld b, MALE
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	and a
 	jr z, .male_ot_pikachu
 	ld b, FEMALE
@@ -467,23 +467,23 @@ GetGSBallPichu:
 	call GetTradeMonName
 	call CopyTradeName
 
-	ld hl, PartyMonNicknames
+	ld hl, wPartyMonNicknames
 	ld bc, PKMN_NAME_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonNickname
 	call CopyTradeName
 
-	ld hl, PlayerID
+	ld hl, wPlayerID
 	ld de, wOTTrademonID
 	call Trade_CopyTwoBytes
 
-	ld hl, PartyMon1ID
+	ld hl, wPartyMon1ID
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonID
 	call Trade_CopyTwoBytes
 
-	ld hl, PlayerName
+	ld hl, wPlayerName
 	push hl
 	ld de, wOTTrademonOTName
 	call CopyTradeName
@@ -491,7 +491,7 @@ GetGSBallPichu:
 	ld de, wOTTrademonSenderName
 	call CopyTradeName
 
-	ld hl, PartyMonOT
+	ld hl, wPartyMonOT
 	ld bc, NAME_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonOTName
@@ -502,7 +502,7 @@ GetGSBallPichu:
 	ld [wOTTrademonDVs + 1], a
 	ld [wOTTrademonDVs + 2], a
 
-	ld hl, PartyMon1DVs
+	ld hl, wPartyMon1DVs
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonDVs
@@ -513,13 +513,13 @@ GetGSBallPichu:
 	ld a, FEMALE | 2 ; spiky-eared variant
 	ld [wOTTrademonPersonality + 1], a
 
-	ld hl, PartyMon1Personality
+	ld hl, wPartyMon1Personality
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld hl, wOTTrademonPersonality
 	call Trade_CopyTwoBytes
 
-	ld hl, PartyMon1Item
+	ld hl, wPartyMon1Item
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfLastPartymon
 	ld a, GS_BALL
@@ -539,7 +539,8 @@ GetWonderTradeOTName:
 	ld hl, WonderTradeOTNames2
 .ok
 	lb bc, 0, PLAYER_NAME_LENGTH
-	jp AddNTimes
+	rst AddNTimes
+	ret
 
 INCLUDE "data/events/wonder_trade/ot_names.asm"
 
@@ -590,7 +591,7 @@ INCLUDE "data/events/wonder_trade/held_items.asm"
 CheckValidLevel:
 ; Don't receive Pokémon outside a valid level range.
 ; Legendaries and other banned Pokémon have a "valid" range of 255 to 255.
-	ld hl, PartyMon1Level
+	ld hl, wPartyMon1Level
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call Trade_GetAttributeOfCurrentPartymon
 	ld a, [hl]

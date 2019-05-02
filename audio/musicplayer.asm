@@ -39,28 +39,28 @@ endm
 
 jrheldbutton: macro
 ; assumes hl == hJoyDown
-	ld a, [TextDelayFrames]
+	ld a, [wTextDelayFrames]
 	and a
 	jr nz, .no\@
 	ld a, [hl]
 	and \1
 	jr z, .no\@
 	ld a, \3
-	ld [TextDelayFrames], a
+	ld [wTextDelayFrames], a
 	jr \2
 .no\@:
 endm
 
 jpheldbutton: macro
 ; assumes hl == hJoyDown
-	ld a, [TextDelayFrames]
+	ld a, [wTextDelayFrames]
 	and a
 	jr nz, .no\@
 	ld a, [hl]
 	and \1
 	jr z, .no\@
 	ld a, \3
-	ld [TextDelayFrames], a
+	ld [wTextDelayFrames], a
 	jp \2
 .no\@:
 endm
@@ -110,45 +110,39 @@ else
 endc
 
 MusicPlayer::
-	di
-	call DoubleSpeed
-	xor a
-	ld [rIF], a
-	ld a, $f
-	ld [rIE], a
-	ei
-
 	call ClearTileMap
 
 ; Load palette
+	ld hl, rIE
+	set LCD_STAT, [hl]
 	ld a, [rSVBK]
 	push af
-	ld a, 5
+	ld a, BANK(wBGPals)
 	ld [rSVBK], a
 
 	ld hl, MusicPlayerPals
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 4 palettes
-	call CopyBytes
+	rst CopyBytes
 
 	ld hl, MusicPlayerNotePals
-	ld de, OBPals
+	ld de, wOBPals
 	ld bc, 1 palettes
-	call CopyBytes
+	rst CopyBytes
 
 	pop af
 	ld [rSVBK], a
 
 ; Apply palettes
 	xor a
-	hlcoord 0, 0, AttrMap
+	hlcoord 0, 0, wAttrMap
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 	call ByteFill
-	hlcoord 3, 17, AttrMap
+	hlcoord 3, 17, wAttrMap
 	ld [hl], $3
-	hlcoord 8, 17, AttrMap
+	hlcoord 8, 17, wAttrMap
 	ld [hl], $2
-	hlcoord 12, 17, AttrMap
+	hlcoord 12, 17, wAttrMap
 	ld [hl], $1
 	inc hl
 	ld [hl], $1
@@ -159,7 +153,7 @@ MusicPlayer::
 
 	; refresh top two portions
 	xor a
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	call DelayFrame
 
 ; Load graphics
@@ -199,9 +193,9 @@ MusicPlayer::
 
 	call ClearSprites
 
-; Initialize MusicPlayerWRAM
-	ld hl, MusicPlayerWRAM
-	ld bc, MusicPlayerWRAMEnd - MusicPlayerWRAM
+; Initialize wMusicPlayerWRAM
+	ld hl, wMusicPlayerWRAM
+	ld bc, wMusicPlayerWRAMEnd - wMusicPlayerWRAM
 	xor a
 	call ByteFill
 
@@ -224,12 +218,12 @@ RenderMusicPlayer:
 	ld bc, SCREEN_WIDTH * MP_HUD_HEIGHT
 	ld hl, MPTilemap
 	decoord 0, PIANO_ROLL_HEIGHT
-	call CopyBytes
+	rst CopyBytes
 
 	ld bc, 4 * 3
 	ld hl, NoteOAM
-	ld de, Sprites
-	call CopyBytes
+	ld de, wSprites
+	rst CopyBytes
 	call DelayFrame
 	xor a
 	ld [hOAMUpdate], a ; we will manually do it in LCD interrupt
@@ -270,7 +264,7 @@ _RedrawMusicPlayer:
 ; fallthrough
 
 MusicPlayerLoop:
-	ld a, $4
+	ld a, BANK(wMPNotes)
 	ld [rSVBK], a
 
 	call MPUpdateUIAndGetJoypad
@@ -287,7 +281,7 @@ MusicPlayerLoop:
 
 	; prioritize refreshing the note display
 	ld a, 2
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	jr MusicPlayerLoop
 
 .left:
@@ -355,13 +349,8 @@ MusicPlayerLoop:
 	call ClearSprites
 	ld hl, rLCDC
 	res 2, [hl] ; 8x8 sprites
-	di
-	call NormalSpeed
-	xor a
-	ld [rIF], a
-	ld a, $f
-	ld [rIE], a
-	ei
+	ld hl, rIE
+	res LCD_STAT, [hl]
 	ret
 
 .start:
@@ -395,7 +384,7 @@ SongEditor:
 
 	; prioritize refreshing the note display
 	ld a, 2
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	jr SongEditor
 
 .left:
@@ -536,7 +525,7 @@ SongEditor:
 
 .up_wave:
 ; next waveform
-	ld a, [Channel3Intensity]
+	ld a, [wChannel3Intensity]
 	and $f
 	inc a
 	cp NUM_WAVEFORMS
@@ -546,7 +535,7 @@ SongEditor:
 
 .down_wave:
 ; previous waveform
-	ld a, [Channel3Intensity]
+	ld a, [wChannel3Intensity]
 	and $f
 	dec a
 	cp -1
@@ -554,17 +543,17 @@ SongEditor:
 	ld a, NUM_WAVEFORMS - 1
 .change_wave:
 	ld b, a
-	ld a, [Channel3Intensity]
+	ld a, [wChannel3Intensity]
 	and $f0
 	or b
-	ld [Channel3Intensity], a
+	ld [wChannel3Intensity], a
 	ld [wCurTrackIntensity], a
 	farcall ReloadWaveform
 	ret
 
 .up_noise:
 ; next noise set
-	ld a, [MusicNoiseSampleSet]
+	ld a, [wMusicNoiseSampleSet]
 	inc a
 	cp NUM_NOISE_SETS
 	jr nz, .change_noise
@@ -573,13 +562,13 @@ SongEditor:
 
 .down_noise:
 ; previous noise set
-	ld a, [MusicNoiseSampleSet]
+	ld a, [wMusicNoiseSampleSet]
 	dec a
 	cp -1
 	jr nz, .change_noise
 	ld a, NUM_NOISE_SETS - 1
 .change_noise:
-	ld [MusicNoiseSampleSet], a
+	ld [wMusicNoiseSampleSet], a
 .return:
 	ret
 
@@ -604,7 +593,7 @@ SongEditor:
 	call DrawPitchTransposition
 	; refresh top two portions
 	xor a
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	jp DelayFrame
 
 AdjustTempo:
@@ -616,7 +605,7 @@ AdjustTempo:
 	call DrawChannelSelector
 	; refresh top two portions
 	xor a
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	call DelayFrame
 
 .loop:
@@ -633,7 +622,7 @@ AdjustTempo:
 
 	; prioritize refreshing the note display
 	ld a, 2
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	jr .loop
 
 .up:
@@ -681,7 +670,7 @@ AdjustTempo:
 	call DrawTempoAdjustment
 	; refresh top two portions
 	xor a
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	call DelayFrame
 	jp .loop
 
@@ -704,7 +693,7 @@ AdjustTempo:
 	call DrawTempoAdjustment
 	; refresh top two portions
 	xor a
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	call DelayFrame
 	jp SongEditor
 
@@ -736,7 +725,7 @@ DrawPianoRollOverlay:
 
 	; refresh top two portions
 	xor a
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	jp DelayFrame
 
 DrawPitchTransposition:
@@ -752,7 +741,7 @@ DrawPitchTransposition:
 .continue
 	ld [hl], "P"
 	inc hl
-	lb bc, PRINTNUM_RIGHTALIGN | 1, 2
+	lb bc, PRINTNUM_LEFTALIGN | 1, 2
 	ld de, wPitchTransposition
 	jr _PrintSignedNum
 
@@ -769,7 +758,7 @@ DrawTempoAdjustment:
 .continue
 	ld [hl], "T"
 	inc hl
-	lb bc, PRINTNUM_RIGHTALIGN | 1, 3
+	lb bc, PRINTNUM_LEFTALIGN | 1, 3
 	ld de, wTempoAdjustment
 _PrintSignedNum:
 	bit 7, a
@@ -894,7 +883,7 @@ DrawChData:
 
 	; channel 4
 	hlcoord 18, MP_HUD_TOP + 1
-	ld a, [MusicNoiseSampleSet]
+	ld a, [wMusicNoiseSampleSet]
 	add "0"
 	ld [hl], a
 
@@ -998,7 +987,7 @@ _DrawCh1_2_3:
 
 	hlcoord 12, MP_HUD_TOP + 2
 	; pick the waveform
-	ld a, [Channel3Intensity]
+	ld a, [wChannel3Intensity]
 	and $f
 	sla a
 	add $40
@@ -1109,7 +1098,7 @@ DrawNotes:
 
 	ld a, [rSVBK]
 	push af
-	ld a, 4
+	ld a, BANK(wMPNotes)
 	ld [rSVBK], a
 	ld a, [hMPState]
 	inc a
@@ -1132,11 +1121,12 @@ DrawNotes:
 .CopyNotes:
 	ld bc, 4
 	ld hl, wMPNotes
-	call AddNTimes
+	rst AddNTimes
 	ld d, h
 	ld e, l
 	ld hl, wPitchesTmp
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 CheckEndedNote:
 ; Check that the current channel is actually playing a note.
@@ -1150,11 +1140,11 @@ CheckEndedNote:
 
 CheckNoteDuration:
 	ld a, [wTmpCh]
-	ld bc, Channel2 - Channel1
+	ld bc, wChannel2 - wChannel1
 
 ; Note duration
-	ld hl, Channel1NoteDuration
-	call AddNTimes
+	ld hl, wChannel1NoteDuration
+	rst AddNTimes
 	ld a, [hl]
 	cp 2
 	jr c, _NoteEnded
@@ -1163,9 +1153,9 @@ CheckNoteDuration:
 CheckChannelOn:
 ; Channel on/off flag
 	ld a, [wTmpCh]
-	ld bc, Channel2 - Channel1
-	ld hl, Channel1Flags
-	call AddNTimes
+	ld bc, wChannel2 - wChannel1
+	ld hl, wChannel1Flags
+	rst AddNTimes
 	bit SOUND_CHANNEL_ON, [hl]
 	jr z, _NoteEnded
 
@@ -1173,8 +1163,8 @@ CheckChannelOn:
 ; Note flags are wiped after each
 ; note is read, so this is pointless.
 	ld a, [wTmpCh]
-	ld hl, Channel1NoteFlags
-	call AddNTimes
+	ld hl, wChannel1NoteFlags
+	rst AddNTimes
 	bit SOUND_REST, [hl]
 	jr nz, _NoteEnded
 
@@ -1192,7 +1182,7 @@ CheckChannelOn:
 .notch3
 	ld bc, 5
 	ld hl, rNR12
-	call AddNTimes
+	rst AddNTimes
 	ld a, [hl]
 	ld b, a
 	and $f0
@@ -1243,7 +1233,7 @@ DrawNewNote:
 	sub $8
 	ld bc, 28
 	ld hl, 8
-	call AddNTimes
+	rst AddNTimes
 	ld b, l
 	pop hl
 	ld a, [hl]
@@ -1262,9 +1252,9 @@ DrawNewNote:
 
 DrawLongerNote:
 	ld a,[wTmpCh]
-	ld hl, Channel1Intensity
-	ld bc, Channel2 - Channel1
-	call AddNTimes
+	ld hl, wChannel1Intensity
+	ld bc, wChannel2 - wChannel1
+	rst AddNTimes
 	ld a, [hl]
 	and $f
 	cp $9
@@ -1323,17 +1313,17 @@ CheckForVolumeBarReset:
 
 SetVisualIntensity:
 	ld a,[wTmpCh]
-	ld hl, Channel1Pitch
-	ld bc, Channel2 - Channel1
-	call AddNTimes
+	ld hl, wChannel1Pitch
+	ld bc, wChannel2 - wChannel1
+	rst AddNTimes
 	ld a, [hl]
 	and a
 	jr z, .skip
 	ld a,[wTmpCh]
-	ld hl, Channel1Intensity
-	ld bc, Channel2 - Channel1
+	ld hl, wChannel1Intensity
+	ld bc, wChannel2 - wChannel1
 	push af
-	call AddNTimes
+	rst AddNTimes
 	pop af
 	cp 2
 	jr z, .wave_channel
@@ -1345,7 +1335,7 @@ SetVisualIntensity:
 	ld a, [wTmpCh]
 	ld hl, wC1Vol
 	ld bc, 2
-	call AddNTimes
+	rst AddNTimes
 	ld a, d
 	ldi [hl], a
 	ld a, e
@@ -1385,7 +1375,7 @@ SetVisualIntensity:
 	ld a, [wTmpCh]
 	ld hl, wC1Vol
 	ld bc, 2
-	call AddNTimes
+	rst AddNTimes
 	xor a
 	ld [hli], a
 	ld [hl], a
@@ -1454,7 +1444,7 @@ AddNoteToOld:
 	add a
 	ld c, a
 	ld b, 0
-	ld hl, Sprites + 3 * 4
+	ld hl, wSprites + 3 * 4
 	add hl, bc
 	push hl
 	pop de
@@ -1477,25 +1467,27 @@ endr
 	ret
 
 GetPitchAddr:
-	ld hl, Channel1Pitch
+	ld hl, wChannel1Pitch
 	jr _GetChannelMemberAddr
 
 GetOctaveAddr:
-	ld hl, Channel1Octave
+	ld hl, wChannel1Octave
 	jr _GetChannelMemberAddr
 
 GetDutyCycleAddr:
-	ld hl, Channel1DutyCycle
+	ld hl, wChannel1DutyCycle
 _GetChannelMemberAddr:
 	ld a, [wTmpCh]
-	ld bc, Channel2 - Channel1
-	jp AddNTimes
+	ld bc, wChannel2 - wChannel1
+	rst AddNTimes
+	ret
 
 GetIntensityAddr:
 	ld a, [wTmpCh]
 	ld hl, wC1Vol
 	ld bc, 2
-	jp AddNTimes
+	rst AddNTimes
+	ret
 
 GetSongInfo:
 	ld a, [wSongSelection]
@@ -1753,7 +1745,7 @@ UpdateSelectorNames:
 	push bc
 	ld a, b
 	ld bc, SCREEN_WIDTH
-	call AddNTimes
+	rst AddNTimes
 	call MPLPlaceString
 rept 4
 	inc de
@@ -1778,21 +1770,21 @@ MPUpdateUIAndGetJoypad:
 	call DrawChData
 	call DrawNotes
 MPGetJoypad:
-	ld a, [TextDelayFrames]
+	ld a, [wTextDelayFrames]
 	and a
 	jr z, .ok2
 	dec a
-	ld [TextDelayFrames], a
+	ld [wTextDelayFrames], a
 .ok2
 	jp GetJoypad
 
 MPLPlaceString:
 	push hl
 	ld a, " "
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	ld bc, 3
 	call ByteFill
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	push de
 	ld de, wSelectorCur
 	lb bc, 1, 3
@@ -1800,44 +1792,54 @@ MPLPlaceString:
 	pop de
 	ld [hl], " "
 	inc hl
-	ld b, 0
-.loop:
+	push hl
+	push de
+	call PlaceString
+	ld h, b
+	ld l, c
+	ld [hl], "@"
+	pop de
+	pop hl
+.de_loop
 	ld a, [de]
-	ld [hl], a
-	cp "@"
-	jr nz, .next
-	ld [hl], " "
-	dec de
-.next
-	inc hl
 	inc de
-	inc b
-	ld a, b
-	cp 14
-	jr c, .loop
-	ld a, [de]
 	cp "@"
-	jr nz, .not_end
-	ld [hl], a
-	jr .last
-.not_end
+	jr nz, .de_loop
+	dec de
+	ld bc, 0
+.loop
+	inc c
+	ld a, [hli]
+	cp "@"
+	jr nz, .loop
+	ld a, c
+	cp 16
+	jr nc, .overflow
 	dec hl
+	ld a, 15
+	sub c
+	jr z, .ok
+.loop2
+	ld [hl], " "
+	inc hl
+	dec a
+	jr nz, .loop2
+	ld [hl], "@"
+	jr .ok
+.overflow
+	ld bc, 17
+	ld hl, wStringBuffer2
+	add hl, bc
 	ld [hl], "…"
 	inc hl
 	ld [hl], "@"
-.loop2:
-	inc de
-	ld a, [de]
-	cp "@"
-	jr nz, .loop2
-.last:
+.ok
 	pop hl
 	push de
-	ld de, StringBuffer2
+	ld de, wStringBuffer2
 	call PlaceString
 	pop de
 	ret
-
 
 MPTilemap:
 db $00, $01, $02, $03, $04, $05, $06, $00, $01, $02, $03, $04, $05, $06, $00, $01, $02, $03, $04, $05

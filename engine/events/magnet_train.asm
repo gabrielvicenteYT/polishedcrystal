@@ -1,5 +1,5 @@
 Special_MagnetTrain: ; 8cc04
-	ld a, [ScriptVar]
+	ld a, [wScriptVar]
 	and a
 	jr nz, .ToGoldenrod
 	ld a, 1 ; forwards
@@ -30,15 +30,17 @@ Special_MagnetTrain: ; 8cc04
 	ld a, d
 	ld [wMagnetTrainPlayerSpriteInitX], a
 
+	ld hl, rIE
+	set LCD_STAT, [hl]
 	ld a, [hSCX]
 	push af
 	ld a, [hSCY]
 	push af
 	call MagntTrain_LoadGFX_PlayMusic
-	ld hl, hVBlank
-	ld a, [hl]
+	ld a, [hVBlank]
 	push af
-	ld [hl], $1
+	ld a, $1
+	ld [hVBlank], a
 .loop
 	ld a, [wJumptableIndex]
 	and a
@@ -65,17 +67,19 @@ Special_MagnetTrain: ; 8cc04
 	ld [hLYOverrideStart], a
 	ld [hLYOverrideEnd], a
 	ld [hSCX], a
-	ld [Requested2bppSource], a
-	ld [Requested2bppSource + 1], a
-	ld [Requested2bppDest], a
-	ld [Requested2bppDest + 1], a
-	ld [Requested2bpp], a
+	ld [hRequestedVTileSource], a
+	ld [hRequestedVTileSource + 1], a
+	ld [hRequestedVTileDest], a
+	ld [hRequestedVTileDest + 1], a
+	ld [hRequested2bpp], a
 	call ClearTileMap
 
 	pop af
 	ld [hSCY], a
 	pop af
 	ld [hSCX], a
+	ld hl, rIE
+	res LCD_STAT, [hl]
 	xor a
 	ld [hBGMapMode], a
 	pop af
@@ -84,7 +88,7 @@ Special_MagnetTrain: ; 8cc04
 ; 8cc99
 
 MagnetTrain_UpdateLYOverrides: ; 8cc99
-	ld hl, LYOverridesBackup
+	ld hl, wLYOverridesBackup
 	ld c, $2f
 	ld a, [wcf64]
 	add a
@@ -136,7 +140,11 @@ MagntTrain_LoadGFX_PlayMusic: ; 8ccc9
 	ld [rSVBK], a
 	ld hl, VTiles0
 	ld c, 4
+	push bc
+	push de
 	call Request2bpp
+	pop de
+	pop bc
 	ld hl, 12 tiles
 	add hl, de
 	ld d, h
@@ -241,12 +249,12 @@ MagnetTrainBGTiles: ; 8cd82
 ; 8cda6
 
 MagnetTrain_InitLYOverrides: ; 8cda6
-	ld hl, LYOverrides
-	ld bc, LYOverridesEnd - LYOverrides
+	ld hl, wLYOverrides
+	ld bc, wLYOverridesEnd - wLYOverrides
 	ld a, [wMagnetTrainInitPosition]
 	call ByteFill
-	ld hl, LYOverridesBackup
-	ld bc, LYOverridesBackupEnd - LYOverridesBackup
+	ld hl, wLYOverridesBackup
+	ld bc, wLYOverridesBackupEnd - wLYOverridesBackup
 	ld a, [wMagnetTrainInitPosition]
 	call ByteFill
 	ld a, $43
@@ -326,7 +334,7 @@ MagnetTrain_Jumptable: ; 8cdf7
 	push af
 	ld a, $1
 	ld [rSVBK], a
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	bit 0, a
 	jr z, .got_gender
 	ld b, SPRITE_ANIM_INDEX_MAGNET_TRAIN_BLUE
@@ -419,13 +427,13 @@ MagnetTrain_Jumptable_FirstRunThrough: ; 8ceae
 	push af
 	ld a, $1
 	ld [rSVBK], a
-	ld a, [TimeOfDayPal]
+	ld a, [wTimeOfDayPal]
 	push af
 	ld a, [wPermission]
 	push af
-	ld a, [TimeOfDay]
+	ld a, [wTimeOfDay]
 	and $3
-	ld [TimeOfDayPal], a
+	ld [wTimeOfDayPal], a
 	ld a, $1
 	ld [wPermission], a
 	ld b, CGB_MAPPALS
@@ -440,7 +448,7 @@ MagnetTrain_Jumptable_FirstRunThrough: ; 8ceae
 	pop af
 	ld [wPermission], a
 	pop af
-	ld [TimeOfDayPal], a
+	ld [wTimeOfDayPal], a
 	pop af
 	ld [rSVBK], a
 	ret

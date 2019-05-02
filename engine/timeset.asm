@@ -8,14 +8,13 @@ InitClock: ; 90672 (24:4672)
 	xor a
 	ld [wSpriteUpdatesEnabled], a
 	ld a, $10
-	ld [MusicFade], a
+	ld [wMusicFade], a
 	ld a, MUSIC_NONE % $100
-	ld [MusicFadeIDLo], a
+	ld [wMusicFadeIDLo], a
 	ld a, MUSIC_NONE / $100
-	ld [MusicFadeIDHi], a
-	ld c, 8
-	call DelayFrames
-	call RotateFourPalettesLeft
+	ld [wMusicFadeIDHi], a
+	ld c, 31
+	call FadeToBlack
 	call ClearTileMap
 	call ClearSprites
 	ld b, CGB_DIPLOMA
@@ -28,8 +27,10 @@ InitClock: ; 90672 (24:4672)
 	lb bc, BANK(TimesetBackgroundGFX), 1
 	call Request1bpp
 	call .ClearScreen
-	call WaitBGMap
-	call RotateFourPalettesRight
+	call ApplyTilemapInVBlank
+	call SetPalettes
+	ld c, 10
+	call DelayFrames
 if !DEF(DEBUG)
 	ld hl, Text_WokeUpOak
 	call PrintText
@@ -62,7 +63,7 @@ endc
 	jr nc, .SetHourLoop
 
 	ld a, [wInitHourBuffer]
-	ld [StringBuffer2 + 1], a
+	ld [wStringBuffer2 + 1], a
 	call .ClearScreen
 	ld hl, Text_WhatHrs
 	call PrintText
@@ -92,7 +93,7 @@ endc
 	jr nc, .SetMinutesLoop
 
 	ld a, [wInitMinuteBuffer]
-	ld [StringBuffer2 + 2], a
+	ld [wStringBuffer2 + 2], a
 	call .ClearScreen
 	ld hl, Text_WhoaMins
 	call PrintText
@@ -165,7 +166,7 @@ SetHour: ; 90795 (24:4795)
 	call ByteFill
 	hlcoord 4, 9
 	call DisplayHourOClock
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	and a
 	ret
 
@@ -229,7 +230,7 @@ SetMinutes: ; 90810 (24:4810)
 	call ByteFill
 	hlcoord 12, 9
 	call DisplayMinutesWithMinString
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	and a
 	ret
 .a_button
@@ -249,7 +250,7 @@ PrintTwoDigitNumberRightAlign: ; 90867 (24:4867)
 	ld [hli], a
 	ld [hl], a
 	pop hl
-	lb bc, PRINTNUM_RIGHTALIGN | 1, 2
+	lb bc, PRINTNUM_LEFTALIGN | 1, 2
 	jp PrintNum
 ; 90874 (24:4874)
 
@@ -400,7 +401,7 @@ Special_SetDayOfWeek: ; 90913
 	call YesNoBox
 	jr c, .loop
 	ld a, [wTempDayOfWeek]
-	ld [StringBuffer2], a
+	ld [wStringBuffer2], a
 	call SetDayOfWeek
 	call LoadStandardFont
 	pop af
@@ -458,7 +459,7 @@ Special_SetDayOfWeek: ; 90913
 	call ClearBox
 	hlcoord 10, 5
 	call .PlaceWeekdayString
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	and a
 	ret
 ; 909de
@@ -618,7 +619,7 @@ GetTimeOfDayString: ; 90b58 (24:4b58)
 
 AdjustHourForAMorPM:
 ; Convert the hour stored in c (0-23) to a 1-12 value
-	ld a, [Options2]
+	ld a, [wOptions2]
 	bit CLOCK_FORMAT, a
 	ld a, c
 	ret nz
@@ -636,7 +637,7 @@ AdjustHourForAMorPM:
 
 PrintHoursMins ; 1dd6bb (77:56bb)
 ; Hours in b, minutes in c
-	ld a, [Options2]
+	ld a, [wOptions2]
 	bit CLOCK_FORMAT, a
 	ld a, b
 	jr nz, .h24
@@ -675,7 +676,7 @@ PrintHoursMins ; 1dd6bb (77:56bb)
 	lb bc, PRINTNUM_LEADINGZEROS | 1, 2
 	call PrintNum
 	pop bc
-	ld a, [Options2]
+	ld a, [wOptions2]
 	bit CLOCK_FORMAT, a
 	ret nz
 	ld de, .String_AM

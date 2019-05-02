@@ -1,12 +1,10 @@
 MainMenu: ; 49cdc
 	call DeleteSavedMusic
-	xor a
-	ld [wDisableTextAcceleration], a
 	call Function49ed0
 	ld b, CGB_DIPLOMA
 	call GetCGBLayout
 	call SetPalettes
-	ld hl, GameTimerPause
+	ld hl, wGameTimerPause
 	res 0, [hl]
 	call MainMenu_GetWhichMenu
 	ld [wWhichIndexSet], a
@@ -17,7 +15,7 @@ MainMenu: ; 49cdc
 	call CloseWindow
 	ret c
 	call ClearTileMap
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	ld hl, .Jumptable
 	rst JumpTable
 	jr MainMenu
@@ -93,8 +91,8 @@ MainMenu_GetWhichMenu: ; 49da4
 .next
 	ld a, BANK(sPlayerData)
 	call GetSRAMBank
-	ld hl, sPlayerData + (EventFlags + (EVENT_BEAT_LEAF >> 3)) - wPlayerData
-	ld de, EventFlags + (EVENT_BEAT_LEAF >> 3)
+	ld hl, sPlayerData + (wEventFlags + (EVENT_BEAT_LEAF >> 3)) - wPlayerData
+	ld de, wEventFlags + (EVENT_BEAT_LEAF >> 3)
 	ld a, [hl]
 	ld [de], a
 	call CloseSRAM
@@ -115,7 +113,7 @@ MainMenuJoypadLoop: ; 49de4
 	ld a, [w2DMenuFlags1]
 	set 5, a
 	ld [w2DMenuFlags1], a
-	call GetScrollingMenuJoypad
+	call ReadMenuJoypad
 	ld a, [wMenuJoypad]
 	cp B_BUTTON
 	jr z, .b_button
@@ -140,13 +138,13 @@ MainMenu_PrintCurrentTimeAndDay: ; 49e09
 	xor a
 	ld [hBGMapMode], a
 	call .PlaceBox
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
 	call .PlaceTime
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	ld a, $1
 	ld [hBGMapMode], a
 	ret
@@ -182,7 +180,7 @@ if DEF(NO_RTC)
 	ld hl, sPlayerData + wNoRTC - wPlayerData
 	ld de, wNoRTC
 	ld bc, 5
-	call CopyBytes
+	rst CopyBytes
 	call CloseSRAM
 endc
 

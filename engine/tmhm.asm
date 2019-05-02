@@ -1,8 +1,15 @@
 CanLearnTMHMMove: ; 11639
-	ld a, [CurPartySpecies]
-	ld [CurSpecies], a
+	ld a, [wPutativeTMHMMove]
+	and a
+	jr nz, .tm_tutor
+
+	farjp GetForgottenMoves
+
+.tm_tutor
+	ld a, [wCurPartySpecies]
+	ld [wCurSpecies], a
 	call GetBaseData
-	ld hl, BaseTMHM
+	ld hl, wBaseTMHM
 	push hl
 
 	ld a, [wPutativeTMHMMove]

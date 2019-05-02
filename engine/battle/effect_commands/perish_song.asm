@@ -1,9 +1,6 @@
-BattleCommand_PerishSong: ; 376c2
-; perishsong
-
-
-	ld hl, PlayerSubStatus1
-	ld de, EnemySubStatus1
+BattleCommand_perishsong:
+	ld hl, wPlayerSubStatus1
+	ld de, wEnemySubStatus1
 	bit SUBSTATUS_PERISH, [hl]
 	jr z, .ok
 
@@ -17,7 +14,7 @@ BattleCommand_PerishSong: ; 376c2
 
 	set SUBSTATUS_PERISH, [hl]
 	ld a, 4
-	ld [PlayerPerishCount], a
+	ld [wPlayerPerishCount], a
 
 .enemy
 	ld a, [de]
@@ -27,7 +24,7 @@ BattleCommand_PerishSong: ; 376c2
 	set SUBSTATUS_PERISH, a
 	ld [de], a
 	ld a, 4
-	ld [EnemyPerishCount], a
+	ld [wEnemyPerishCount], a
 
 .done
 	call AnimateCurrentMove
@@ -37,4 +34,3 @@ BattleCommand_PerishSong: ; 376c2
 .failed
 	call AnimateFailedMove
 	jp PrintButItFailed
-; 376f8

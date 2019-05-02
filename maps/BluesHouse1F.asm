@@ -120,7 +120,7 @@ DaisyScript:
 	done
 
 .LooksContentText:
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text " looks"
 	line "content."
 	done

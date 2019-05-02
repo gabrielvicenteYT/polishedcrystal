@@ -17,9 +17,9 @@ EcruteakPokeCenter1F_MapScriptHeader:
 	db 6 ; object events
 	object_event  6,  3, SPRITE_BILL, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, EcruteakPokeCenter1FBillScript, EVENT_ECRUTEAK_POKE_CENTER_BILL
 	pc_nurse_event  5, 1
-	object_event 11,  6, SPRITE_POKEFAN_M, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, EcruteakPokeCenter1FPokefanMScript, -1
-	object_event 11,  5, SPRITE_LASS, SPRITEMOVEDATA_SPINRANDOM_FAST, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, EcruteakPokeCenter1FLassScript, -1
-	object_event  1,  4, SPRITE_COOLTRAINER_F, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, EcruteakPokeCenter1FCooltrainerFText, -1
+	object_event 11,  6, SPRITE_POKEFAN_M, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_BROWN, PERSONTYPE_SCRIPT, 0, EcruteakPokeCenter1FPokefanMScript, -1
+	object_event 11,  5, SPRITE_CUTE_GIRL, SPRITEMOVEDATA_SPINRANDOM_FAST, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, EcruteakPokeCenter1FLassScript, -1
+	object_event  1,  4, SPRITE_ACE_TRAINER_F, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, EcruteakPokeCenter1FCooltrainerFText, -1
 	object_event  8,  1, SPRITE_GYM_GUY, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, EcruteakPokeCenter1FGymGuyText, -1
 
 	const_def 1 ; object constants
@@ -109,6 +109,7 @@ EcruteakPokeCenter1FBillScript:
 	waitsfx
 	givepoke EEVEE, 5
 	givepokeitem .GiftEeveeMail
+	callasm .SetEeveeMailOT
 	writebyte GREAT_BALL
 	special SetLastPartyMonBall
 	setevent EVENT_GOT_EEVEE
@@ -218,9 +219,28 @@ EcruteakPokeCenter1FBillScript:
 
 .GiftEeveeMail:
 	db   EON_MAIL
-	db   "Greetings from"
-	next "Kanto! -- Oak@"
-	db 0
+	db   "Please keep this"
+	next "#mon safe!@@@@@@"
+
+.SetEeveeMailOT:
+	ld hl, sPartyMon1MailAuthor
+	ld a, [wPartyCount]
+	dec a
+	ld bc, MAIL_STRUCT_LENGTH
+	rst AddNTimes
+	push hl
+	pop de
+	ld hl, .EeveeMailOTID
+	ld bc, .EeveeMailOTIDEnd - .EeveeMailOTID
+	ld a, BANK(sPartyMail)
+	call GetSRAMBank
+	rst CopyBytes
+	jp CloseSRAM
+
+.EeveeMailOTID:
+	db "Prof.Oak@@"
+	bigdw 00001
+.EeveeMailOTIDEnd
 
 EcruteakPokeCenter1FPokefanMScript:
 	checkevent EVENT_GOT_HM03_SURF

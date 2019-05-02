@@ -7,13 +7,12 @@ MoveDeletion:
 	call PrintText
 	farcall SelectMonFromParty
 	jr c, .declined
-	ld a, [CurPartySpecies]
-	cp EGG
-	jr z, .egg
-	ld a, [CurPartyMon]
-	ld hl, PartyMon1Moves + 1
-	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
+	ld a, MON_IS_EGG
+	call GetPartyParamLocation
+	bit MON_IS_EGG_F, [hl]
+	jr nz, .egg
+	ld a, MON_MOVES + 1
+	call GetPartyParamLocation
 	ld a, [hl]
 	and a
 	jr z, .onlyonemove
@@ -24,10 +23,10 @@ MoveDeletion:
 	push af
 	call ReturnToMapWithSpeechTextbox
 	pop af
-	jr c, .declined
-	ld a, [wMenuCursorY]
+	jr z, .declined
+	jr c, .declined ; no moves -- should never happen
 	push af
-	ld a, [CurSpecies]
+	ld a, [wMoveScreenSelectedMove]
 	ld [wd265], a
 	call GetMoveName
 	ld hl, .ConfirmDeleteText
@@ -109,11 +108,11 @@ MoveDeletion:
 	dec a
 	ld c, a
 	ld b, 0
-	ld hl, PartyMon1Moves
+	ld hl, wPartyMon1Moves
 	add hl, bc
-	ld a, [CurPartyMon]
+	ld a, [wCurPartyMon]
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	pop bc
 	push bc
 	inc b
@@ -138,11 +137,11 @@ MoveDeletion:
 	dec a
 	ld c, a
 	ld b, 0
-	ld hl, PartyMon1PP
+	ld hl, wPartyMon1PP
 	add hl, bc
-	ld a, [CurPartyMon]
+	ld a, [wCurPartyMon]
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	pop bc
 	inc b
 .loop2

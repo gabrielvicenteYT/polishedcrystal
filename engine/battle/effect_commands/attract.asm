@@ -1,6 +1,6 @@
-BattleCommand_Attract: ; 377ce
+BattleCommand_attract: ; 377ce
 ; attract
-	ld a, [AttackMissed]
+	ld a, [wAttackMissed]
 	and a
 	jr nz, .failed
 	call CheckOppositeGender
@@ -44,14 +44,12 @@ BattleCommand_Attract: ; 377ce
 	ld b, a
 	push bc
 	; put ability in buffer 1, item in buffer 2
-	ld a, [hl]
-	ld [wNamedObjectIndexBuffer], a
-	call GetItemName
+	call GetCurItemName
 
-	ld hl, StringBuffer1
-	ld de, StringBuffer2
+	ld hl, wStringBuffer1
+	ld de, wStringBuffer2
 	ld bc, ITEM_NAME_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	pop bc
 	farcall BufferAbility
 	ld hl, ObliviousPreventedDestinyKnot
@@ -59,14 +57,12 @@ BattleCommand_Attract: ; 377ce
 	jr .destiny_knot_done
 
 .no_user_ability_protection
-	ld a, [hl]
-	ld [wNamedObjectIndexBuffer], a
-	call GetItemName
+	call GetCurItemName
 	ld hl, DestinyKnotInfatuatedUser
 	call StdBattleTextBox
 	ld a, BATTLE_VARS_SUBSTATUS1
 	call GetBattleVarAddr
-	bit SUBSTATUS_IN_LOVE, [hl]
+	set SUBSTATUS_IN_LOVE, [hl]
 
 .destiny_knot_done
 	; Speed check to see whose side is cured first, in case both
@@ -87,11 +83,8 @@ BattleCommand_Attract: ; 377ce
 	call CheckMentalHerb
 	farjp RunStatusHealAbilities
 
-CheckEnemyMentalHerb:
-	call SwitchTurn
-	call CheckMentalHerb
-	jp SwitchTurn
-
+CheckOpponentMentalHerb:
+	call CallOpponentTurn
 CheckMentalHerb:
 	; Check if we hold it
 	call GetUserItemAfterUnnerve
@@ -122,9 +115,9 @@ CheckMentalHerb:
 	; Also remove other encore vars
 	ld a, [hBattleTurn]
 	and a
-	ld hl, PlayerEncoreCount
+	ld hl, wPlayerEncoreCount
 	jr z, .got_encorecount
-	ld hl, EnemyEncoreCount
+	ld hl, wEnemyEncoreCount
 .got_encorecount
 	xor a
 	ld [hl], a
@@ -133,11 +126,11 @@ CheckMentalHerb:
 	; Check Disable
 	ld a, [hBattleTurn]
 	and a
-	ld de, PlayerDisableCount
-	ld hl, DisabledMove
+	ld de, wPlayerDisableCount
+	ld hl, wDisabledMove
 	jr z, .got_disable_vars
-	ld de, EnemyDisableCount
-	ld hl, EnemyDisabledMove
+	ld de, wEnemyDisableCount
+	ld hl, wEnemyDisabledMove
 .got_disable_vars
 	ld a, [de]
 	and a
@@ -156,9 +149,7 @@ CheckMentalHerb:
 	push bc
 	farcall ItemRecoveryAnim
 	call GetUserItem
-	ld a, [hl]
-	ld [wNamedObjectIndexBuffer], a
-	call GetItemName
+	call GetCurItemName
 
 	pop bc
 	bit 0, b
@@ -185,12 +176,12 @@ CheckOppositeGender: ; 377f5
 	ld a, MON_SPECIES
 	call BattlePartyAttr
 	ld a, [hl]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 
-	ld a, [CurBattleMon]
-	ld [CurPartyMon], a
+	ld a, [wCurBattleMon]
+	ld [wCurPartyMon], a
 	xor a
-	ld [MonType], a
+	ld [wMonType], a
 
 	farcall GetGender
 	ret c ; Player mon is genderless
@@ -201,18 +192,18 @@ CheckOppositeGender: ; 377f5
 
 .got_gender
 	push bc
-	ld a, [TempEnemyMonSpecies]
-	ld [CurPartySpecies], a
-	ld hl, EnemyMonGender
-	ld a, [EnemySubStatus2]
+	ld a, [wTempEnemyMonSpecies]
+	ld [wCurPartySpecies], a
+	ld hl, wEnemyMonGender
+	ld a, [wEnemySubStatus2]
 	bit SUBSTATUS_TRANSFORMED, a
 	jr z, .not_transformed
 	ld hl, wEnemyBackupGender
 .not_transformed
 	ld a, [hl]
-	ld [TempMonGender], a
+	ld [wTempMonGender], a
 	ld a, 3
-	ld [MonType], a
+	ld [wMonType], a
 	farcall GetGender
 	pop bc
 	ret c ; Enemy mon is genderless

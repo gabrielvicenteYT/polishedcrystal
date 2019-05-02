@@ -7,15 +7,15 @@ Special_CheckMagikarpLength: ; fbb32
 	; Let's start by selecting a Magikarp.
 	farcall SelectMonFromParty
 	jr c, .declined
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	cp MAGIKARP
 	jr nz, .not_magikarp
 
 	; Now let's compute its length based on its DVs and ID.
-	ld a, [CurPartyMon]
-	ld hl, PartyMon1Species
+	ld a, [wCurPartyMon]
+	ld hl, wPartyMon1Species
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	push hl
 	ld bc, MON_DVS
 	add hl, bc
@@ -47,27 +47,27 @@ Special_CheckMagikarpLength: ; fbb32
 	ld a, [hl]
 	ld [de], a
 	inc de
-	ld a, [CurPartyMon]
-	ld hl, PartyMonOT
+	ld a, [wCurPartyMon]
+	ld hl, wPartyMonOT
 	call SkipNames
-	call CopyBytes
+	rst CopyBytes
 	ld a, 3
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 .not_long_enough
 	ld a, 2
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 .declined
 	ld a, 1
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 .not_magikarp
 	xor a
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 ; fbba9
 
@@ -78,12 +78,12 @@ Special_CheckMagikarpLength: ; fbb32
 ; 0xfbbae
 
 PrintMagikarpLength: ; fbbdb
-	ld a, [Options2]
+	ld a, [wOptions2]
 	bit POKEDEX_UNITS, a
 	jr z, .imperial
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	ld de, wMagikarpLengthMm
-	lb bc, PRINTNUM_RIGHTALIGN | 2, 4
+	lb bc, PRINTNUM_LEFTALIGN | 2, 4
 	call PrintNum
 	dec hl
 	ld a, [hl]
@@ -156,14 +156,14 @@ PrintMagikarpLength: ; fbbdb
 	ld [wMagikarpLengthMmHi], a
 	ld a, l
 	ld [wMagikarpLengthMmLo], a
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	ld de, wMagikarpLengthMmHi
-	lb bc, PRINTNUM_RIGHTALIGN | 1, 2
+	lb bc, PRINTNUM_LEFTALIGN | 1, 2
 	call PrintNum
 	ld [hl], "′"
 	inc hl
 	ld de, wMagikarpLengthMmLo
-	lb bc, PRINTNUM_RIGHTALIGN | 1, 2
+	lb bc, PRINTNUM_LEFTALIGN | 1, 2
 	call PrintNum
 	ld [hl], "″"
 	inc hl
@@ -175,8 +175,8 @@ CalcMagikarpLength: ; fbbfc
 ; Return Magikarp's length (in mm) at wMagikarpLengthMm (big endian).
 ;
 ; input:
-;   de: EnemyMonDVs
-;   bc: PlayerID
+;   de: wEnemyMonDVs
+;   bc: wPlayerID
 
 ; This function is poorly commented.
 

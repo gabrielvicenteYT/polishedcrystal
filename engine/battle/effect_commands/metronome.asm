@@ -1,13 +1,11 @@
-BattleCommand_Metronome: ; 37418
-; metronome
-
+BattleCommand_metronome:
 	call ClearLastMove
 	call CheckUserIsCharging
 	jr nz, .asm_3742b
 
 	ld a, [wKickCounter]
 	push af
-	call BattleCommand_LowerSub
+	call BattleCommand_lowersub
 	pop af
 	ld [wKickCounter], a
 
@@ -16,6 +14,8 @@ BattleCommand_Metronome: ; 37418
 
 .GetMove:
 	call BattleRandom
+	cp STRUGGLE
+	jr z, .GetMove
 
 ; None of the moves in MetronomeExcepts.
 	push af
@@ -36,10 +36,8 @@ BattleCommand_Metronome: ; 37418
 	ld [hl], b
 	call UpdateMoveData
 	jp ResetTurn
-; 37454
 
-
-MetronomeExcepts: ; 37454
+MetronomeExcepts:
 	db NO_MOVE
 	db COUNTER
 	db DESTINY_BOND
@@ -51,6 +49,4 @@ MetronomeExcepts: ; 37454
 	db SLEEP_TALK
 	db THIEF
 	db TRANSFORM
-	db STRUGGLE
 	db -1
-; 37462

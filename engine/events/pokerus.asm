@@ -1,6 +1,6 @@
 GivePokerus: ; 2ed44
-	ld hl, PartyMon1PokerusStatus
-	ld a, [PartyCount]
+	ld hl, wPartyMon1PokerusStatus
+	ld a, [wPartyCount]
 	ld b, a
 	ld de, PARTYMON_STRUCT_LENGTH
 ; Check to see if any of your Pokemon already has Pokerus.
@@ -17,7 +17,7 @@ GivePokerus: ; 2ed44
 
 ; If we haven't been to Goldenrod City at least once,
 ; prevent the contraction of Pokerus.
-	ld hl, StatusFlags2
+	ld hl, wStatusFlags2
 	bit 6, [hl] ; ENGINE_GIVE_POKERUS
 	ret z
 	call Random
@@ -27,7 +27,7 @@ GivePokerus: ; 2ed44
 	ld a, [hRandomSub]
 	cp $3
 	ret nc                 ; 3/65536 chance (00 00, 00 01 or 00 02)
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	ld b, a
 .randomMonSelectLoop
 	call Random
@@ -35,7 +35,7 @@ GivePokerus: ; 2ed44
 	cp b
 	jr nc, .randomMonSelectLoop
 ContinueGivingPokerus:
-	ld hl, PartyMon1PokerusStatus
+	ld hl, wPartyMon1PokerusStatus
 	call GetPartyLocation  ; get pokerus byte of random mon
 	ld a, [hl]
 	and $f0
@@ -67,7 +67,7 @@ GivePokerusToWonderTradeMon:
 	ld a, [hRandomSub]
 	cp $20
 	ret nc                 ; 32/65536 = 1/2048 chance
-	ld a, [CurPartyMon]
+	ld a, [wCurPartyMon]
 	ld b, a
 	jp ContinueGivingPokerus
 
@@ -76,7 +76,7 @@ TrySpreadPokerus:
 	cp 1 + 33 percent
 	ret nc              ; 1/3 chance
 
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	cp 1
 	ret z               ; only one mon, nothing to do
 
@@ -103,7 +103,7 @@ TrySpreadPokerus:
 	ret
 
 .checkPreviousMonsLoop
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	cp b
 	ret z               ; no more mons
 	ld a, l
@@ -135,8 +135,8 @@ TrySpreadPokerus:
 
 ApplyPokerusTick: ; 13988
 ; decreases all pokemon's pokerus counter by b. if the lower nybble reaches zero, the pokerus is cured.
-	ld hl, PartyMon1PokerusStatus ; PartyMon1 + MON_PKRS
-	ld a, [PartyCount]
+	ld hl, wPartyMon1PokerusStatus ; PartyMon1 + MON_PKRS
+	ld a, [wPartyCount]
 	and a
 	ret z ; make sure it's not wasting time on an empty party
 	ld c, a

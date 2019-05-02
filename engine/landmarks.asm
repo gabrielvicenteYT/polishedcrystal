@@ -16,7 +16,7 @@ GetLandmarkCoords: ; 0x1ca896
 
 
 GetLandmarkName:: ; 0x1ca8a5
-; Copy the name of landmark e to StringBuffer1.
+; Copy the name of landmark e to wStringBuffer1.
 	push hl
 	push de
 	push bc
@@ -31,7 +31,7 @@ GetLandmarkName:: ; 0x1ca8a5
 	ld h, [hl]
 	ld l, a
 
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	ld c, 23
 .copy
 	ld a, [hli]
@@ -48,26 +48,3 @@ GetLandmarkName:: ; 0x1ca8a5
 
 
 INCLUDE "data/maps/landmarks.asm"
-
-
-RegionCheck: ; 0x1caea1
-; Checks if the player is in Kanto or Johto.
-; If in Johto, returns 0 in e.
-; If in Kanto, returns 1 in e.
-; If on Shamouti Island, returns 2 in e.
-	call GetCurrentLandmark
-	cp SHAMOUTI_LANDMARK
-	jr nc, .shamouti
-	cp KANTO_LANDMARK
-	jr nc, .kanto
-.johto
-	ld e, JOHTO_REGION
-	ret
-
-.shamouti
-	ld e, ORANGE_REGION
-	ret
-
-.kanto
-	ld e, KANTO_REGION
-	ret

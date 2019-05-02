@@ -67,7 +67,7 @@ UnknownText_0x1c41b1::
 UnknownText_0x1c41e6::
 	text "Your friend's"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text " appears"
 	cont "to be abnormal!"
 	prompt
@@ -77,7 +77,7 @@ UnknownText_0x1c4212::
 	text_from_ram wd004
 	text ""
 	line "for @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "?"
 	done
 
@@ -135,23 +135,23 @@ _ObjectEventText::
 UnknownText_0x1c4719::
 	text "<PLAYER> received"
 	line "@"
-	text_from_ram StringBuffer4
+	text_from_ram wStringBuffer4
 	text "."
 	done
 
 UnknownText_0x1c472c::
 	text "<PLAYER> put the"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text " in"
 	cont "the @"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "."
 	prompt
 
 UnknownText_0x1c474b::
 	text "The @"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text ""
 	line "is full…"
 	prompt
@@ -159,27 +159,27 @@ UnknownText_0x1c474b::
 UnknownText_0x1c4b92::
 	text "Congratulations!"
 	line "Your @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	db "@@"
 
 UnknownText_0x1c4baf::
 	text ""
 	para "evolved into"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "!"
 	done
 
 UnknownText_0x1c4bc5::
 	text "Huh? @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text ""
 	line "stopped evolving!"
 	prompt
 
 UnknownText_0x1c4be3::
 	text "What? @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text ""
 	line "is evolving!"
 	done
@@ -191,7 +191,7 @@ UnknownText_0x1c4bfd::
 UnknownText_0x1c4c08::
 	deciram wItemQuantityChangeBuffer, 1, 2
 	text " @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "(s)"
 	line "will be ¥@"
 	deciram hMoneyTemp, 3, 7
@@ -220,7 +220,7 @@ UnknownText_0x1c4ca3::
 UnknownText_0x1c4cae::
 	deciram wItemQuantityChangeBuffer, 1, 2
 	text " @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "(s)"
 	line "will be ¥@"
 	deciram hMoneyTemp, 3, 7
@@ -259,7 +259,7 @@ UnknownText_0x1c4d47::
 	done
 
 UnknownText_0x1c4db0::
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text " costs"
 	line "¥@"
 	deciram hMoneyTemp, 3, 7
@@ -303,7 +303,7 @@ UnknownText_0x1c4e7e::
 UnknownText_0x1c4e89::
 	deciram wItemQuantityChangeBuffer, 1, 2
 	text " @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "(s)"
 	line "will cost ¥@"
 	deciram hMoneyTemp, 3, 7
@@ -381,7 +381,7 @@ UnknownText_0x1c502e::
 	deciram hMoneyTemp, 3, 7
 	text " for"
 	line "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "(s)."
 	done
 
@@ -392,9 +392,9 @@ UnknownText_0x1c5049::
 
 TMMartCostsThisMuchText::
 	text "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text " @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text ""
 	line "will be ¥@"
 	deciram hMoneyTemp, 3, 7
@@ -413,7 +413,7 @@ BTMartHowMayIHelpYouText::
 BTMartCostsThisMuchText::
 	deciram wItemQuantityChangeBuffer, 1, 2
 	text " @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "(s)"
 	line "will cost @"
 	deciram hMoneyTemp, 3, 3
@@ -457,7 +457,7 @@ UnknownText_0x1c5092::
 UnknownText_0x1c509f::
 	text "lined up!"
 	line "Won @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text " coins!"
 	done
 
@@ -511,7 +511,7 @@ UnknownText_0x1c5660::
 	text_from_ram wMonOrItemNameBuffer
 	text " learned"
 	line "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "!@"
 	sound_dex_fanfare_50_79
 	text_waitbutton
@@ -520,12 +520,12 @@ UnknownText_0x1c5660::
 UnknownText_0x1c5678::
 	text "Which move should"
 	next "be forgotten?"
-	done
+	prompt
 
 UnknownText_0x1c5699::
 	text "Stop learning"
 	line "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "?"
 	done
 
@@ -534,7 +534,7 @@ UnknownText_0x1c56af::
 	text ""
 	line "did not learn"
 	cont "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "."
 	prompt
 
@@ -543,13 +543,13 @@ UnknownText_0x1c56c9::
 	text ""
 	line "wants to learn"
 	cont "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "!"
 
 	para "Should it forget"
 	line "an old move for"
 	cont "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "?"
 	done
 
@@ -566,7 +566,7 @@ UnknownText_0x1c574e::
 	text_from_ram wMonOrItemNameBuffer
 	text " forgot"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "."
 
 	para "And…"
@@ -652,7 +652,7 @@ UnknownText_0x1c589f::
 	done
 
 UnknownText_0x1c58bc::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "?"
 	line "Is that right?"
 	done
@@ -714,7 +714,7 @@ Text_YouCantTakeAnEgg::
 	done
 
 Text_UberRestriction::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text " must be"
 	line "<LV>70 or higher."
 	para ""
@@ -742,7 +742,7 @@ UnknownText_0x1c5afa::
 
 UnknownText_0x1c5b17::
 	text "Gotcha! @"
-	text_from_ram EnemyMonNick
+	text_from_ram wEnemyMonNick
 	text ""
 	line "was caught!@"
 	sound_caught_mon
@@ -759,7 +759,7 @@ UnknownText_0x1c5b38::
 	prompt
 
 UnknownText_0x1c5b53::
-	text_from_ram EnemyMonNick
+	text_from_ram wEnemyMonNick
 	text "'s data"
 	line "was newly added to"
 	cont "the #dex.@"
@@ -770,15 +770,15 @@ UnknownText_0x1c5b53::
 UnknownText_0x1c5b7f::
 	text "Give a nickname to"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "?"
 	done
 
 UnknownText_0x1c5b9a::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "'s"
 	line "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text " rose."
 	prompt
 
@@ -803,7 +803,7 @@ UnknownText_0x1c5c5e::
 UnknownText_0x1c5c7b::
 	text "Coins:"
 	line "@"
-	deciram Coins, 2, 5
+	deciram wCoins, 2, 5
 	db "@@"
 
 Text_RaiseThePPOfWhichMove::
@@ -817,19 +817,19 @@ Text_RestoreThePPOfWhichMove::
 	done
 
 Text_PPIsMaxedOut::
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "'s PP"
 	line "is maxed out."
 	prompt
 
 Text_PPsIncreased::
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "'s PP"
 	line "increased."
 	prompt
 
 Text_PPsMaximized::
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "'s PP"
 	line "maximized."
 	prompt
@@ -898,15 +898,15 @@ Text_NuzlockeReviveFailure::
 UnknownText_0x1c5e68::
 	text "<PLAYER> used the@"
 	text_low
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "."
 	done
 
 UnknownText_0x1c5ea8::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text " knows"
 	line "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "."
 	prompt
 
@@ -918,7 +918,7 @@ UnknownText_0x1c5eba::
 UnknownText_0x1c5eda::
 	text "Oh, make it forget"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "?"
 	done
 
@@ -1040,7 +1040,7 @@ WonderTradeCantTradeGSBallText::
 WonderTradeConfirmText::
 	text "Offer to trade"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "?"
 	done
 
@@ -1138,70 +1138,6 @@ InformalMartIntroText::
 BazaarMartIntroText::
 	text "Come take a look"
 	line "at my wares!"
-	done
-
-MoveReminderIntroText::
-	text "Me? I'm the"
-	line "Move Maniac."
-
-	para "I'll make your"
-	line "#mon remember"
-
-	para "a move if you'll"
-	line "trade me a"
-	cont "Gold Leaf."
-	done
-
-MoveReminderPromptText::
-	text "Do you want me to"
-	line "teach one of your"
-	cont "#mon a move?"
-	done
-
-MoveReminderWhichMonText::
-	text "Which #mon"
-	line "needs tutoring?"
-	done
-
-MoveReminderWhichMoveText::
-	text "Which move should"
-	line "it remember?"
-	done
-
-MoveReminderNoGoldLeafText::
-	text "Huh? You don't"
-	line "have any Gold"
-	cont "Leaves."
-
-	para "Sometimes you can"
-	line "find them on wild"
-	cont "Bellsprout."
-	done
-
-MoveReminderEggText::
-	text "Huh? That's just"
-	line "an Egg."
-	done
-
-MoveReminderNoMonText::
-	text "Huh? That's not"
-	line "a #mon."
-	done
-
-MoveReminderNoMovesText::
-	text "Sorry… There isn't"
-	line "any move I can"
-
-	para "make that #mon"
-	line "remember."
-	done
-
-MoveReminderCancelText::
-	text "If your #mon"
-	line "needs to learn a"
-
-	para "move, come back"
-	line "with a Gold Leaf."
 	done
 
 AlreadyHaveTMText::

@@ -28,15 +28,15 @@ IlexForest_MapScriptHeader:
 	bg_event 26, 23, SIGNPOST_JUMPSTD, treegrotto, HIDDENGROTTO_ILEX_FOREST
 
 	db 14 ; object events
-	object_event 16, 33, SPRITE_FARFETCH_D, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, PAL_NPC_BROWN, PERSONTYPE_SCRIPT, 0, IlexForestFarfetchdScript, EVENT_ILEX_FOREST_FARFETCHD
+	object_event 16, 33, SPRITE_FARFETCH_D, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, IlexForestFarfetchdScript, EVENT_ILEX_FOREST_FARFETCHD
 	object_event  7, 30, SPRITE_BLACK_BELT, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, IlexForestCharcoalMasterScript, EVENT_ILEX_FOREST_CHARCOAL_MASTER
 	object_event 10, 31, SPRITE_KURT, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_ILEX_FOREST_KURT
-	object_event  5, 26, SPRITE_LASS, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, Text_IlexForestLass, EVENT_ILEX_FOREST_LASS
-	object_event 10, 26, SPRITE_CELEBI, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_ILEX_FOREST_CELEBI
+	object_event  5, 26, SPRITE_PICNICKER, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, Text_IlexForestLass, EVENT_ILEX_FOREST_LASS
+	object_event 10, 26, SPRITE_CELEBI, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_ILEX_FOREST_CELEBI
 	object_event  9, 25, SPRITE_LYRA, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, IlexForestLyraScript, EVENT_ILEX_FOREST_LYRA
-	object_event  9, 30, SPRITE_YOUNGSTER, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, IlexForestCharcoalApprenticeScript, EVENT_ILEX_FOREST_APPRENTICE
-	object_event 17, 16, SPRITE_ROCKER, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, IlexForestHeadbuttGuyScript, -1
-	object_event 14,  3, SPRITE_BUG_CATCHER, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_BROWN, PERSONTYPE_GENERICTRAINER, 0, GenericTrainerBug_catcherWayne, -1
+	object_event  9, 30, SPRITE_SCHOOLBOY, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, IlexForestCharcoalApprenticeScript, EVENT_ILEX_FOREST_APPRENTICE
+	object_event 17, 16, SPRITE_ROCKER, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, IlexForestHeadbuttGuyScript, -1
+	object_event 14,  3, SPRITE_BUG_CATCHER, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 0, GenericTrainerBug_catcherWayne, -1
 	cuttree_event 10, 27, EVENT_ILEX_FOREST_CUT_TREE
 	itemball_event 22, 34, REVIVE, 1, EVENT_ILEX_FOREST_REVIVE
 	itemball_event 11, 19, X_ATTACK, 1, EVENT_ILEX_FOREST_X_ATTACK
@@ -60,7 +60,7 @@ IlexForestTrigger0:
 IlexForestFarfetchdCallback:
 	checkevent EVENT_GOT_HM01_CUT
 	iftrue .Static
-	copybytetovar FarfetchdPosition
+	copybytetovar wFarfetchdPosition
 	ifequal  1, .PositionOne
 	ifequal  2, .PositionTwo
 	ifequal  3, .PositionThree
@@ -132,10 +132,10 @@ IlexForestCharcoalApprenticeScript:
 
 IlexForestFarfetchdScript:
 	faceplayer
-	copybytetovar FarfetchdPosition
+	copybytetovar wFarfetchdPosition
 	ifequal  0, .Position1
 	showcrytext Text_Kwaaaa, FARFETCH_D
-	copybytetovar FarfetchdPosition
+	copybytetovar wFarfetchdPosition
 	ifequal  2, .Position2
 	ifequal  3, .Position3
 	ifequal  4, .Position4
@@ -162,7 +162,7 @@ IlexForestFarfetchdScript:
 .NewPosition:
 	disappear ILEXFOREST_FARFETCHD
 	appear ILEXFOREST_FARFETCHD
-	copyvartobyte FarfetchdPosition
+	copyvartobyte wFarfetchdPosition
 .Position10:
 	end
 
@@ -532,24 +532,24 @@ MovementData_Farfetched_Pos8_Pos2:
 	step_end
 
 MovementData_Farfetchd_Pos2_Pos3:
-	big_step_up
-	big_step_up
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_down
+	run_step_up
+	run_step_up
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_down
 	step_end
 
 MovementData_Farfetchd_Pos4_Pos5:
 	big_step_down
 MovementData_Farfetchd_Pos2_Pos8:
-	big_step_down
-	big_step_down
-	big_step_down
-	big_step_down
-	big_step_down
+	run_step_down
+	run_step_down
+	run_step_down
+	run_step_down
+	run_step_down
 	step_end
 
 MovementData_Farfetchd_Pos3_Pos4:
@@ -564,18 +564,18 @@ MovementData_Farfetched_Pos8_Pos7:
 	step_end
 
 MovementData_Farfetchd_Pos3_Pos2:
-	big_step_up
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_left
+	run_step_up
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_left
 	step_end
 
 MovementData_Farfetchd_Pos4_Pos3:
-	big_step_left
+	run_step_left
 	jump_step_left
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
 	step_end
 
 MovementData_Farfetchd_Pos5_Pos6:
@@ -585,142 +585,142 @@ MovementData_Farfetchd_Pos5_Pos6:
 	big_step_down
 	big_step_down
 MovementData_Farfetchd_Pos5_Pos7:
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_left
 	step_end
 
 MovementData_Farfetched_Pos5_Pos4_Up:
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_right
-	big_step_up
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_right
+	run_step_up
 	step_end
 
 MovementData_Farfetched_Pos5_Pos4_Right:
-	big_step_right
+	run_step_right
 	turn_head_up
 	step_sleep_1
 	turn_head_down
 	step_sleep_1
 	turn_head_up
 	step_sleep_1
-	big_step_down
-	big_step_down
+	run_step_down
+	run_step_down
 	fix_facing
 	jump_step_up
 	step_sleep_8
 	step_sleep_8
 	remove_fixed_facing
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
 	step_end
 
 MovementData_Farfetched_Pos6_Pos7:
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_up
-	big_step_up
-	big_step_right
-	big_step_up
-	big_step_up
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_up
+	run_step_up
+	run_step_right
+	run_step_up
+	run_step_up
 	step_end
 
 MovementData_Farfetched_Pos6_Pos5:
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
 	step_end
 
 MovementData_Farfetched_Pos7_Pos8:
-	big_step_up
-	big_step_up
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_left
+	run_step_up
+	run_step_up
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_left
 	step_end
 
 MovementData_Farfetched_Pos7_Pos6:
-	big_step_down
-	big_step_down
-	big_step_left
-	big_step_down
-	big_step_down
-	big_step_right
-	big_step_right
-	big_step_right
+	run_step_down
+	run_step_down
+	run_step_left
+	run_step_down
+	run_step_down
+	run_step_right
+	run_step_right
+	run_step_right
 	step_end
 
 MovementData_Farfetched_Pos8_Pos9:
-	big_step_down
-	big_step_left
-	big_step_down
-	big_step_down
-	big_step_down
-	big_step_down
-	big_step_down
+	run_step_down
+	run_step_left
+	run_step_down
+	run_step_down
+	run_step_down
+	run_step_down
+	run_step_down
 	step_end
 
 MovementData_Farfetched_Pos9_Pos10:
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
 	fix_facing
 	jump_step_right
 	step_sleep_8
 	step_sleep_8
 	remove_fixed_facing
-	big_step_left
-	big_step_left
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
+	run_step_left
+	run_step_left
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
 	step_end
 
 MovementData_Farfetched_Pos9_Pos8_Right:
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
 	step_end
 
 MovementData_Farfetched_Pos9_Pos8_Down:
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
 	fix_facing
 	jump_step_right
 	step_sleep_8
 	step_sleep_8
 	remove_fixed_facing
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
 	step_end
 
 MovementData_0x6ef4e:

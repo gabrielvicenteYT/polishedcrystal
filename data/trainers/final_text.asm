@@ -1,11 +1,11 @@
 GetFinalPkmnTextPointer::
 	; Silver and Lyra have a phrase for each set of three IDs
-	ld a, [OtherTrainerClass]
+	ld a, [wOtherTrainerClass]
 	ld hl, .triple_phrases
 	call .findinarray
 	jr c, .rival_or_lyra
 	; Proton to Giovanni have a phrase for each ID
-	ld a, [OtherTrainerClass]
+	ld a, [wOtherTrainerClass]
 	cp PROTON
 	jr c, .not_rocket
 	cp GIOVANNI + 1
@@ -26,7 +26,7 @@ GetFinalPkmnTextPointer::
 	ret
 
 .rival_or_lyra:
-	ld a, [OtherTrainerID]
+	ld a, [wOtherTrainerID]
 	dec a
 	ld c, 3
 	call SimpleDivide
@@ -34,11 +34,11 @@ GetFinalPkmnTextPointer::
 	jr .get_text
 
 .rocket:
-	; a = ([OtherTrainerClass] - PROTON) * 2 + [OtherTrainerID] - 1
+	; a = ([wOtherTrainerClass] - PROTON) * 2 + [wOtherTrainerID] - 1
 	sub PROTON
 	add a
 	ld b, a
-	ld a, [OtherTrainerID]
+	ld a, [wOtherTrainerID]
 	dec a
 	add b
 	ld hl, .TeamRocketFinalTexts

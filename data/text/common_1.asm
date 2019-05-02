@@ -6,28 +6,28 @@ _FruitBearingTreeText::
 _HeyItsFruitText::
 	text "Hey! It's"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "!"
 	done
 
 _ObtainedOneFruitText::
 	text "Obtained a"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "!"
 	done
 
 _ObtainedTwoFruitText::
 	text "Obtained two"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "!"
 	done
 
 _ObtainedThreeFruitText::
 	text "Obtained three"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "!"
 	done
 
@@ -49,7 +49,7 @@ _ApricornBoxIsFullText::
 _PutAwayTheApricornText::
 	text "<PLAYER> put the"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text " in"
 	cont "the Apricorn Box."
 	done
@@ -83,7 +83,7 @@ UnknownText_0x1bc089::
 	done
 
 UnknownText_0x1bc0a2::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text ""
 	line "recovered @"
 	deciram wCurHPAnimDeltaHP, 2, 3
@@ -91,59 +91,59 @@ UnknownText_0x1bc0a2::
 	done
 
 UnknownText_0x1bc0bb::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "'s"
 	line "cured of poison."
 	done
 
 UnknownText_0x1bc0d2::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "'s"
 	line "rid of paralysis."
 	done
 
 UnknownText_0x1bc0ea::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "'s"
 	line "burn was healed."
 	done
 
 UnknownText_0x1bc101::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text ""
 	line "was defrosted."
 	done
 
 UnknownText_0x1bc115::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text ""
 	line "woke up."
 	done
 
 UnknownText_0x1bc123::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "'s"
 	line "health returned."
 	done
 
 UnknownText_0x1bc13a::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text ""
 	line "is revitalized."
 	done
 
 UnknownText_0x1bc14f::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text " grew to"
 	line "level @"
-	deciram CurPartyLevel, 1, 3
+	deciram wCurPartyLevel, 1, 3
 	text "!@"
 	sound_dex_fanfare_50_79
 	text_waitbutton
 	db "@@"
 
 UnknownText_0x1bc16e::
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text " came"
 	line "to its senses."
 	done
@@ -224,7 +224,7 @@ UnknownText_0x1bc4b2::
 UnknownText_0x1bc4d7::
 	text "Put away the"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "."
 	prompt
 
@@ -236,19 +236,19 @@ UnknownText_0x1bc4ec::
 UnknownText_0x1bc509::
 	text "Set up the"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "."
 	prompt
 
 UnknownText_0x1bc51c::
 	text "Put away the"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text ""
 
 	para "and set up the"
 	line "@"
-	text_from_ram StringBuffer4
+	text_from_ram wStringBuffer4
 	text "."
 	prompt
 
@@ -279,7 +279,14 @@ UnknownText_0x1bc5b3::
 UnknownText_0x1bc5d7::
 	text "It's an adorable"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
+	text "."
+	done
+
+DecoConsoleText::
+	text "It's a shiny"
+	line "@"
+	text_from_ram wStringBuffer3
 	text "."
 	done
 
@@ -413,14 +420,14 @@ _OPT_OakText2::
 _OPT_OakText3::
 	text ""
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "."
 	done
 
 _OPT_MaryText1::
 	text ""
 	line "Mary: @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "'s"
 	done
 
@@ -591,7 +598,7 @@ _OPT_PokemonChannelText::
 _PokedexShowText::
 	text ""
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	db "@@"
 
 ; Pokémon Music Channel / Pokémusic
@@ -689,7 +696,7 @@ _LC_Text8::
 	text ""
 	line "Number is @"
 	interpret_data
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "!"
 	done
 
@@ -738,9 +745,9 @@ _PnP_Text3::
 _PnP_Text4::
 	text ""
 	line "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text " @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	db "@@"
 
 _PnP_cute::
@@ -826,7 +833,7 @@ _PnP_odd::
 _PnP_Text5::
 	text ""
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	db "@@"
 
 _RocketRadioText1::
@@ -905,7 +912,7 @@ _BuenaRadioText3::
 _BuenaRadioText4::
 	text ""
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "!"
 	done
 
@@ -981,7 +988,7 @@ Text_EnemyWithdrew::
 	text "<ENEMY>"
 	line "withdrew"
 	cont "@"
-	text_from_ram EnemyMonNick
+	text_from_ram wEnemyMonNick
 	text "!"
 	prompt
 
@@ -991,7 +998,7 @@ Text_EnemyUsedOn::
 	text_from_ram wMonOrItemNameBuffer
 	text ""
 	cont "on @"
-	text_from_ram EnemyMonNick
+	text_from_ram wEnemyMonNick
 	text "!"
 	prompt
 
@@ -1025,10 +1032,10 @@ UseAnotherRepelText::
 UnknownText_0x1bd34b::
 	text "I just saw some"
 	line "rare @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text " in"
 	cont "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "."
 
 	para "I'll call you if I"
@@ -1061,7 +1068,7 @@ UnknownText_0x1bd429::
 	text_from_ram wMonOrItemNameBuffer
 	text " for"
 	cont "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text ".@@"
 
 UnknownText_0x1bd445::
@@ -1073,12 +1080,12 @@ UnknownText_0x1bd449::
 	text "I collect #mon."
 	line "Do you have"
 	cont "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "?"
 
 	para "Want to trade it"
 	line "for my @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "?"
 	done
 
@@ -1090,7 +1097,7 @@ UnknownText_0x1bd48c::
 UnknownText_0x1bd4aa::
 	text "Huh? That's not"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "."
 	cont "What a letdown…"
 	done
@@ -1098,7 +1105,7 @@ UnknownText_0x1bd4aa::
 UnknownText_0x1bd4d2::
 	text "Yay! I got myself"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "!"
 	cont "Thanks!"
 	done
@@ -1106,7 +1113,7 @@ UnknownText_0x1bd4d2::
 UnknownText_0x1bd4f4::
 	text "Hi, how's my old"
 	line "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text " doing?"
 	done
 
@@ -1116,12 +1123,12 @@ UnknownText_0x1bd512::
 
 	para "If you have"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text ", would"
 
 	para "you trade it for"
 	line "my @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "?"
 	done
 
@@ -1136,7 +1143,7 @@ UnknownText_0x1bd565::
 UnknownText_0x1bd5a1::
 	text "You don't have"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "? That's"
 	cont "too bad, then."
 	done
@@ -1146,7 +1153,7 @@ UnknownText_0x1bd5cc::
 
 	para "I finally got"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "."
 	done
 
@@ -1165,12 +1172,12 @@ UnknownText_0x1bd621::
 
 	para "it. Do you have"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "?"
 
 	para "Want to trade it"
 	line "for my @"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text "?"
 	done
 
@@ -1182,7 +1189,7 @@ UnknownText_0x1bd673::
 UnknownText_0x1bd696::
 	text "That's not"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "."
 
 	para "Please trade with"
@@ -1200,7 +1207,7 @@ UnknownText_0x1bd6cd::
 UnknownText_0x1bd6f5::
 	text "How is that"
 	line "@"
-	text_from_ram StringBuffer2
+	text_from_ram wStringBuffer2
 	text " I"
 	cont "traded you doing?"
 
@@ -1422,7 +1429,7 @@ UnknownText_0x1bdcff::
 UnknownText_0x1bdd30::
 	text "OK. I'll raise"
 	line "your @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "."
 	prompt
 
@@ -1435,25 +1442,25 @@ UnknownText_0x1bdd64::
 	text "Are we geniuses or"
 	line "what? Want to see"
 	cont "your @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "?"
 	done
 
 UnknownText_0x1bdd96::
 	text "Your @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text ""
 	line "has grown a lot."
 
 	para "Its level grew"
 	line "by @"
-	deciram StringBuffer2 + 1, 1, 3
+	deciram wStringBuffer2 + 1, 1, 3
 	text "."
 
 	para "If you want your"
 	line "#mon back, it"
 	cont "will cost ¥@"
-	deciram StringBuffer2 + 2, 3, 4
+	deciram wStringBuffer2 + 2, 3, 4
 	text "."
 	done
 
@@ -1465,14 +1472,14 @@ UnknownText_0x1bde04::
 UnknownText_0x1bde1f::
 	text "<PLAYER> got back"
 	line "@"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "."
 	prompt
 
 UnknownText_0x1bde32::
 	text "Huh? Back already?"
 	line "Your @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text ""
 	para "needs a little"
 	line "more time with us."

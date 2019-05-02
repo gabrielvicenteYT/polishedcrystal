@@ -23,7 +23,7 @@ Route35NationalParkGate_MapScriptHeader:
 
 	db 3 ; object events
 	object_event 14,  1, SPRITE_OFFICER, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, OfficerScript_0x6a204, EVENT_ROUTE_35_NATIONAL_PARK_GATE_OFFICER_CONTEST_DAY
-	object_event 18,  5, SPRITE_BUG_MANIAC, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_BLUE, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x6a8d8, EVENT_ROUTE_35_NATIONAL_PARK_GATE_BUG_MANIAC
+	object_event 18,  5, SPRITE_BUG_MANIAC, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x6a8d8, EVENT_ROUTE_35_NATIONAL_PARK_GATE_BUG_MANIAC
 	object_event 12,  3, SPRITE_OFFICER, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, OfficerScript_0x6a2ca, EVENT_ROUTE_35_NATIONAL_PARK_GATE_OFFICER_NOT_CONTEST_DAY
 
 	const_def 1 ; object constants
@@ -196,7 +196,7 @@ MovementData_0x6a2e5:
 
 UnknownText_0x6a2eb:
 	text "Today's @"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "."
 	line "That means the"
 
@@ -263,7 +263,7 @@ UnknownText_0x6a4c6:
 
 	para "You'll have to use"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text ", the"
 
 	para "first #mon in"
@@ -347,7 +347,7 @@ UnknownText_0x6a71f:
 
 UnknownText_0x6a79a:
 	text "You still have @"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text ""
 	line "minute(s) left."
 

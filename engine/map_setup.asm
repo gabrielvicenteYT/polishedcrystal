@@ -105,16 +105,9 @@ MapSetupCommands: ; 15440
 	dba ActivateMapAnims ; 29
 	dba SuspendMapAnims ; 2a
 	dba RetainOldPalettes ; 2b
-	dba DontScrollText ; 2c
-	dba ReturnFromMapSetupScript ; 2d
+	dba ReturnFromMapSetupScript ; 2c
+	dba DecompressMetatiles ; 2d
 ; 154ca
-
-
-DontScrollText: ; 154ca
-	xor a
-	ld [wDisableTextAcceleration], a
-	ret
-; 154cf
 
 ActivateMapAnims: ; 154cf
 	ld a, $1
@@ -140,7 +133,7 @@ LoadObjectMasks: ; 2454f
 	xor a
 	ld bc, NUM_OBJECTS
 	call ByteFill
-	ld bc, MapObjects
+	ld bc, wMapObjects
 	ld de, wObjectMasks
 	xor a
 .loop
@@ -230,16 +223,16 @@ CheckReplaceKrisSprite: ; 154f7
 
 .CheckBiking: ; 1550c (5:550c)
 	and a
-	ld hl, BikeFlags
-	bit 1, [hl]
+	ld hl, wOWState
+	bit OWSTATE_BIKING_FORCED, [hl]
 	ret z
 	ld a, PLAYER_BIKE
-	ld [PlayerState], a
+	ld [wPlayerState], a
 	scf
 	ret
 
 .CheckSurfing2: ; 1551a (5:551a)
-	ld a, [PlayerState]
+	ld a, [wPlayerState]
 	and a ; cp PLAYER_NORMAL
 	jr z, .nope
 	cp PLAYER_SLIP
@@ -255,12 +248,12 @@ CheckReplaceKrisSprite: ; 154f7
 	jr z, .checkbiking
 	jr .nope
 .checkbiking
-	ld a, [PlayerState]
+	ld a, [wPlayerState]
 	cp PLAYER_BIKE
 	jr nz, .nope
 .surfing
 	ld a, PLAYER_NORMAL
-	ld [PlayerState], a
+	ld [wPlayerState], a
 	scf
 	ret
 
@@ -271,13 +264,13 @@ CheckReplaceKrisSprite: ; 154f7
 .CheckSurfing: ; 1554e (5:554e)
 	call CheckOnWater
 	jr nz, .ret_nc
-	ld a, [PlayerState]
+	ld a, [wPlayerState]
 	cp PLAYER_SURF
 	jr z, ._surfing
 	cp PLAYER_SURF_PIKA
 	jr z, ._surfing
 	ld a, PLAYER_SURF
-	ld [PlayerState], a
+	ld [wPlayerState], a
 ._surfing
 	scf
 	ret
@@ -294,23 +287,42 @@ FadeOldMapMusic: ; 15567
 RetainOldPalettes: ; 1556d
 	farjp _UpdateTimePals
 
-RotatePalettesRightMapAndMusic: ; 15574
+RotatePalettesRightMapAndMusic:
 	ld e, 0
-	ld a, [MusicFadeIDLo]
+	ld a, [wMusicFadeIDLo]
 	ld d, 0
-	ld a, [MusicFadeIDHi]
+	ld a, [wMusicFadeIDHi]
 	ld a, $4
-	ld [MusicFade], a
-	jp RotateThreePalettesRight
-; 15587
+	ld [wMusicFade], a
+	farjp FadeOutPalettes
 
 ForceMapMusic: ; 15587
-	ld a, [PlayerState]
+	ld a, [wPlayerState]
 	cp PLAYER_BIKE
 	jr nz, .notbiking
 	call VolumeOff
 	ld a, $88
-	ld [MusicFade], a
+	ld [wMusicFade], a
 .notbiking
 	jp TryRestartMapMusic
-; 1559a
+
+DecompressMetatiles:
+	ld hl, wTilesetBlocksBank
+	ld c, BANK(wDecompressedMetatiles)
+	call .Decompress
+
+	ld hl, wTilesetAttributesBank
+	ld c, BANK(wDecompressedAttributes)
+
+.Decompress:
+	ld a, [hli]
+	ld b, a
+	ld a, [hli]
+	ld h, [hl]
+	ld l, a
+	ld de, wDecompressedMetatiles
+	ld a, c
+	call StackCallInWRAMBankA
+
+.Function
+	jp FarDecompressAtB_D000

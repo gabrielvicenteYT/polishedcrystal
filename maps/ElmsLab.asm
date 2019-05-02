@@ -45,12 +45,12 @@ ElmsLab_MapScriptHeader:
 
 	db 7 ; object events
 	object_event  5,  2, SPRITE_ELM, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ProfElmScript, -1
-	object_event  2,  9, SPRITE_SCIENTIST, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, ElmsAideScript, EVENT_ELMS_AIDE_IN_LAB
+	object_event  2,  9, SPRITE_SCIENTIST, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, PAL_NPC_BROWN, PERSONTYPE_SCRIPT, 0, ElmsAideScript, EVENT_ELMS_AIDE_IN_LAB
 	object_event  6,  3, SPRITE_BALL_CUT_FRUIT, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, CyndaquilPokeBallScript, EVENT_CYNDAQUIL_POKEBALL_IN_ELMS_LAB
 	object_event  7,  3, SPRITE_BALL_CUT_FRUIT, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, TotodilePokeBallScript, EVENT_TOTODILE_POKEBALL_IN_ELMS_LAB
 	object_event  8,  3, SPRITE_BALL_CUT_FRUIT, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, ChikoritaPokeBallScript, EVENT_CHIKORITA_POKEBALL_IN_ELMS_LAB
-	object_event  5,  3, SPRITE_OFFICER, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, CopScript, EVENT_COP_IN_ELMS_LAB
-	object_event  5, 11, SPRITE_LYRA, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, ElmsLabLyraScript, EVENT_LYRA_IN_ELMS_LAB
+	object_event  5,  3, SPRITE_OFFICER, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, CopScript, EVENT_COP_IN_ELMS_LAB
+	object_event  5, 11, SPRITE_LYRA, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ElmsLabLyraScript, EVENT_LYRA_IN_ELMS_LAB
 
 	const_def 1 ; object constants
 	const ELMSLAB_ELM
@@ -397,7 +397,6 @@ ElmAfterTheftScript:
 	setmapscene ROUTE_29, $1
 	clearevent EVENT_ROUTE_30_YOUNGSTER_JOEY
 	setevent EVENT_ROUTE_30_BATTLE
-	variablesprite SPRITE_ROUTE_30_RATTATA, SPRITE_SUICUNE
 	setscene $2
 	jumpopenedtext ElmAfterTheftText6
 
@@ -630,7 +629,6 @@ CopScript:
 	applymovement ELMSLAB_LYRA, LyraRunsInMovement
 	turnobject ELMSLAB_OFFICER, DOWN
 	showtext ElmsLabLyraTheftInnocentText
-	showemote EMOTE_SHOCK, ELMSLAB_OFFICER, 15
 	pause 10
 	turnobject ELMSLAB_OFFICER, LEFT
 	opentext
@@ -797,25 +795,25 @@ AideWalksBackMovement:
 
 ElmJumpUpMovement:
 	fix_facing
-	big_step_up
+	run_step_up
 	remove_fixed_facing
 	step_end
 
 ElmJumpDownMovement:
 	fix_facing
-	big_step_down
+	run_step_down
 	remove_fixed_facing
 	step_end
 
 ElmJumpLeftMovement:
 	fix_facing
-	big_step_left
+	run_step_left
 	remove_fixed_facing
 	step_end
 
 ElmJumpRightMovement:
 	fix_facing
-	big_step_right
+	run_step_right
 	remove_fixed_facing
 	step_end
 
@@ -1011,7 +1009,7 @@ ChoseStarterText:
 ReceivedStarterText:
 	text "<PLAYER> received"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "!"
 	done
 
@@ -1283,10 +1281,10 @@ AideText_ThiefReturnedMon:
 	line "to him…"
 
 	para "“It seems that"
-	line "the Pokemon likes"
+	line "the #mon likes"
 	cont "you very much."
 
-	para "Pokemon do their"
+	para "#mon do their"
 	line "best with someone"
 	cont "they love."
 
@@ -1558,7 +1556,7 @@ LyraChoosesStarterText:
 LyraReceivedStarterText:
 	text "Lyra received"
 	line "@"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text "!"
 	done
 

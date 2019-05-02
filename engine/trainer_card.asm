@@ -1,11 +1,11 @@
 TRAINERCARD_BORDERGFX_START EQU $f4
 
 TrainerCard: ; 25105
-	ld a, [VramState]
+	ld a, [wVramState]
 	push af
 	xor a
-	ld [VramState], a
-	ld hl, Options1
+	ld [wVramState], a
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
@@ -25,9 +25,9 @@ TrainerCard: ; 25105
 
 .quit
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	pop af
-	ld [VramState], a
+	ld [wVramState], a
 	ret
 
 .InitRAM: ; 2513b (9:513b)
@@ -54,11 +54,11 @@ TrainerCard: ; 25105
 	call TrainerCard_PrintTopHalfOfCard
 
 	call EnableLCD
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld b, CGB_TRAINER_CARD
 	call GetCGBLayout
 	call SetPalettes
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld hl, wJumptableIndex
 	xor a
 	ld [hli], a
@@ -92,12 +92,12 @@ TrainerCard_Quit: ; 251b0 (9:51b0)
 TrainerCard_Page1_LoadGFX: ; 251b6 (9:51b6)
 	call ClearSprites
 	call TrainerCardSetup_ClearBottomHalf
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 
 	ld b, CGB_TRAINER_CARD
 	call GetCGBLayout
 	call SetPalettes
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 
 	ld de, CardStatusGFX
 	call TrainerCard_LoadHeaderGFX
@@ -123,12 +123,12 @@ TrainerCard_Page1_Joypad: ; 251d7 (9:51d7)
 TrainerCard_Page2_LoadGFX: ; 251f4 (9:51f4)
 	call ClearSprites
 	call TrainerCardSetup_ClearBottomHalf
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 
 	ld b, CGB_TRAINER_CARD_2
 	call GetCGBLayout
 	call SetPalettes
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 
 	ld de, CardBadgesGFX
 	call TrainerCard_LoadHeaderGFX
@@ -162,7 +162,7 @@ TrainerCard_Page2_Joypad: ; 25221 (9:5221)
 	ret
 
 .pressed_right
-	ld a, [KantoBadges]
+	ld a, [wKantoBadges]
 	and a
 	ret z
 	ld a, $4
@@ -170,7 +170,7 @@ TrainerCard_Page2_Joypad: ; 25221 (9:5221)
 	ret
 
 .pressed_a
-	ld a, [KantoBadges]
+	ld a, [wKantoBadges]
 	and a
 	jr z, .quit
 	ld a, $4
@@ -190,12 +190,12 @@ TrainerCard_Page2_Joypad: ; 25221 (9:5221)
 TrainerCard_Page3_LoadGFX: ; 2524c (9:524c)
 	call ClearSprites
 	call TrainerCardSetup_ClearBottomHalf
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 
 	ld b, CGB_TRAINER_CARD_3
 	call GetCGBLayout
 	call SetPalettes
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 
 	ld de, CardBadgesGFX
 	call TrainerCard_LoadHeaderGFX
@@ -311,11 +311,11 @@ TrainerCard_PrintTopHalfOfCard: ; 25299 (9:5299)
 	call PlaceString
 
 	hlcoord 7, 2
-	ld de, PlayerName
+	ld de, wPlayerName
 	call PlaceString
 
 	hlcoord 5, 3
-	ld de, PlayerID
+	ld de, wPlayerID
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 5
 	call PrintNum
 
@@ -325,13 +325,13 @@ TrainerCard_PrintTopHalfOfCard: ; 25299 (9:5299)
 	ld [hGraphicStartTile], a
 	predef PlaceGraphic
 
-	ld a, [Money]
+	ld a, [wMoney]
 	cp $f
 	jr c, .not_seven_digits
-	ld a, [Money + 1]
+	ld a, [wMoney + 1]
 	cp $42
 	jr c, .not_seven_digits
-	ld a, [Money + 2]
+	ld a, [wMoney + 2]
 	cp $40
 	jr c, .not_seven_digits
 	hlcoord 7, 6
@@ -339,7 +339,7 @@ TrainerCard_PrintTopHalfOfCard: ; 25299 (9:5299)
 .not_seven_digits
 	hlcoord 6, 6
 .print_money
-	ld de, Money
+	ld de, wMoney
 	lb bc, PRINTNUM_MONEY | 3, 7
 	jp PrintNum
 
@@ -362,29 +362,29 @@ TrainerCard_Page1_PrintDexCaught_GameTime: ; 2530a (9:530a)
 	ld de, .Dex_PlayTime_BP
 	call PlaceString
 
-	ld hl, PokedexCaught
-	ld b, EndPokedexCaught - PokedexCaught
+	ld hl, wPokedexCaught
+	ld b, wEndPokedexCaught - wPokedexCaught
 	call CountSetBits
 	ld de, wd265
 	hlcoord 15, 10
 	lb bc, 1, 3
 	call PrintNum
 
-	ld de, BattlePoints
+	ld de, wBattlePoints
 	hlcoord 15, 14
 	lb bc, 1, 3
 	call PrintNum
 
 	call TrainerCard_Page1_PrintGameTime
 
-	ld a, [StatusFlags] ; pokedex
+	ld a, [wStatusFlags] ; pokedex
 	bit 0, a
 	jr nz, .have_pokedex
 	hlcoord 2, 10
 	lb bc, 1, 16
 	call ClearBox
 .have_pokedex
-	ld a, [BattlePoints]
+	ld a, [wBattlePoints]
 	and a
 	jr nz, .have_bp
 	hlcoord 2, 14
@@ -395,7 +395,7 @@ TrainerCard_Page1_PrintDexCaught_GameTime: ; 2530a (9:530a)
 ; trainer stars
 	ld c, VAR_TRAINER_STARS
 	farcall _GetVarAction
-	ld a, [StringBuffer2]
+	ld a, [wStringBuffer2]
 	hlcoord 2, 16
 .star_loop
 	dec a
@@ -413,11 +413,11 @@ TrainerCard_Page1_PrintDexCaught_GameTime: ; 2530a (9:530a)
 
 TrainerCard_Page1_PrintGameTime: ; 25415 (9:5415)
 	hlcoord 11, 12
-	ld de, GameTimeHours
+	ld de, wGameTimeHours
 	lb bc, 2, 4
 	call PrintNum
 	inc hl
-	ld de, GameTimeMinutes
+	ld de, wGameTimeMinutes
 	lb bc, PRINTNUM_LEADINGZEROS | 1, 2
 	call PrintNum
 	ld a, [hVBlankCounter]
@@ -502,7 +502,7 @@ TrainerCard_Page2_3_OAMUpdate: ; 25448 (9:5448)
 	ld d, a
 	ld a, [de]
 	ld c, a
-	ld de, Sprites
+	ld de, wSprites
 	ld b, 8
 .loop
 	srl c
@@ -611,7 +611,7 @@ TrainerCard_JohtoBadgesOAM: ; 254c9
 	; cycle 1: face tile, in1 tile, in2 tile, in3 tile
 	; cycle 2: face tile, in1 tile, in2 tile, in3 tile
 
-	dw JohtoBadges
+	dw wJohtoBadges
 
 	; Zephyr Badge
 	db $68, $18, 0, 0, 0, 0
@@ -661,7 +661,7 @@ TrainerCard_KantoBadgesOAM:
 	; cycle 1: face tile, in1 tile, in2 tile, in3 tile
 	; cycle 2: face tile, in1 tile, in2 tile, in3 tile
 
-	dw KantoBadges
+	dw wKantoBadges
 
 	; Boulder Badge
 	db $80, $38, 0, 0, 0, 0

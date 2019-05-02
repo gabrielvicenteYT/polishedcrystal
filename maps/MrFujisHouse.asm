@@ -12,8 +12,8 @@ MrFujisHouse_MapScriptHeader:
 	db 0 ; bg events
 
 	db 5 ; object events
-	object_event  4,  1, SPRITE_SUPER_NERD, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x7e8f1, -1
-	object_event  3,  4, SPRITE_LASS, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x7e940, -1
+	object_event  4,  1, SPRITE_POKEMANIAC, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x7e8f1, -1
+	object_event  3,  4, SPRITE_CUTE_GIRL, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_RED, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x7e940, -1
 	object_event  8,  4, SPRITE_PSYDUCK, SPRITEMOVEDATA_POKEMON, 0, 0, -1, -1, 0, PERSONTYPE_POKEMON, PSYDUCK, MrFujisPsyduckText, -1
 	object_event  5,  5, SPRITE_NIDORINO, SPRITEMOVEDATA_POKEMON, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_POKEMON, NIDORINO, MrFujisNidorinoText, -1
 	object_event  1,  3, SPRITE_PIDGEY, SPRITEMOVEDATA_POKEMON, 0, 0, -1, -1, PAL_NPC_BROWN, PERSONTYPE_POKEMON, PIDGEY, MrFujisPidgeyText, -1
@@ -23,9 +23,8 @@ UnknownText_0x7e8f1:
 	line "here, but he's not"
 	cont "home now."
 
-	para "He should be at"
-	line "the House of"
-	cont "Memories."
+	para "He might be at the"
+	line "House of Souls."
 	done
 
 UnknownText_0x7e940:

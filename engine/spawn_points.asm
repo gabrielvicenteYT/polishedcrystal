@@ -3,7 +3,7 @@ INCLUDE "data/maps/spawn_points.asm"
 LoadSpawnPoint: ; 1531f
 	push hl
 	push de
-	ld a, [DefaultSpawnpoint]
+	ld a, [wDefaultSpawnpoint]
 	cp SPAWN_N_A
 	jr z, .spawn_n_a
 	ld l, a
@@ -13,13 +13,13 @@ LoadSpawnPoint: ; 1531f
 	ld de, SpawnPoints
 	add hl, de
 	ld a, [hli]
-	ld [MapGroup], a
+	ld [wMapGroup], a
 	ld a, [hli]
-	ld [MapNumber], a
+	ld [wMapNumber], a
 	ld a, [hli]
-	ld [XCoord], a
+	ld [wXCoord], a
 	ld a, [hli]
-	ld [YCoord], a
+	ld [wYCoord], a
 .spawn_n_a
 	pop de
 	pop hl

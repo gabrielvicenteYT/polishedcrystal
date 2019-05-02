@@ -5,7 +5,7 @@ GetPlayerIcon: ; 8832c
 	ld de, ChrisSpriteGFX
 	ld b, BANK(ChrisSpriteGFX)
 
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	bit 0, a
 	ret z
 
@@ -17,7 +17,7 @@ GetPlayerIcon: ; 8832c
 
 GetCardPic: ; 8833e
 	ld hl, ChrisCardPic
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	bit 0, a
 	jr z, .GotClass
 	ld hl, KrisCardPic
@@ -36,7 +36,7 @@ INCBIN "gfx/trainer_card/kris_card.5x7.2bpp"
 
 GetPlayerBackpic: ; 88825
 	ld hl, ChrisBackpic
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	bit 0, a
 	jr z, .ok
 	ld hl, KrisBackpic
@@ -57,20 +57,20 @@ INCBIN "gfx/battle/lyra_back.6x6.2bpp.lz"
 
 
 HOF_LoadTrainerFrontpic: ; 88840
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	xor a
 	ld [hBGMapMode], a
 	ld e, 0
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	bit 0, a
 	jr z, .GotClass
 	ld e, 1
 
 .GotClass:
 	ld a, e
-	ld [TrainerClass], a
+	ld [wTrainerClass], a
 	ld de, ChrisCardPic
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	bit 0, a
 	jr z, .GotPic
 	ld de, KrisCardPic
@@ -79,7 +79,7 @@ HOF_LoadTrainerFrontpic: ; 88840
 	ld hl, VTiles2
 	lb bc, BANK(ChrisCardPic), 5 * 7 ; BANK(KrisCardPic)
 	call Get2bpp
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld a, $1
 	ld [hBGMapMode], a
 	ret

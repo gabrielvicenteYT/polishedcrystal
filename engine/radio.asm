@@ -4,7 +4,7 @@ PlayRadioShow:
 	cp POKE_FLUTE_RADIO
 	jr nc, .ok
 ; If Team Rocket is not occupying the radio tower, we don't need to be here.
-	ld a, [StatusFlags2]
+	ld a, [wStatusFlags2]
 	bit 0, a ; ENGINE_ROCKETS_IN_RADIO_TOWER
 	jr z, .ok
 ; If we're in Kanto, we don't need to be here.
@@ -232,7 +232,7 @@ endr
 	jr z, .loop2
 
 	ld bc, 2 * NUM_GRASSMON
-	call AddNTimes
+	rst AddNTimes
 .loop3
 	; Choose one of the middle three Pokemon.
 	call Random
@@ -249,12 +249,12 @@ endr
 	ld a, BANK(JohtoGrassWildMons)
 	call GetFarByte
 	ld [wNamedObjectIndexBuffer], a
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	call GetPokemonName
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	ld de, wMonOrItemNameBuffer
 	ld bc, PKMN_NAME_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	; Now that we've chosen our wild Pokemon,
 	; let's recover the map index info and get its name.
 	pop bc
@@ -314,7 +314,7 @@ OPT_OakText3:
 	db "@"
 
 OaksPkmnTalk7:
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	ld [wNamedObjectIndexBuffer], a
 	call GetPokemonName
 	ld hl, OPT_MaryText1
@@ -562,7 +562,7 @@ OaksPkmnTalk10:
 	farcall RadioMusicRestartPokemonChannel
 	ld hl, OPT_RestartText
 	call PrintText
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld hl, OPT_PokemonChannelText
 	call PrintText
 	ld a, OAKS_POKEMON_TALK_11
@@ -646,7 +646,8 @@ CopyBottomLineToTopLine:
 	hlcoord 0, 15
 	decoord 0, 13
 	ld bc, SCREEN_WIDTH * 2
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 ClearBottomLine:
 	hlcoord 1, 15
@@ -661,7 +662,7 @@ ClearBottomLine:
 PokedexShow_GetDexEntryBank:
 	push hl
 	push de
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	dec a
 	rlca
 	rlca
@@ -695,7 +696,7 @@ PokedexShow1:
 	jr z, .loop
 	inc c
 	ld a, c
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	ld [wNamedObjectIndexBuffer], a
 	call GetPokemonName
 	ld hl, PokedexShowText
@@ -703,7 +704,7 @@ PokedexShow1:
 	jp NextRadioLine
 
 PokedexShow2:
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	dec a
 	ld hl, PokedexDataPointerTable
 	ld c, a
@@ -730,7 +731,7 @@ endr
 ;	cp $2f
 ;	jr nz, .load
 ;	inc hl
-;	ld a, [Options2]
+;	ld a, [wOptions2]
 ;	bit POKEDEX_UNITS, a
 ;	jr z, .imperial
 ;	ld a, d
@@ -992,12 +993,12 @@ LuckyNumberShow7:
 	jp NextRadioLine
 
 LuckyNumberShow8:
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	ld de, wLuckyIDNumber
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 5
 	call PrintNum
 	ld a, "@"
-	ld [StringBuffer1 + 5], a
+	ld [wStringBuffer1 + 5], a
 	ld hl, LC_Text8
 	ld a, LUCKY_NUMBER_SHOW_9
 	jp NextRadioLine
@@ -1150,11 +1151,11 @@ PeoplePlaces4: ; People
 	inc a
 	push af
 	ld hl, PnP_HiddenPeople
-	ld a, [StatusFlags]
+	ld a, [wStatusFlags]
 	bit 6, a ; ENGINE_CREDITS_SKIP
 	jr z, .ok
 	ld hl, PnP_HiddenPeople_BeatE4
-	ld a, [KantoBadges]
+	ld a, [wKantoBadges]
 	cp %11111111
 	jr nz, .ok
 	ld hl, PnP_HiddenPeople_BeatKanto
@@ -1168,7 +1169,7 @@ PeoplePlaces4: ; People
 	jr c, PeoplePlaces4
 	push bc
 	farcall GetTrainerClassName
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	call CopyName1
 	pop bc
 	ld b, 1
@@ -1533,7 +1534,7 @@ BuenasPassword4:
 	jp c, BuenasPassword8
 	ld a, [wBuenasPassword]
 ; If we already generated the password today, we don't need to generate a new one.
-	ld hl, WeeklyFlags
+	ld hl, wWeeklyFlags
 	bit 7, [hl]
 	jr nz, .AlreadyGotIt
 ; There are only 11 groups to choose from.
@@ -1555,7 +1556,7 @@ BuenasPassword4:
 	add e
 	ld [wBuenasPassword], a
 ; Set the flag so that we don't generate a new password this week.
-	ld hl, WeeklyFlags
+	ld hl, wWeeklyFlags
 	set 7, [hl]
 .AlreadyGotIt:
 	ld c, a
@@ -1640,16 +1641,16 @@ GetBuenasPassword:
 	jr nz, .read_loop
 	dec c
 	jr nz, .read_loop
-; ... and copy it into StringBuffer1.
+; ... and copy it into wStringBuffer1.
 .skip
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 .copy_loop
 	ld a, [de]
 	inc de
 	ld [hli], a
 	cp "@"
 	jr nz, .copy_loop
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	ret
 
 INCLUDE "data/radio/buenas_passwords.asm"
@@ -1673,14 +1674,14 @@ BuenasPassword7:
 
 BuenasPasswordAfterMidnight:
 	push hl
-	ld hl, WeeklyFlags
+	ld hl, wWeeklyFlags
 	res 7, [hl]
 	pop hl
 	ld a, BUENAS_PASSWORD_8
 	jp NextRadioLine
 
 BuenasPassword8:
-	ld hl, WeeklyFlags
+	ld hl, wWeeklyFlags
 	res 7, [hl]
 	ld hl, BuenaRadioMidnightText10
 	ld a, BUENAS_PASSWORD_9
@@ -1748,7 +1749,7 @@ BuenasPassword20:
 	farcall NoRadioName
 	pop af
 	ld [hBGMapMode], a
-	ld hl, WeeklyFlags
+	ld hl, wWeeklyFlags
 	res 7, [hl]
 	ld a, BUENAS_PASSWORD
 	ld [wCurrentRadioLine], a
@@ -1874,7 +1875,8 @@ CopyRadioTextToRAM:
 	jp z, FarCopyRadioText
 	ld de, wRadioText
 	ld bc, SCREEN_WIDTH * 2
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 StartRadioStation:
 	ld a, [wNumRadioLinesPrinted]

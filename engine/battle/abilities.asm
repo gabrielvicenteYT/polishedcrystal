@@ -1,17 +1,18 @@
 RunActivationAbilitiesInner:
 	ld hl, BattleEntryAbilities
 	jr UserAbilityJumptable
+
+RunEnemyStatusHealAbilities:
+	call CallOpponentTurn
 RunStatusHealAbilities:
 	ld hl, StatusHealAbilities
 UserAbilityJumptable:
 	ld a, BATTLE_VARS_ABILITY
 	call GetBattleVar
-	jp AbilityJumptable
-
-RunEnemyStatusHealAbilities:
-	call SwitchTurn
-	call RunStatusHealAbilities
-	jp SwitchTurn
+AbilityJumptable:
+	; If we at some point make the AI learn abilities, keep this.
+	; For now it just jumps to the general jumptable function
+	jp BattleJumptable
 
 BattleEntryAbilities:
 	dbw TRACE, TraceAbility
@@ -150,11 +151,11 @@ SnowWarningAbility:
 	; fallthrough
 WeatherAbility:
 	ld b, a
-	ld a, [Weather]
+	ld a, [wWeather]
 	cp b
 	ret z ; don't re-activate it
 	call ShowAbilityActivation
-	; Disable running animations as part of Start(Weather) commands. This will not block
+	; Disable running animations as part of Start(wWeather) commands. This will not block
 	; Call_PlayBattleAnim that plays the animation manually.
 	call DisableAnimations
 	ld a, b
@@ -167,56 +168,61 @@ WeatherAbility:
 	; is sandstorm
 	ld de, SANDSTORM
 	farcall Call_PlayBattleAnim
-	farcall BattleCommand_StartSandstorm
+	farcall BattleCommand_startsandstorm
 	jp EnableAnimations
 .handlerain
 	ld de, RAIN_DANCE
 	farcall Call_PlayBattleAnim
-	farcall BattleCommand_StartRain
+	farcall BattleCommand_startrain
 	jp EnableAnimations
 .handlesun
 	ld de, SUNNY_DAY
 	farcall Call_PlayBattleAnim
-	farcall BattleCommand_StartSun
-	jp EnableAnimations
-.handlesandstorm
-	ld de, SANDSTORM
-	farcall Call_PlayBattleAnim
-	farcall BattleCommand_StartSandstorm
+	farcall BattleCommand_startsun
 	jp EnableAnimations
 .handlehail
 	ld de, HAIL
 	farcall Call_PlayBattleAnim
-	farcall BattleCommand_StartHail
+	farcall BattleCommand_starthail
 	jp EnableAnimations
 
 IntimidateAbility:
 	call ShowAbilityActivation
 	call DisableAnimations
-	farcall ResetMiss
-	farcall BattleCommand_AttackDown
-	farcall BattleCommand_StatDownMessage
+	ld a, [wAttackMissed]
+	push af
+	ld a, [wEffectFailed]
+	push af
+	xor a
+	ld [wAttackMissed], a
+	ld [wEffectFailed], a
+	farcall BattleCommand_attackdown
+	farcall BattleCommand_statdownmessage
+	pop af
+	ld [wEffectFailed], a
+	pop af
+	ld [wAttackMissed], a
 	jp EnableAnimations
 
 DownloadAbility:
 ; Increase Atk if enemy Def is lower than SpDef, otherwise SpAtk
 	call ShowAbilityActivation
 	call DisableAnimations
-	ld hl, EnemyMonDefense
+	ld hl, wEnemyMonDefense
 	ld a, [hBattleTurn]
 	and a
 	jr z, .ok
-	ld hl, BattleMonDefense
+	ld hl, wBattleMonDefense
 .ok
 	ld a, [hli]
 	ld b, a
 	ld a, [hl]
 	ld c, a
-	ld hl, EnemyMonSpclDef + 1
+	ld hl, wEnemyMonSpclDef + 1
 	ld a, [hBattleTurn]
 	and a
 	jr z, .ok2
-	ld hl, BattleMonSpclDef + 1
+	ld hl, wBattleMonSpclDef + 1
 .ok2
 	ld a, [hld]
 	ld e, a
@@ -230,20 +236,20 @@ DownloadAbility:
 	jr c, .inc_atk
 .inc_spatk
 	farcall ResetMiss
-	farcall BattleCommand_SpecialAttackUp
-	farcall BattleCommand_StatUpMessage
+	farcall BattleCommand_specialattackup
+	farcall BattleCommand_statupmessage
 	jp EnableAnimations
 .inc_atk
 	farcall ResetMiss
-	farcall BattleCommand_AttackUp
-	farcall BattleCommand_StatUpMessage
+	farcall BattleCommand_attackup
+	farcall BattleCommand_statupmessage
 	jp EnableAnimations
 
 ImposterAbility:
 	call ShowAbilityActivation
 	call DisableAnimations
 	farcall ResetMiss
-	farcall BattleCommand_Transform
+	farcall BattleCommand_transform
 	jp EnableAnimations
 
 AnticipationAbility:
@@ -253,9 +259,9 @@ AnticipationAbility:
 ; It also ignores Pixilate.
 	ld a, [hBattleTurn]
 	and a
-	ld hl, EnemyMonMoves
+	ld hl, wEnemyMonMoves
 	jr z, .got_move_ptr
-	ld hl, BattleMonMoves
+	ld hl, wBattleMonMoves
 .got_move_ptr
 	; Since Anticipation can run in the middle of a turn and we don't want to ruin the
 	; opponent's move struct, save the current move of it to be reapplied afterwards.
@@ -275,7 +281,7 @@ AnticipationAbility:
 	dec a
 	ld hl, Moves
 	ld bc, MOVE_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	ld a, [hBattleTurn]
 	and a
 	ld de, wPlayerMoveStruct
@@ -286,6 +292,7 @@ AnticipationAbility:
 	call FarCopyBytes
 	; Ignore status moves. Don't ignore Counter/Mirror Coat (counterintuitive)
 	ld a, BATTLE_VARS_MOVE_CATEGORY
+	call GetBattleVar
 	cp STATUS
 	jr z, .end_of_loop
 	; If the move is super effective, shudder
@@ -311,7 +318,7 @@ AnticipationAbility:
 	dec a
 	ld hl, Moves
 	ld bc, MOVE_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	ld a, [hBattleTurn]
 	and a
 	ld de, wPlayerMoveStruct
@@ -328,21 +335,21 @@ ForewarnAbility:
 ; 160 to counter moves and 80 to everything else with nonstandard base power.
 	ld a, [hBattleTurn]
 	and a
-	ld hl, EnemyMonMoves
+	ld hl, wEnemyMonMoves
 	jr z, .got_move_ptr
-	ld hl, BattleMonMoves
+	ld hl, wBattleMonMoves
 .got_move_ptr
 	ld a, NUM_MOVES + 1
-	ld [Buffer1], a ; iterator
+	ld [wBuffer1], a ; iterator
 	xor a
-	ld [Buffer2], a ; used when randomizing between equal-power moves
-	ld [Buffer3], a ; highest power move index
-	ld [Buffer4], a	; power of said move for comparing
+	ld [wBuffer2], a ; used when randomizing between equal-power moves
+	ld [wBuffer3], a ; highest power move index
+	ld [wBuffer4], a ; power of said move for comparing
 .loop
-	ld a, [Buffer1]
+	ld a, [wBuffer1]
 	dec a
 	jr z, .done
-	ld [Buffer1], a
+	ld [wBuffer1], a
 	; a mon can have less than 4 moves
 	ld a, [hli]
 	and a
@@ -369,9 +376,7 @@ ForewarnAbility:
 	dec a
 	push hl
 	ld hl, Moves + MOVE_POWER
-	push bc
 	call GetMoveAttr
-	pop bc
 	pop hl
 	ld c, a
 	; Status moves have 0 power
@@ -379,35 +384,35 @@ ForewarnAbility:
 	jr z, .loop
 .compare_power
 	; b: current move ID, c: current move power
-	ld a, [Buffer4]
+	ld a, [wBuffer4]
 	cp c
 	jr z, .randomize
 	jr nc, .loop
 	; This move has higher BP, reset the random range
 	xor a
-	ld [Buffer2], a
+	ld [wBuffer2], a
 	jr .replace
 .randomize
 	; Move power was equal: randomize. This is done as follows as to give even results:
 	; 2 moves share power: 2nd move replaces 1/2 of the time
 	; 3 moves share power: 3rd move replaces 2/3 of the time
 	; 4 moves share power: 4th move replaces 3/4 of the time
-	ld a, [Buffer2]
+	ld a, [wBuffer2]
 	inc a
-	ld [Buffer2], a
+	ld [wBuffer2], a
 	inc a
 	call BattleRandomRange
 	and a
 	jr z, .loop
 .replace
 	ld a, b
-	ld [Buffer3], a
+	ld [wBuffer3], a
 	ld a, c
-	ld [Buffer4], a
+	ld [wBuffer4], a
 	jr .loop
 .done
 	; Check if we have an attacking move in first place
-	ld a, [Buffer3]
+	ld a, [wBuffer3]
 	and a
 	ret z
 	push af
@@ -423,8 +428,7 @@ FriskAbility:
 	ld a, [hl]
 	and a
 	ret z ; no item
-	ld [wNamedObjectIndexBuffer], a
-	call GetItemName
+	call GetCurItemName
 	ld hl, FriskedItemText
 	jp StdBattleTextBox
 
@@ -454,17 +458,22 @@ SynchronizeAbility:
 	call DisableAnimations
 	ld a, BATTLE_VARS_STATUS
 	call GetBattleVar
-	cp 1 << PSN
-	jr z, .is_psn
+	cp 1 << PAR
+	jr z, .is_par
 	cp 1 << BRN
 	jr z, .is_brn
-	farcall BattleCommand_Paralyze
+	cp 1 << PSN
+	jr z, .is_psn
+	farcall BattleCommand_toxic
 	jp EnableAnimations
 .is_psn
-	farcall BattleCommand_Poison
+	farcall BattleCommand_poison
+	jp EnableAnimations
+.is_par
+	farcall BattleCommand_paralyze
 	jp EnableAnimations
 .is_brn
-	farcall BattleCommand_Burn
+	farcall BattleCommand_burn
 	jp EnableAnimations
 
 RunFaintAbilities:
@@ -495,11 +504,7 @@ AftermathAbility:
 	cp DAMP
 	ret z
 	; Only contact moves proc Aftermath
-	call SwitchTurn
-	call CheckContactMove
-	push af
-	call SwitchTurn
-	pop af
+	call CheckOpponentContactMove
 	ret c
 .is_contact
 	call ShowAbilityActivation
@@ -569,10 +574,8 @@ RunContactAbilities:
 	ret nc
 	call GetOpponentAbilityAfterMoldBreaker
 	ld b, a
-	call SwitchTurn
-	call .do_enemy_abilities
-	jp SwitchTurn
 
+	call CallOpponentTurn
 .do_enemy_abilities
 	ld a, b
 	cp EFFECT_SPORE
@@ -594,7 +597,7 @@ CursedBodyAbility:
 	ret nc
 	call DisableAnimations
 	; this runs ShowAbilityActivation when relevant
-	farcall BattleCommand_Disable
+	farcall BattleCommand_disable
 	jp EnableAnimations
 
 CuteCharmAbility:
@@ -602,7 +605,7 @@ CuteCharmAbility:
 	ret z
 	call DisableAnimations
 	; this runs ShowAbilityActivation when relevant
-	farcall BattleCommand_Attract
+	farcall BattleCommand_attract
 	jp EnableAnimations
 
 EffectSporeAbility:
@@ -634,6 +637,9 @@ FlameBodyAbility:
 PoisonTouchAbility:
 	; Poison Touch is the same as an opposing Poison Point, and since
 	; abilities always run from the ability user's POV...
+	; Doesn't apply when opponent has a Substitute up...
+	farcall CheckSubstituteOpp
+	ret nz
 PoisonPointAbility:
 	call CheckIfTargetIsPoisonType
 	ret z
@@ -648,11 +654,11 @@ StaticAbility:
 	lb bc, LIMBER, HELD_PREVENT_PARALYZE
 	ld d, PAR
 AfflictStatusAbility
-; While BattleCommand_Whatever already does all these checks,
+; While BattleCommand_whatever already does all these checks,
 ; duplicating them here is minor logic, and it avoids spamming
 ; needless ability activations that ends up not actually doing
 ; anything.
-	call HasEnemyFainted
+	call HasOpponentFainted
 	ret z
 	ld a, BATTLE_VARS_ABILITY_OPP
 	push de
@@ -680,16 +686,16 @@ AfflictStatusAbility
 	jr z, .brn
 	cp PSN
 	jr z, .psn
-	farcall BattleCommand_Paralyze
+	farcall BattleCommand_paralyze
 	jp EnableAnimations
 .slp
-	farcall BattleCommand_SleepTarget
+	farcall BattleCommand_sleeptarget
 	jp EnableAnimations
 .brn
-	farcall BattleCommand_Burn
+	farcall BattleCommand_burn
 	jp EnableAnimations
 .psn
-	farcall BattleCommand_Poison
+	farcall BattleCommand_poison
 	jp EnableAnimations
 
 CheckNullificationAbilities:
@@ -738,10 +744,10 @@ CheckNullificationAbilities:
 	ret nc
 
 .ability_ok
-	; Set AttackMissed to 3 (means ability immunity kicked in), and wTypeMatchup
+	; Set wAttackMissed to 3 (means ability immunity kicked in), and wTypeMatchup
 	; to 0 (not neccessary for the engine itself, but helps the AI)
-	ld a, 3
-	ld [AttackMissed], a
+	ld a, ATKFAIL_ABILITY
+	ld [wAttackMissed], a
 	xor a
 	ld [wTypeMatchup], a
 	ret
@@ -761,9 +767,7 @@ CheckNullificationAbilities:
 RunEnemyNullificationAbilities:
 ; At this point, we are already certain that the ability will activate, so no additional
 ; checks are required.
-	call SwitchTurn
-	call .do_enemy_abilities
-	jp SwitchTurn
+	call CallOpponentTurn
 .do_enemy_abilities
 	ld hl, NullificationAbilities
 	call UserAbilityJumptable
@@ -853,18 +857,22 @@ SpeedBoostAbility:
 StatUpAbility:
 	call HasUserFainted
 	ret z
-	ld a, [AttackMissed]
+	ld a, [wAttackMissed]
 	push af
-	xor a
-	ld [AttackMissed], a
 	call DisableAnimations
 	farcall ResetMiss
-	farcall BattleCommand_StatUp
-	ld a, [FailedMessage]
+	ld a, [wEffectFailed]
+	push af
+	xor a
+	ld [wEffectFailed], a
+	farcall BattleCommand_statup
+	pop af
+	ld [wEffectFailed], a
+	ld a, [wAttackMissed]
 	and a
 	jr nz, .cant_raise
 	call ShowAbilityActivation
-	farcall BattleCommand_StatUpMessage
+	farcall BattleCommand_statupmessage
 	jr .done
 .cant_raise
 ; Lightning Rod, Motor Drive and Sap Sipper prints a "doesn't affect" message instead.
@@ -884,7 +892,7 @@ StatUpAbility:
 	call SwitchTurn
 .done
 	pop af
-	ld [AttackMissed], a
+	ld [wAttackMissed], a
 	jp EnableAnimations
 
 WeakArmorAbility:
@@ -897,25 +905,25 @@ WeakArmorAbility:
 	call DisableAnimations
 	farcall ResetMiss
 	farcall LowerStat ; can't be resisted
-	ld a, [FailedMessage]
+	ld a, [wFailedMessage]
 	and a
 	jr nz, .failed_defensedown
 	call ShowAbilityActivation
 	call SwitchTurn
-	farcall BattleCommand_StatDownMessage
+	farcall BattleCommand_statdownmessage
 	call SwitchTurn
 	farcall ResetMiss
-	farcall BattleCommand_SpeedUp2
-	ld a, [FailedMessage]
+	farcall BattleCommand_speedup2
+	ld a, [wFailedMessage]
 	and a
 	jp nz, EnableAnimations
 .speedupmessage
-	farjp BattleCommand_StatUpMessage
+	farjp BattleCommand_statupmessage
 .failed_defensedown
 ; If we can still raise Speed, do that and show ability activation anyway
 	farcall ResetMiss
-	farcall BattleCommand_SpeedUp2
-	ld a, [FailedMessage]
+	farcall BattleCommand_speedup2
+	ld a, [wFailedMessage]
 	and a
 	jp nz, EnableAnimations
 	call ShowAbilityActivation
@@ -932,8 +940,10 @@ FlashFireAbility:
 	ld hl, FirePoweredUpText
 	jp StdBattleTextBox
 .already_fired_up
+	call SwitchTurn
 	ld hl, DoesntAffectText
-	jp StdBattleTextBox
+	call StdBattleTextBox
+	jp SwitchTurn
 
 DrySkinAbility:
 VoltAbsorbAbility:
@@ -1091,19 +1101,14 @@ WeatherRecoveryAbility:
 
 HandleAbilities:
 ; Abilities handled at the end of the turn.
-	call CheckSpeed
-	jr nz, .enemy_first
-	call SetPlayerTurn
+	farcall SetFastestTurn
 	call .do_it
-	call SetEnemyTurn
-	jp .do_it
-
-.enemy_first
-	call SetEnemyTurn
-	call .do_it
-	call SetPlayerTurn
+	call SwitchTurn
 
 .do_it
+	farcall HasUserEndturnSwitched
+	ret z
+
 	ld hl, EndTurnAbilities
 	call UserAbilityJumptable
 	ld hl, StatusHealAbilities
@@ -1140,7 +1145,7 @@ HarvestAbility:
 	ld a, [hl]
 	and a
 	ret z
-	ld [CurItem], a
+	ld [wCurItem], a
 	ld b, a
 	push bc
 	push de
@@ -1180,9 +1185,7 @@ PickupAbility:
 
 	; Does the opponent have a consumed item?
 	push hl
-	call SwitchTurn
-	call GetUsedItemAddr
-	call SwitchTurn
+	call GetOpponentUsedItemAddr
 	pop de
 	ld a, [hl]
 	and a
@@ -1210,14 +1213,14 @@ RegainItemByAbility:
 	pop bc
 	ld a, [hBattleTurn]
 	and a
-	ld a, [CurPartyMon]
-	ld hl, PartyMon1Item
+	ld a, [wCurPartyMon]
+	ld hl, wPartyMon1Item
 	jr z, .got_item_addr
 	ld a, [wBattleMode]
 	dec a
 	ret z
-	ld a, [CurOTMon]
-	ld hl, OTPartyMon1Item
+	ld a, [wCurOTMon]
+	ld hl, wOTPartyMon1Item
 .got_item_addr
 	call GetPartyLocation
 	ld [hl], b
@@ -1232,11 +1235,11 @@ MoodyAbility:
 	call DisableAnimations
 
 	; First, check how many stats aren't maxed out
-	ld hl, PlayerStatLevels
+	ld hl, wPlayerStatLevels
 	ld a, [hBattleTurn]
 	and a
 	jr z, .got_stat_levels
-	ld hl, EnemyStatLevels
+	ld hl, wEnemyStatLevels
 .got_stat_levels
 	lb bc, 0, 0 ; bitfield of nonmaxed stats, bitfield of nonminimized stats
 	lb de, 1, 0 ; bit to OR into b/c, loop counter
@@ -1296,8 +1299,8 @@ MoodyAbility:
 	ld b, a
 	push bc
 	farcall ResetMiss
-	farcall BattleCommand_StatUp
-	farcall BattleCommand_StatUpMessage
+	farcall BattleCommand_statup
+	farcall BattleCommand_statupmessage
 	pop bc
 
 .all_stats_maxed
@@ -1326,9 +1329,27 @@ MoodyAbility:
 	farcall ResetMiss
 	farcall LowerStat
 	call SwitchTurn
-	farcall BattleCommand_StatDownMessage
+	farcall BattleCommand_statdownmessage
 	call SwitchTurn
 	jp EnableAnimations
+
+ApplyDamageAbilities_AfterTypeMatchup:
+	ld a, BATTLE_VARS_ABILITY
+	call GetBattleVar
+	ld hl, OffensiveDamageAbilities_AfterTypeMatchup
+	call AbilityJumptable
+	call GetOpponentAbilityAfterMoldBreaker
+	ld hl, DefensiveDamageAbilities_AfterTypeMatchup
+	jp AbilityJumptable
+
+OffensiveDamageAbilities_AfterTypeMatchup:
+	dbw TINTED_LENS, TintedLensAbility
+	dbw -1, -1
+
+DefensiveDamageAbilities_AfterTypeMatchup:
+	dbw SOLID_ROCK, EnemySolidRockAbility
+	dbw FILTER, EnemyFilterAbility
+	dbw -1, -1
 
 ApplyDamageAbilities:
 	ld a, BATTLE_VARS_ABILITY
@@ -1350,7 +1371,6 @@ OffensiveDamageAbilities:
 	dbw RIVALRY, RivalryAbility
 	dbw SHEER_FORCE, SheerForceAbility
 	dbw ANALYTIC, AnalyticAbility
-	dbw TINTED_LENS, TintedLensAbility
 	dbw SOLAR_POWER, SolarPowerAbility
 	dbw IRON_FIST, IronFistAbility
 	dbw SAND_FORCE, SandForceAbility
@@ -1362,8 +1382,6 @@ OffensiveDamageAbilities:
 DefensiveDamageAbilities:
 	dbw MULTISCALE, EnemyMultiscaleAbility
 	dbw MARVEL_SCALE, EnemyMarvelScaleAbility
-	dbw SOLID_ROCK, EnemySolidRockAbility
-	dbw FILTER, EnemyFilterAbility
 	dbw THICK_FAT, EnemyThickFatAbility
 	dbw DRY_SKIN, EnemyDrySkinAbility
 	dbw FUR_COAT, EnemyFurCoatAbility
@@ -1420,7 +1438,7 @@ RivalryAbility:
 
 SheerForceAbility:
 ; 130% damage if a secondary effect is suppressed
-	ld a, [EffectFailed]
+	ld a, [wEffectFailed]
 	and a
 	ret z
 	ld a, $da
@@ -1438,7 +1456,7 @@ AnalyticAbility:
 
 TintedLensAbility:
 ; Doubles damage for not very effective moves (x0.5/x0.25)
-	ld a, [TypeModifier]
+	ld a, [wTypeModifier]
 	cp $10
 	ret nc
 	ld a, $21
@@ -1514,11 +1532,7 @@ PixilateAbility:
 
 EnemyMultiscaleAbility:
 ; 50% damage if user is at full HP
-	call SwitchTurn
-	farcall CheckFullHP
-	push af
-	call SwitchTurn
-	pop af
+	farcall CheckOpponentFullHP
 	ret nz
 	ld a, $12
 	jp ApplyDamageMod
@@ -1535,7 +1549,7 @@ EnemyMarvelScaleAbility:
 EnemySolidRockAbility:
 EnemyFilterAbility:
 ; 75% damage for super effective moves
-	ld a, [TypeModifier]
+	ld a, [wTypeModifier]
 	cp $11
 	ret c
 	ld a, $34
@@ -1587,18 +1601,27 @@ HealAllStatusAbility:
 	jp HealStatusAbility
 
 AngerPointAbility:
+; preserves attack miss result to avoid multi-hit moves aborting
+	ld a, [wAttackMissed]
+	push af
+	call _AngerPointAbility
+	pop af
+	ld [wAttackMissed], a
+	ret
+
+_AngerPointAbility:
 	call DisableAnimations
 	farcall ResetMiss
-	farcall BattleCommand_AttackUp2
-	ld a, [FailedMessage]
+	farcall BattleCommand_attackup2
+	ld a, [wFailedMessage]
 	and a
 	jp nz, EnableAnimations
 	call ShowAbilityActivation
-	farcall BattleCommand_AttackUp2
-	farcall BattleCommand_AttackUp2
-	farcall BattleCommand_AttackUp2
-	farcall BattleCommand_AttackUp2
-	farcall BattleCommand_AttackUp2
+	farcall BattleCommand_attackup2
+	farcall BattleCommand_attackup2
+	farcall BattleCommand_attackup2
+	farcall BattleCommand_attackup2
+	farcall BattleCommand_attackup2
 	ld hl, AngerPointMaximizedAttackText
 	call StdBattleTextBox
 	jp EnableAnimations
@@ -1624,25 +1647,18 @@ RegeneratorAbility:
 	jp z, UpdateBattleMonInParty
 	jp UpdateEnemyMonInParty
 
-AbilityJumptable:
-	; If we at some point make the AI learn abilities, keep this.
-	; For now it just jumps to the general jumptable function
-	jp BattleJumptable
-
 DisableAnimations:
 	ld a, 1
-	ld [AnimationsDisabled], a
+	ld [wAnimationsDisabled], a
 	ret
 
 EnableAnimations:
 	xor a
-	ld [AnimationsDisabled], a
+	ld [wAnimationsDisabled], a
 	ret
 
 ShowEnemyAbilityActivation::
-	call SwitchTurn
-	call ShowAbilityActivation
-	jp SwitchTurn
+	call CallOpponentTurn
 ShowAbilityActivation::
 	push bc
 	push de
@@ -1660,16 +1676,16 @@ ShowAbilityActivation::
 
 RunPostBattleAbilities::
 ; Checks party for potentially finding items (Pickup) or curing status (Natural Cure)
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	jr .first_pass
 .loop
-	ld a, [CurPartyMon]
+	ld a, [wCurPartyMon]
 .first_pass
 	dec a
 	cp $ff
 	ret z
 
-	ld [CurPartyMon], a
+	ld [wCurPartyMon], a
 
 	push bc
 	ld a, MON_ABILITY
@@ -1715,6 +1731,27 @@ RunPostBattleAbilities::
 	call GetPartyParamLocation
 	ld a, b
 	ld [hl], a
+	push bc
+	push de
+	ld [wNamedObjectIndexBuffer], a
+	call GetItemName
+	ld hl, wStringBuffer1
+	ld de, wStringBuffer2
+	ld bc, PKMN_NAME_LENGTH
+	rst CopyBytes
+	pop de
+	pop bc
+	push bc
+	push de
+	ld a, MON_SPECIES
+	call GetPartyParamLocation
+	ld a, [hl]
+	ld [wNamedObjectIndexBuffer], a
+	call GetPokemonName
+	ld hl, BattleText_PickedUpItem
+	call StdBattleTextBox
+	pop de
+	pop bc
 	ret
 
 GetRandomPickupItem::
@@ -1787,7 +1824,7 @@ GetRandomPickupItem::
 	db FULL_RESTORE
 	db MAX_REVIVE
 	db PP_UP
-	db MAX_ELIXER
+	db MAX_ELIXIR
 
 .RarePickupTable:
 	db HYPER_POTION
@@ -1797,7 +1834,7 @@ GetRandomPickupItem::
 	db ETHER
 	db LUCKY_EGG
 	db DESTINY_KNOT
-	db ELIXER
+	db ELIXIR
 	db BIG_NUGGET
 	db LEFTOVERS
 	db BOTTLE_CAP

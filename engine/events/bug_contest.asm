@@ -1,11 +1,11 @@
 
 ContestDropOffMons: ; 13a12
-	ld hl, PartyMon1HP
+	ld hl, wPartyMon1HP
 	ld a, [hli]
 	or [hl]
 	jr z, .fainted
 ; Mask the rest of your party by setting the count to 1...
-	ld hl, PartyCount
+	ld hl, wPartyCount
 	ld a, 1
 	ld [hli], a
 	inc hl
@@ -15,18 +15,18 @@ ContestDropOffMons: ; 13a12
 ; ... and replacing it with the terminator byte
 	ld [hl], $ff
 	xor a
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 .fainted
 	ld a, $1
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 ; 13a31
 
 ContestReturnMons: ; 13a31
 ; Restore the species of the second mon.
-	ld hl, PartySpecies + 1
+	ld hl, wPartySpecies + 1
 	ld a, [wBugContestSecondPartySpecies]
 	ld [hl], a
 ; Restore the party count, which must be recomputed.
@@ -40,7 +40,7 @@ ContestReturnMons: ; 13a31
 
 .done
 	ld a, b
-	ld [PartyCount], a
+	ld [wPartyCount], a
 	ret
 ; 13a47
 
@@ -196,10 +196,10 @@ LoadContestantName: ; 13730
 	push bc
 ; Get the Trainer Class name and copy it into wBugContestWinnerName.
 	farcall GetTrainerClassName
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	ld de, wBugContestWinnerName
 	ld bc, TRAINER_CLASS_NAME_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	ld hl, wBugContestWinnerName
 ; Delete the trailing terminator and replace it with a space.
 .next
@@ -220,16 +220,18 @@ LoadContestantName: ; 13730
 	ld b, a
 	farcall GetTrainerName
 ; Append the name to wBugContestWinnerName.
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	pop de
 	ld bc, NAME_LENGTH - 1
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 .player
-	ld hl, PlayerName
+	ld hl, wPlayerName
 	ld de, wBugContestWinnerName
 	ld bc, NAME_LENGTH
-	jp CopyBytes
+	rst CopyBytes
+	ret
 ; 13783
 
 INCLUDE "data/events/bug_contest_winners.asm"
@@ -283,11 +285,11 @@ DetermineContestWinners: ; 1383e
 	ld hl, wBugContestSecondPlacePersonID
 	ld de, wBugContestThirdPlacePersonID
 	ld bc, 4
-	call CopyBytes
+	rst CopyBytes
 	ld hl, wBugContestFirstPlacePersonID
 	ld de, wBugContestSecondPlacePersonID
 	ld bc, 4
-	call CopyBytes
+	rst CopyBytes
 	ld de, wBugContestFirstPlacePersonID
 	jr CopyTempContestant
 
@@ -300,7 +302,7 @@ DetermineContestWinners: ; 1383e
 	ld hl, wBugContestSecondPlacePersonID
 	ld de, wBugContestThirdPlacePersonID
 	ld bc, 4
-	call CopyBytes
+	rst CopyBytes
 	ld de, wBugContestSecondPlacePersonID
 	jr CopyTempContestant
 
@@ -316,7 +318,8 @@ DetermineContestWinners: ; 1383e
 CopyTempContestant: ; 138a0
 	ld hl, wBugContestTempPersonID
 	ld bc, 4
-	jp CopyBytes
+	rst CopyBytes
+	ret
 ; 138b0
 
 ComputeAIContestantScores: ; 138b0

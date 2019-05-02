@@ -24,7 +24,7 @@ Elevator:: ; 1342d
 	ld [wElevatorPointerLo], a
 	ld a, d
 	ld [wElevatorPointerHi], a
-	ld de, CurElevator
+	ld de, wCurElevator
 	ld bc, 4
 	ld hl, wElevatorPointerLo
 	ld a, [hli]
@@ -55,9 +55,9 @@ Elevator:: ; 1342d
 	call GetFarByte
 	ld c, a
 	inc hl
-	ld a, [BackupMapGroup]
+	ld a, [wBackupMapGroup]
 	ld d, a
-	ld a, [BackupMapNumber]
+	ld a, [wBackupMapNumber]
 	ld e, a
 	ld b, 0
 .loop2
@@ -104,9 +104,9 @@ Elevator_GoToFloor: ; 134c0
 	inc hl
 	pop af
 	ld bc, 4
-	call AddNTimes
+	rst AddNTimes
 	inc hl
-	ld de, BackupWarpNumber
+	ld de, wBackupWarpNumber
 	ld a, [wElevatorPointerBank]
 	ld bc, 3
 	jp FarCopyBytes
@@ -145,7 +145,7 @@ Elevator_WhichFloorText: ; 0x1350d
 
 
 Elevator_GetCurrentFloorText: ; 13512
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
@@ -158,7 +158,7 @@ Elevator_GetCurrentFloorText: ; 13512
 	hlcoord 4, 4
 	call Elevator_GetCurrentFloorString
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	ret
 ; 13537
 
@@ -172,7 +172,7 @@ Elevator_GetCurrentFloorString: ; 1353f
 	ld a, [wElevatorOriginFloor]
 	ld e, a
 	ld d, 0
-	ld hl, CurElevatorFloors
+	ld hl, wCurElevatorFloors
 	add hl, de
 	ld a, [hl]
 	pop de
@@ -191,14 +191,14 @@ Elevator_MenuData2: ; 0x13558
 	db $10 ; flags
 	db 4, 0 ; rows, columns
 	db 1 ; horizontal spacing
-	dbw 0, CurElevator
+	dbw 0, wCurElevator
 	dba GetElevatorFlorStrings
 	dba NULL
 	dba NULL
 ; 13568
 
 GetElevatorFlorStrings: ; 13568
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 GetFloorString: ; 1356b
 	push de
 	call FloorToString

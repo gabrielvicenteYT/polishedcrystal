@@ -4,9 +4,9 @@ _AnimateTileset:: ; fc000
 
 ; Typically in wra1, vra0
 
-	ld a, [TilesetAnim]
+	ld a, [wTilesetAnim]
 	ld e, a
-	ld a, [TilesetAnim + 1]
+	ld a, [wTilesetAnim + 1]
 	ld d, a
 
 	ld a, [hTileAnimFrame]
@@ -35,8 +35,7 @@ _AnimateTileset:: ; fc000
 ; fc01b
 
 
-Tileset00Anim:
-TilesetJohto1Anim:
+TilesetJohto1Anim::
 	dw VTiles2 tile $14, AnimateWaterTile
 	dw NULL,  WaitTileAnimation
 	dw NULL,  WaitTileAnimation
@@ -60,7 +59,7 @@ TilesetJohto1Anim:
 	dw VTiles2 tile $40, WriteTileFromBuffer
 	dw NULL,  DoneTileAnimation
 
-TilesetJohto2Anim:
+TilesetJohto2Anim::
 	dw VTiles2 tile $14, AnimateWaterTile
 	dw VTiles2 tile $1b, AnimateRainPuddleTile
 	dw VTiles2 tile $1c, AnimateRainWaterTile
@@ -75,7 +74,7 @@ TilesetJohto2Anim:
 	dw NULL,  WaitTileAnimation
 	dw NULL,  DoneTileAnimation
 
-TilesetJohto4Anim:
+TilesetJohto4Anim::
 	dw VTiles2 tile $14, AnimateWaterTile
 	dw VTiles2 tile $1b, AnimateRainPuddleTile
 	dw VTiles2 tile $1c, AnimateRainWaterTile
@@ -100,7 +99,7 @@ TilesetJohto4Anim:
 	dw VTiles2 tile $40, WriteTileFromBuffer
 	dw NULL,  DoneTileAnimation
 
-TilesetKanto1Anim:
+TilesetKanto1Anim::
 	dw VTiles2 tile $14, AnimateKantoWaterTile
 	dw NULL,  WaitTileAnimation
 	dw VTiles2 tile $40, WriteTileToBuffer
@@ -118,7 +117,7 @@ TilesetKanto1Anim:
 	dw NULL,  StandingTileFrame8
 	dw NULL,  DoneTileAnimation
 
-TilesetPortAnim:
+TilesetPortAnim::
 	dw VTiles2 tile $14, AnimateWaterTile
 	dw NULL,  WaitTileAnimation
 	dw NULL,  WaitTileAnimation
@@ -132,7 +131,7 @@ TilesetPortAnim:
 	dw NULL,  StandingTileFrame8
 	dw NULL,  DoneTileAnimation
 
-TilesetGym1Anim:
+TilesetGym1Anim::
 	dw NULL,  SafariFountainAnim2
 	dw NULL,  WaitTileAnimation
 	dw NULL,  WaitTileAnimation
@@ -142,7 +141,7 @@ TilesetGym1Anim:
 	dw NULL,  StandingTileFrame8
 	dw NULL,  DoneTileAnimation
 
-TilesetKanto2Anim:
+TilesetKanto2Anim::
 	dw VTiles2 tile $14, AnimateKantoWaterTile
 	dw NULL,  WaitTileAnimation
 	dw NULL,  WaitTileAnimation
@@ -161,7 +160,7 @@ TilesetKanto2Anim:
 	dw NULL,  StandingTileFrame8
 	dw NULL,  DoneTileAnimation
 
-TilesetTowerAnim:
+TilesetTowerAnim::
 	dw SproutPillarTilePointer9,  AnimateSproutPillarTile
 	dw SproutPillarTilePointer10, AnimateSproutPillarTile
 	dw SproutPillarTilePointer7,  AnimateSproutPillarTile
@@ -179,8 +178,8 @@ TilesetTowerAnim:
 	dw NULL,  WaitTileAnimation
 	dw NULL,  DoneTileAnimation
 
-TilesetCaveAnim:
-TilesetQuietCaveAnim:
+TilesetCaveAnim::
+TilesetQuietCaveAnim::
 	dw NULL,  SafariFountainAnim4
 	dw NULL,  WaitTileAnimation
 	dw NULL,  SafariFountainAnim3
@@ -214,7 +213,7 @@ TilesetQuietCaveAnim:
 	dw NULL,  FlickeringCaveEntrancePalette
 	dw NULL,  DoneTileAnimation
 
-TilesetParkAnim:
+TilesetParkAnim::
 	dw VTiles2 tile $14, AnimateWaterTile
 	dw NULL,  WaitTileAnimation
 	dw VTiles2 tile $15, AnimateFountain
@@ -227,7 +226,7 @@ TilesetParkAnim:
 	dw NULL,  StandingTileFrame8
 	dw NULL,  DoneTileAnimation
 
-TilesetIcePathAnim:
+TilesetIcePathAnim::
 	dw VTiles2 tile $10, WriteTileToBuffer
 	dw NULL,  FlickeringCaveEntrancePalette
 	dw wTileAnimBuffer, ScrollTileRightLeft
@@ -238,7 +237,7 @@ TilesetIcePathAnim:
 	dw NULL,  FlickeringCaveEntrancePalette
 	dw NULL,  DoneTileAnimation
 
-TilesetForestAnim:
+TilesetForestAnim::
 	dw NULL,  ForestTreeLeftAnimation
 	dw NULL,  ForestTreeRightAnimation
 	dw NULL,  ForestTree2LeftAnimation
@@ -265,7 +264,7 @@ TilesetForestAnim:
 	dw VTiles2 tile $40, WriteTileFromBuffer
 	dw NULL,  DoneTileAnimation
 
-TilesetSafariAnim:
+TilesetSafariAnim::
 	dw VTiles2 tile $14, AnimateKantoWaterTile
 	dw NULL,  WaitTileAnimation
 	dw NULL,  WaitTileAnimation
@@ -278,7 +277,7 @@ TilesetSafariAnim:
 	dw NULL,  StandingTileFrame8
 	dw NULL,  DoneTileAnimation
 
-TilesetFarawayAnim:
+TilesetFarawayAnim::
 	dw FarawayWaterFrames1, AnimateFarawayWaterTile
 	dw FarawayWaterFrames2, AnimateFarawayWaterTile
 	dw NULL,  WaitTileAnimation
@@ -292,7 +291,7 @@ TilesetFarawayAnim:
 	dw NULL,  StandingTileFrame8
 	dw NULL,  DoneTileAnimation
 
-TilesetTunnelAnim:
+TilesetTunnelAnim::
 	dw VTiles2 tile $26, WriteTileToBuffer
 	dw NULL,  WaitTileAnimation
 	dw wTileAnimBuffer, ScrollTileRightLeft
@@ -321,8 +320,8 @@ TilesetTunnelAnim:
 	dw NULL,  FlickeringCaveEntrancePalette
 	dw NULL,  DoneTileAnimation
 
-TilesetShamoutiAnim:
-TilesetValenciaAnim:
+TilesetShamoutiAnim::
+TilesetValenciaAnim::
 	dw FarawayWaterFrames1, AnimateFarawayWaterTile
 	dw FarawayWaterFrames2, AnimateFarawayWaterTile
 	dw NULL,  WaitTileAnimation
@@ -337,30 +336,30 @@ TilesetValenciaAnim:
 	dw NULL,  StandingTileFrame8
 	dw NULL,  DoneTileAnimation
 
-TilesetJohto3Anim:
-TilesetHouse1Anim:
-TilesetHouse2Anim:
-TilesetPokeCenterAnim:
-TilesetGateAnim:
-TilesetLabAnim:
-TilesetFacilityAnim:
-TilesetMartAnim:
-TilesetMansionAnim:
-TilesetGameCornerAnim:
-TilesetHouse3Anim:
-TilesetGym2Anim:
-TilesetGym3Anim:
-TilesetLighthouseAnim:
-TilesetPokeComAnim:
-TilesetBattleTowerAnim:
-TilesetRuinsAnim:
-TilesetRadioTowerAnim:
-TilesetWarehouseAnim:
-TilesetAlphAnim:
-TilesetPokemonMansionAnim:
-TilesetDecorAnim:
-TilesetMuseumAnim:
-TilesetHotelAnim:
+TilesetJohto3Anim::
+TilesetHouse1Anim::
+TilesetHouse2Anim::
+TilesetPokeCenterAnim::
+TilesetGateAnim::
+TilesetLabAnim::
+TilesetFacilityAnim::
+TilesetMartAnim::
+TilesetMansionAnim::
+TilesetGameCornerAnim::
+TilesetHouse3Anim::
+TilesetGym2Anim::
+TilesetGym3Anim::
+TilesetLighthouseAnim::
+TilesetPokeComAnim::
+TilesetBattleTowerAnim::
+TilesetRuinsAnim::
+TilesetRadioTowerAnim::
+TilesetWarehouseAnim::
+TilesetAlphAnim::
+TilesetPokemonMansionAnim::
+TilesetDecorAnim::
+TilesetMuseumAnim::
+TilesetHotelAnim::
 	dw NULL,  WaitTileAnimation
 	dw NULL,  WaitTileAnimation
 	dw NULL,  WaitTileAnimation
@@ -379,20 +378,20 @@ WaitTileAnimation: ; fc2fe
 ; fc2ff
 
 StandingTileFrame8: ; fc2ff
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	inc a
 	and a, 7
-	ld [TileAnimationTimer], a
+	ld [wTileAnimationTimer], a
 	ret
 ; fc309
 
 
 ScrollTileRightLeft: ; fc309
 ; Scroll right for 4 ticks, then left for 4 ticks.
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	inc a
 	and 7
-	ld [TileAnimationTimer], a
+	ld [wTileAnimationTimer], a
 	and 4
 	jr nz, ScrollTileLeft
 	jr ScrollTileRight
@@ -400,10 +399,10 @@ ScrollTileRightLeft: ; fc309
 
 ;ScrollTileUpDown: ; fc318
 ;; Scroll up for 4 ticks, then down for 4 ticks.
-;	ld a, [TileAnimationTimer]
+;	ld a, [wTileAnimationTimer]
 ;	inc a
 ;	and 7
-;	ld [TileAnimationTimer], a
+;	ld [wTileAnimationTimer], a
 ;	and 4
 ;	jr nz, ScrollTileDown
 ;	jr ScrollTileUp
@@ -501,7 +500,7 @@ AnimateFountain: ; fc387
 	ld b, h
 	ld c, l
 	ld hl, .frames
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and 7
 	add a
 	add l
@@ -543,7 +542,7 @@ AnimateWaterTile: ; fc402
 	ld b, h
 	ld c, l
 
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 
 ; 4 tile graphics, updated every other frame.
 	and %110
@@ -559,7 +558,7 @@ AnimateWaterTile: ; fc402
 	adc WaterTileFrames / $100
 	ld h, a
 
-; Stack now points to the start of the tile for this frame.
+; wStack now points to the start of the tile for this frame.
 	ld sp, hl
 
 	ld l, e
@@ -581,7 +580,7 @@ AnimateRainPuddleTile:
 	ld b, h
 	ld c, l
 
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 
 ; 8 tile graphics, updated every frame.
 	and %111
@@ -613,7 +612,7 @@ AnimateRainWaterTile:
 	ld b, h
 	ld c, l
 
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 
 ; 8 tile graphics, updated every frame.
 	and %111
@@ -645,7 +644,7 @@ AnimateKantoWaterTile:
 	ld b, h
 	ld c, l
 
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 
 ; 4 tile graphics, updated every other frame.
 	and 3 << 1
@@ -661,7 +660,7 @@ AnimateKantoWaterTile:
 	adc KantoWaterTileFrames / $100
 	ld h, a
 
-; Stack now points to the start of the tile for this frame.
+; wStack now points to the start of the tile for this frame.
 	ld sp, hl
 
 	ld l, e
@@ -698,7 +697,7 @@ AnimateFarawayWaterTile:
 ; Tile address is now at hl.
 
 ; Get the tile for this frame.
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and %111 ; 8 frames x2
 	swap a  ; * 16 bytes per tile
 
@@ -710,7 +709,7 @@ AnimateFarawayWaterTile:
 	adc h
 	ld h, a
 
-; Stack now points to the desired frame.
+; wStack now points to the desired frame.
 	ld sp, hl
 
 	ld l, e
@@ -728,7 +727,7 @@ ForestTreeLeftAnimation: ; fc45c
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	call GetForestTreeFrame
 	add a
 	add a
@@ -752,7 +751,7 @@ ForestTreeRightAnimation: ; fc4c4
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	call GetForestTreeFrame
 	add a
 	add a
@@ -781,7 +780,7 @@ ForestTreeLeftAnimation2: ; fc4f2
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	call GetForestTreeFrame
 	xor 2
 	add a
@@ -807,7 +806,7 @@ ForestTreeRightAnimation2: ; fc51c
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	call GetForestTreeFrame
 	xor 2
 	add a
@@ -846,7 +845,7 @@ ForestTree2LeftAnimation:
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	call GetForestTreeFrame
 	add a
 	add a
@@ -869,7 +868,7 @@ ForestTree2RightAnimation:
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	call GetForestTreeFrame
 	add a
 	add a
@@ -897,7 +896,7 @@ ForestTree2LeftAnimation2:
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	call GetForestTreeFrame
 	xor 2
 	add a
@@ -922,7 +921,7 @@ ForestTree2RightAnimation2:
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	call GetForestTreeFrame
 	xor 2
 	add a
@@ -966,7 +965,7 @@ AnimateFlowerTile: ; fc56d
 	ld c, l
 
 ; Alternate tile graphic every other frame
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and %10
 	srl a
 
@@ -997,7 +996,7 @@ AnimateKantoFlowerTile:
 	ld c, l
 
 ; Alternate tile graphic every other frame
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and %110
 	srl a
 
@@ -1024,7 +1023,7 @@ SafariFountainAnim1: ; fc5cc
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and 6
 	srl a
 	inc a
@@ -1046,7 +1045,7 @@ SafariFountainAnim2: ; fc5eb
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and 6
 	add a
 	add a
@@ -1066,7 +1065,7 @@ SafariFountainAnim3:
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and 6
 	srl a
 	inc a
@@ -1087,7 +1086,7 @@ SafariFountainAnim4:
 	ld hl, sp+$0
 	ld b, h
 	ld c, l
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and 6
 	add a
 	add a
@@ -1118,7 +1117,7 @@ AnimateSproutPillarTile: ; fc645
 	ld b, h
 	ld c, l
 
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and 7
 
 ; Get frame index a
@@ -1158,7 +1157,7 @@ AnimateSproutPillarTile: ; fc645
 
 
 StandingTileFrame: ; fc673
-	ld hl, TileAnimationTimer
+	ld hl, wTileAnimationTimer
 	inc [hl]
 	ret
 ; fc678
@@ -1188,7 +1187,7 @@ AnimateWhirlpoolTile: ; fc678
 ; Tile address is now at hl.
 
 ; Get the tile for this frame.
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and %11 ; 4 frames x2
 	swap a  ; * 16 bytes per tile
 
@@ -1200,7 +1199,7 @@ AnimateWhirlpoolTile: ; fc678
 	adc h
 	ld h, a
 
-; Stack now points to the desired frame.
+; wStack now points to the desired frame.
 	ld sp, hl
 
 	ld l, e
@@ -1219,7 +1218,7 @@ AnimateLCDTile:
 	ld c, l
 
 ; Alternate tile graphic every frame
-	ld a, [TileAnimationTimer]
+	ld a, [wTileAnimationTimer]
 	and %111
 
 	swap a ; << 4 (16 bytes)
@@ -1324,11 +1323,11 @@ FlickeringCaveEntrancePalette: ; fc71e
 	ld a, [hVBlankCounter]
 	and %00000010
 	jr nz, .bit1set
-	ld hl, UnknBGPals palette PAL_BG_YELLOW
+	ld hl, wUnknBGPals palette PAL_BG_YELLOW
 	jr .okay
 
 .bit1set
-	ld hl, UnknBGPals palette PAL_BG_YELLOW + 2
+	ld hl, wUnknBGPals palette PAL_BG_YELLOW + 2
 
 .okay
 	ld a, [hli]

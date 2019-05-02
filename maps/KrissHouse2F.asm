@@ -69,28 +69,24 @@ if DEF(DEBUG)
 	; pokedex
 	setflag ENGINE_POKEDEX
 	setflag ENGINE_UNOWN_DEX
-	; all hms
-	givetmhm HM_CUT
-	givetmhm HM_FLY
-	givetmhm HM_SURF
-	givetmhm HM_STRENGTH
-	givetmhm HM_WATERFALL
-	givetmhm HM_WHIRLPOOL
-	; tms for party
-	givetmhm TM_ICE_BEAM
-	givetmhm TM_BLIZZARD
-	givetmhm TM_FLAMETHROWER
-	givetmhm TM_FIRE_BLAST
-	givetmhm TM_THUNDERBOLT
-	givetmhm TM_THUNDER
-	givetmhm TM_PSYCHIC
-	givetmhm TM_SHADOW_BALL
-	givetmhm TM_EARTHQUAKE
-	givetmhm TM_SWORDS_DANCE
-	givetmhm TM_CALM_MIND
-	givetmhm TM_BULK_UP
-	givetmhm TM_ROCK_SMASH
-	givetmhm TM_FLASH
+	; all tms+hms
+x = 0
+rept NUM_TMS + NUM_HMS
+	givetmhm x
+x = x + 1
+endr
+	; all items
+x = 1
+rept $fe
+	giveitem x, 99
+x = x + 1
+endr
+	; all decorations
+x = EVENT_DECO_BED_1
+rept EVENT_DECO_BIG_LAPRAS_DOLL - EVENT_DECO_BED_1 + 1
+	setevent x
+x = x + 1
+endr
 	; max money
 	givemoney $0, 1000000
 	givemoney $0, 1000000
@@ -102,8 +98,8 @@ if DEF(DEBUG)
 	givemoney $0, 1000000
 	givemoney $0, 1000000
 	givemoney $0, 999999
-	giveitem COIN_CASE
 	givecoins 50000
+	loadvar wBattlePoints, 250
 	; all badges
 	setflag ENGINE_ZEPHYRBADGE
 	setflag ENGINE_HIVEBADGE
@@ -170,76 +166,50 @@ if DEF(DEBUG)
 	setflag ENGINE_FLYPOINT_CINNABAR
 	; magnet train works
 	setevent EVENT_RESTORED_POWER_TO_KANTO
-	giveitem PASS
-	; cycling road works
-	giveitem BICYCLE
-	; useful items
-	giveitem ITEMFINDER
-	giveitem APRICORN_BOX
-	giveitem SQUIRTBOTTLE
-	giveitem MYSTICTICKET
-	giveitem OLD_SEA_MAP
-	giveitem MAX_REPEL, 99
-	giveitem MAX_REVIVE, 99
-	giveitem FULL_RESTORE, 99
-	giveitem MAX_ELIXER, 99
-	giveitem RARE_CANDY, 99
-	giveitem ESCAPE_ROPE, 99
-	giveitem SILVER_LEAF, 99
-	giveitem GOLD_LEAF, 99
-	giveitem HP_UP, 99
-	giveitem PP_UP, 99
-	giveitem PROTEIN, 99
-	giveitem IRON, 99
-	giveitem CARBOS, 99
-	giveitem CALCIUM, 99
-	giveitem ZINC, 99
-	giveitem MASTER_BALL, 99
-	giveitem EXP_SHARE, 2
+	; post-e4
 	setflag ENGINE_CREDITS_SKIP
-	giveitem SHINY_CHARM
 	setflag ENGINE_HAVE_SHINY_CHARM
 	; good party
 	givepoke MEWTWO, 100, ARMOR_SUIT
-	loadvar PartyMon1EVs+0, 252
-	loadvar PartyMon1EVs+1, 252
-	loadvar PartyMon1EVs+2, 252
-	loadvar PartyMon1EVs+3, 252
-	loadvar PartyMon1EVs+4, 252
-	loadvar PartyMon1EVs+5, 252
-	loadvar PartyMon1DVs+0, $ff
-	loadvar PartyMon1DVs+1, $ff
-	loadvar PartyMon1DVs+2, $ff
-	loadvar PartyMon1Personality, ABILITY_2 | MODEST
-	loadvar PartyMon1Stats+0, 999 / $100
-	loadvar PartyMon1Stats+1, 999 % $100
-	loadvar PartyMon1Stats+2, 999 / $100
-	loadvar PartyMon1Stats+3, 999 % $100
-	loadvar PartyMon1Stats+4, 999 / $100
-	loadvar PartyMon1Stats+5, 999 % $100
-	loadvar PartyMon1Stats+6, 999 / $100
-	loadvar PartyMon1Stats+7, 999 % $100
-	loadvar PartyMon1Stats+8, 999 / $100
-	loadvar PartyMon1Stats+9, 999 % $100
+	loadvar wPartyMon1EVs+0, 252
+	loadvar wPartyMon1EVs+1, 252
+	loadvar wPartyMon1EVs+2, 252
+	loadvar wPartyMon1EVs+3, 252
+	loadvar wPartyMon1EVs+4, 252
+	loadvar wPartyMon1EVs+5, 252
+	loadvar wPartyMon1DVs+0, $ff
+	loadvar wPartyMon1DVs+1, $ff
+	loadvar wPartyMon1DVs+2, $ff
+	loadvar wPartyMon1Personality, ABILITY_2 | MODEST
+	loadvar wPartyMon1Stats+0, 999 / $100
+	loadvar wPartyMon1Stats+1, 999 % $100
+	loadvar wPartyMon1Stats+2, 999 / $100
+	loadvar wPartyMon1Stats+3, 999 % $100
+	loadvar wPartyMon1Stats+4, 999 / $100
+	loadvar wPartyMon1Stats+5, 999 % $100
+	loadvar wPartyMon1Stats+6, 999 / $100
+	loadvar wPartyMon1Stats+7, 999 % $100
+	loadvar wPartyMon1Stats+8, 999 / $100
+	loadvar wPartyMon1Stats+9, 999 % $100
 	; hm slaves
 	givepoke MEW, 100, LEFTOVERS
 	givepoke MEW, 100, LEFTOVERS
-	loadvar PartyMon2Moves+0, FLY
-	loadvar PartyMon2Moves+1, SURF
-	loadvar PartyMon2Moves+2, STRENGTH
-	loadvar PartyMon2Moves+3, CUT
-	loadvar PartyMon2PP+0, 15
-	loadvar PartyMon2PP+1, 15
-	loadvar PartyMon2PP+2, 15
-	loadvar PartyMon2PP+3, 30
-	loadvar PartyMon3Moves+0, FLASH
-	loadvar PartyMon3Moves+1, ROCK_SMASH
-	loadvar PartyMon3Moves+2, WHIRLPOOL
-	loadvar PartyMon3Moves+3, WATERFALL
-	loadvar PartyMon3PP+0, 20
-	loadvar PartyMon3PP+1, 15
-	loadvar PartyMon3PP+2, 15
-	loadvar PartyMon3PP+3, 15
+	loadvar wPartyMon2Moves+0, FLY
+	loadvar wPartyMon2Moves+1, SURF
+	loadvar wPartyMon2Moves+2, STRENGTH
+	loadvar wPartyMon2Moves+3, CUT
+	loadvar wPartyMon2PP+0, 15
+	loadvar wPartyMon2PP+1, 15
+	loadvar wPartyMon2PP+2, 15
+	loadvar wPartyMon2PP+3, 30
+	loadvar wPartyMon3Moves+0, FLASH
+	loadvar wPartyMon3Moves+1, ROCK_SMASH
+	loadvar wPartyMon3Moves+2, WHIRLPOOL
+	loadvar wPartyMon3Moves+3, WATERFALL
+	loadvar wPartyMon3PP+0, 20
+	loadvar wPartyMon3PP+1, 15
+	loadvar wPartyMon3PP+2, 15
+	loadvar wPartyMon3PP+3, 15
 	; fill pokedex
 	callasm FillPokedex
 	; intro events
@@ -265,15 +235,15 @@ FillPokedex:
 	ld [wUnlockedUnownMode], a
 	ld [wFirstUnownSeen], a
 	ld [wFirstMagikarpSeen], a
-	ld hl, UnownDex
+	ld hl, wUnownDex
 	ld a, 1
 rept NUM_UNOWN
 	ld [hli], a
 	inc a
 endr
-	ld hl, PokedexSeen
+	ld hl, wPokedexSeen
 	call .Fill
-	ld hl, PokedexCaught
+	ld hl, wPokedexCaught
 .Fill:
 	ld a, %11111111
 	ld bc, 31 ; 001-248

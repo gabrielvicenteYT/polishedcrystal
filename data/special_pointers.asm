@@ -123,7 +123,6 @@ SpecialsPointers::
 	add_special SpecialDuoCheck
 	add_special SpecialMonCheck
 	add_special Special_SetPlayerPalette
-	add_special RefreshSprites
 	add_special AskRememberPassword
 	add_special LoadMapPalettes
 	add_special Special_InitialSetDSTFlag
@@ -153,7 +152,6 @@ SpecialsPointers::
 	add_special RespawnOneOffs
 	add_special SpecialGiveShinyDitto
 	add_special GiveMystriEgg
-	add_special MoveReminder
 	add_special Special_ReiBlessing
 	add_special BillBoxSwitchCheck
 	add_special BillBoxSwitch
@@ -175,5 +173,6 @@ SpecialsPointers::
 	add_special EmptiedHiddenGrotto
 	add_special Special_HiddenPowerGuru
 	add_special Special_GetOvercastIndex
+	add_special Special_SetCopycatPalette
 
 	add_special SpecialNone

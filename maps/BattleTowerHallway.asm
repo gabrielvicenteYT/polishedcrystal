@@ -20,7 +20,7 @@ BattleTowerHallway_MapScriptHeader:
 	db 0 ; bg events
 
 	db 1 ; object events
-	object_event 11,  2, SPRITE_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, -1
+	object_event 11,  2, SPRITE_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, ObjectEvent, -1
 
 BattleTowerHallwayTrigger0:
 	priorityjump .ChooseBattleRoom
@@ -39,7 +39,7 @@ BattleTowerHallwayTrigger0:
 	ld a, BANK(wBTChoiceOfLvlGroup)
 	ld [rSVBK], a
 	ld a, [wBTChoiceOfLvlGroup]
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 
 	pop af
 	ld [rSVBK], a

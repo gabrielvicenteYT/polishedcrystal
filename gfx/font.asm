@@ -1,3 +1,4 @@
+FontTiles::
 FontNormal:
 INCBIN "gfx/font/normal.1bpp"
 FontNarrow:
@@ -30,9 +31,6 @@ INCBIN "gfx/frames/9.1bpp"
 BattleExtrasGFX:
 INCBIN "gfx/battle/hpexpbars.2bpp"
 
-BattleNoCaptureGFX:
-INCBIN "gfx/battle/nocapture.1bpp"
-
 GFX_Stats: ; f89b0
 INCBIN "gfx/stats/stats.2bpp"
 ; f8ac0
@@ -53,7 +51,7 @@ TownMapGFX: ; f8ba0
 INCBIN "gfx/town_map/town_map.2bpp.lz"
 ; f8ea4
 
-TextBoxSpaceGFX: ; f9204
+TextBoxSpaceGFX:: ; f9204
 INCBIN "gfx/frames/space.1bpp"
 ; f9214
 
@@ -64,34 +62,36 @@ INCBIN "gfx/frames/map_entry_sign.2bpp"
 PaintingFrameGFX:
 INCBIN "gfx/frames/painting.2bpp"
 
-_LoadStandardFont:: ; fb449
+_LoadStandardOpaqueFont::
+	ld a, TRUE
+	call _LoadStandardMaybeOpaqueFont
+	ld hl, VTiles2 tile " "
+	ld de, TextBoxSpaceGFX
+	jp GetOpaque1bppFontTile
+
+_LoadStandardFont::
+	xor a
+_LoadStandardMaybeOpaqueFont:
+	push af
 	call LoadStandardFontPointer
 	ld d, h
 	ld e, l
 	ld hl, VTiles0 tile "A"
 	lb bc, BANK(FontNormal), 111
-	call Get1bpp_2
+	pop af
+	ld [hRequestOpaque1bpp], a
+	push af
+	call GetMaybeOpaque1bpp
 	ld de, FontCommon
 	ld hl, VTiles0 tile "▷"
 	lb bc, BANK(FontCommon), 11
-	jp Get1bpp_2
-; fb48a
-
-LoadOverworldFont::
-	call LoadStandardFontPointer
-	ld d, h
-	ld e, l
-	ld hl, VTiles0 tile "A"
-	lb bc, BANK(FontNormal), 111
-	call GetOpaque1bpp_2
-	ld hl, VTiles2 tile " "
-	ld de, TextBoxSpaceGFX
-	lb bc, BANK(TextBoxSpaceGFX), 1
-	jp GetOpaque1bpp_2
+	pop af
+	ld [hRequestOpaque1bpp], a
+	jp GetMaybeOpaque1bpp
 
 LoadStandardFontPointer::
 	ld hl, .FontPointers
-	ld a, [Options2]
+	ld a, [wOptions2]
 	and FONT_MASK
 	ld d, 0
 	ld e, a
@@ -118,42 +118,36 @@ _LoadFontsBattleExtra:: ; fb4be
 	ld de, BattleExtrasGFX
 	ld hl, VTiles2 tile BATTLEEXTRA_GFX_START
 	lb bc, BANK(BattleExtrasGFX), 32
-	call Get2bpp_2
-	ld de, BattleNoCaptureGFX
-	ld hl, VTiles0 tile "<NONO>"
-	lb bc, BANK(BattleNoCaptureGFX), 1
-	call Get1bpp_2
+	call Get2bpp
 ; fb4cc
 
 LoadFrame:: ; fb4cc
-	ld a, [TextBoxFrame]
+	ld a, [wTextBoxFrame]
 	ld bc, TILES_PER_FRAME * LEN_1BPP_TILE
 	ld hl, Frames
-	call AddNTimes
+	rst AddNTimes
 	ld d, h
 	ld e, l
 	ld hl, VTiles0 tile "┌"
 	lb bc, BANK(Frames), TILES_PER_FRAME
-	call Get1bpp_2
+	call Get1bpp
 	ld hl, VTiles2 tile " "
 	ld de, TextBoxSpaceGFX
 	lb bc, BANK(TextBoxSpaceGFX), 1
-	jp Get1bpp_2
+	jp Get1bpp
 ; fb4f2
 
 LoadBattleFontsHPBar: ; fb4f2
 	call _LoadFontsBattleExtra
 
-LoadStatusIcons: ; fb50d
+LoadStatusIcons:
 	call LoadPlayerStatusIcon
-	call LoadEnemyStatusIcon
-	jp InstantReloadPaletteHack
-; fb53e
+	jp LoadEnemyStatusIcon
 
 LoadPlayerStatusIcon:
 	push de
-	ld a, [PlayerSubStatus2]
-	ld de, BattleMonStatus
+	ld a, [wPlayerSubStatus2]
+	ld de, wBattleMonStatus
 	farcall GetStatusConditionIndex
 	ld hl, StatusIconGFX
 	ld de, 2 tiles
@@ -175,8 +169,8 @@ LoadPlayerStatusIcon:
 
 LoadEnemyStatusIcon:
 	push de
-	ld a, [EnemySubStatus2]
-	ld de, EnemyMonStatus
+	ld a, [wEnemySubStatus2]
+	ld de, wEnemyMonStatus
 	farcall GetStatusConditionIndex
 	ld hl, EnemyStatusIconGFX
 	ld de, 2 tiles
@@ -196,30 +190,6 @@ LoadEnemyStatusIcon:
 	pop de
 	ret
 
-InstantReloadPaletteHack:
-; Hack to make the palette load instantly
-	ld a, [rSVBK]
-	push af
-	push de
-	ld a, $5 ; gfx
-	ld [rSVBK], a
-; copy & reorder bg pal buffer
-	ld hl, BGPals palette PAL_BATTLE_BG_STATUS ; to
-	ld de, UnknBGPals palette PAL_BATTLE_BG_STATUS ; from
-; order
-	ld a, [rBGP]
-	ld b, a
-; 1 pal
-	ld c, 1
-	call CopyPals
-; request pal update
-	ld a, 1
-	ld [hCGBPalUpdate], a
-	pop de
-	pop af
-	ld [rSVBK], a
-	ret
-
 LoadStatsScreenGFX: ; fb53e
 	call _LoadFontsBattleExtra
 
@@ -227,5 +197,5 @@ LoadStatsGFX: ; fb571
 	ld de, GFX_Stats
 	ld hl, VTiles2 tile $31
 	lb bc, BANK(GFX_Stats), 14
-	jp Get2bpp_2
+	jp Get2bpp
 ; fb57e

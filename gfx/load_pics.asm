@@ -1,20 +1,20 @@
 GetVariant: ; 51040
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	cp PIKACHU
 	jr z, .GetPikachuVariant
 	cp MEWTWO
 	jp z, .GetMewtwoVariant
 
-; Return MonVariant based on Form at hl
+; Return CurForm based on Form at hl
 	ld a, [hl]
 	and FORM_MASK
 	jr nz, .ok
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	cp ARBOK
 	jr nz, .not_kanto_arbok
 	push bc
 	push de
-	farcall RegionCheck
+	call RegionCheck
 	ld a, e
 	pop de
 	pop bc
@@ -26,11 +26,11 @@ GetVariant: ; 51040
 .not_kanto_arbok
 	ld a, 1 ; safeguard: form 0 becomes variant 1
 .ok
-	ld [MonVariant], a
+	ld [wCurForm], a
 	ret
 
 .GetPikachuVariant:
-; Return Pikachu form (1-5) in MonVariant
+; Return Pikachu form (1-5) in wCurForm
 ; hl-8 is ...MonMove1
 ; hl-7 is ...MonMove2
 ; hl-6 is ...MonMove3
@@ -43,14 +43,14 @@ GetVariant: ; 51040
 	jr nc, .use_form
 
 	push bc
-	ld bc, TempMonForm
+	ld bc, wTempMonForm
 	ld a, b
 	cp h
 	jr nz, .nottemp1
 	ld a, c
 	cp l
 	jr nz, .nottemp1
-	; skip TempMonID through TempMonSdfEV
+	; skip wTempMonID through wTempMonSdfEV
 	ld bc, -11
 	add hl, bc
 .nottemp1
@@ -59,7 +59,7 @@ GetVariant: ; 51040
 	pop bc
 
 	ld a, PIKACHU_SURF_FORM
-	ld [MonVariant], a
+	ld [wCurForm], a
 rept NUM_MOVES
 	ld a, [hli]
 	cp SURF
@@ -70,7 +70,7 @@ rept NUM_MOVES
 	dec hl
 endr
 	ld a, PIKACHU_FLY_FORM
-	ld [MonVariant], a
+	ld [wCurForm], a
 rept NUM_MOVES
 	ld a, [hli]
 	cp FLY
@@ -80,23 +80,23 @@ endr
 .plain
 	ld a, PIKACHU_PLAIN_FORM
 .use_form
-	ld [MonVariant], a
+	ld [wCurForm], a
 	ret
 
 .GetMewtwoVariant:
-; Return Mewtwo form (1-2) in MonVariant
+; Return Mewtwo form (1-2) in wCurForm
 ; hl-9 is ...MonItem
 ; hl is ...MonForm
 
 	push bc
-	ld bc, TempMonForm
+	ld bc, wTempMonForm
 	ld a, b
 	cp h
 	jr nz, .nottemp2
 	ld a, c
 	cp l
 	jr nz, .nottemp2
-	; skip TempMonID through TempMonSdfEV
+	; skip wTempMonID through wTempMonSdfEV
 	ld bc, -11
 	add hl, bc
 .nottemp2
@@ -110,12 +110,12 @@ endr
 	jr z, .armored_mewtwo
 	dec a ; MEWTWO_PLAIN_FORM
 .armored_mewtwo
-	ld [MonVariant], a
+	ld [wCurForm], a
 	ret
 
 GetFrontpic: ; 51077
-	ld a, [CurPartySpecies]
-	ld [CurSpecies], a
+	ld a, [wCurPartySpecies]
+	ld [wCurSpecies], a
 	call IsAPokemon
 	ret c
 	ld a, [rSVBK]
@@ -126,8 +126,8 @@ GetFrontpic: ; 51077
 	jp CloseSRAM
 
 FrontpicPredef: ; 5108b
-	ld a, [CurPartySpecies]
-	ld [CurSpecies], a
+	ld a, [wCurPartySpecies]
+	ld [wCurSpecies], a
 	call IsAPokemon
 	ret c
 	ld a, [rSVBK]
@@ -149,7 +149,7 @@ _GetFrontpic: ; 510a5
 	call GetSRAMBank
 	push de
 	call GetBaseData
-	ld a, [BasePicSize]
+	ld a, [wBasePicSize]
 	and $f
 	ld b, a
 	push bc
@@ -181,15 +181,15 @@ _GetFrontpic: ; 510a5
 	ret
 
 GetFrontpicPointer: ; 510d7
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	call GetRelevantPicPointers
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	jr nc, .notvariant
-	ld a, [MonVariant]
+	ld a, [wCurForm]
 .notvariant
 	dec a
 	ld bc, 6
-	call AddNTimes
+	rst AddNTimes
 	ld a, d
 	call GetFarByte
 	push af
@@ -212,8 +212,8 @@ GetAnimatedFrontpic: ; 51103
 	ld de, 7 * 7 tiles
 	add hl, de
 	push hl
-	ld a, BANK(BasePicSize)
-	ld hl, BasePicSize
+	ld a, BANK(wBasePicSize)
+	ld hl, wBasePicSize
 	call GetFarWRAMByte
 	pop hl
 	and $f
@@ -293,13 +293,13 @@ LoadFrontpicTiles: ; 5114f
 	ret
 
 GetBackpic: ; 5116c
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	call IsAPokemon
 	ret c
 
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	ld b, a
-	ld a, [MonVariant]
+	ld a, [wCurForm]
 	ld c, a
 	ld a, [rSVBK]
 	push af
@@ -316,7 +316,7 @@ GetBackpic: ; 5116c
 .notvariant
 	dec a
 	ld bc, 6
-	call AddNTimes
+	rst AddNTimes
 	ld bc, 3
 	add hl, bc
 	ld a, d
@@ -341,19 +341,19 @@ GetBackpic: ; 5116c
 	ret
 
 GetTrainerPic: ; 5120d
-	ld a, [TrainerClass]
+	ld a, [wTrainerClass]
 	and a
 	ret z
 	cp NUM_TRAINER_CLASSES
 	ret nc
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	xor a
 	ld [hBGMapMode], a
 	ld hl, TrainerPicPointers
-	ld a, [TrainerClass]
+	ld a, [wTrainerClass]
 	dec a
 	ld bc, 3
-	call AddNTimes
+	rst AddNTimes
 	ld a, [rSVBK]
 	push af
 	ld a, $6
@@ -377,20 +377,20 @@ _Decompress7x7Pic:
 	call Get2bpp
 	pop af
 	ld [rSVBK], a
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld a, $1
 	ld [hBGMapMode], a
 	ret
 
 GetPaintingPic:
-	ld a, [TrainerClass]
-	call WaitBGMap
+	ld a, [wTrainerClass]
+	call ApplyTilemapInVBlank
 	xor a
 	ld [hBGMapMode], a
 	ld hl, PaintingPicPointers
-	ld a, [TrainerClass]
+	ld a, [wTrainerClass]
 	ld bc, 3
-	call AddNTimes
+	rst AddNTimes
 	ld a, [rSVBK]
 	push af
 	ld a, $6

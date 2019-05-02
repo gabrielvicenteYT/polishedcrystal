@@ -86,11 +86,11 @@ FalknerGroup:
 	db TRAINERTYPE_ITEM | TRAINERTYPE_EVS | TRAINERTYPE_MOVES
 	; party
 	db 11, PIDGEY, NO_ITEM, 16
-		db TACKLE, MUD_SLAP, GUST, ROOST
+		db TACKLE, GUST, MUD_SLAP, ROOST
 	db 11, HOOTHOOT, NO_ITEM, 16
 		db TACKLE, HYPNOSIS, CONFUSION, ROOST
 	db 13, PIDGEOTTO, LUM_BERRY, 16
-		db MUD_SLAP, GUST, QUICK_ATTACK, ROOST
+		db GUST, MUD_SLAP, QUICK_ATTACK, ROOST
 	db -1 ; end
 
 ; ================
@@ -1707,9 +1707,9 @@ YoungsterGroup:
 
 	; YOUNGSTER
 	db "Joey@"
-	db TRAINERTYPE_ITEM | TRAINERTYPE_EVS | TRAINERTYPE_DVS | TRAINERTYPE_PERSONALITY
+	db TRAINERTYPE_DVS | TRAINERTYPE_PERSONALITY
 	; party
-	db 5, RATTATA, ORAN_BERRY, 16, FAKE_PERFECT_DVS, ABILITY_2 | ADAMANT, MALE
+	db 5, RATTATA, FAKE_PERFECT_DVS, ABILITY_2 | ADAMANT, MALE
 	db -1 ; end
 
 ; ================
@@ -6218,9 +6218,8 @@ SchoolgirlGroup:
 	db "Molly@"
 	db TRAINERTYPE_NICKNAME
 	; party
-	db 6, MAREEP, "Fluffy@"
-	db 6, PHANPY, "Phanpy@"
 	db 6, TEDDIURSA, "Teddy@"
+	db 6, PHANPY, "Phanpy@"
 	db -1 ; end
 
 ; ================
@@ -6273,9 +6272,8 @@ SchoolgirlGroup:
 	db "Imogen@"
 	db TRAINERTYPE_NICKNAME
 	; party
-	db 10, BULBASAUR, "Garlic@"
-	db 7, SANDSHREW, "Sandshrew@"
-	db 7, POLIWAG, "Poliwag@"
+	db 9, BULBASAUR, "Garlic@"
+	db 8, POLIWAG, "Poliwag@"
 	db -1 ; end
 
 ; ================
@@ -6687,11 +6685,11 @@ MediumGroup:
 ; ================================
 
 
-KimonoGirlGroup:
+KimonoGirl1Group:
 ; ================================
 ; ================
 
-	; KIMONO_GIRL
+	; KIMONO_GIRL_1
 	db "Naoko@"
 	db TRAINERTYPE_ITEM
 	; party
@@ -6699,8 +6697,14 @@ KimonoGirlGroup:
 	db -1 ; end
 
 ; ================
+; ================================
 
-	; KIMONO_GIRL
+
+KimonoGirl2Group:
+; ================================
+; ================
+
+	; KIMONO_GIRL_2
 	db "Sayo@"
 	db TRAINERTYPE_ITEM
 	; party
@@ -6708,8 +6712,14 @@ KimonoGirlGroup:
 	db -1 ; end
 
 ; ================
+; ================================
 
-	; KIMONO_GIRL
+
+KimonoGirl3Group:
+; ================================
+; ================
+
+	; KIMONO_GIRL_3
 	db "Zuki@"
 	db TRAINERTYPE_ITEM
 	; party
@@ -6717,8 +6727,14 @@ KimonoGirlGroup:
 	db -1 ; end
 
 ; ================
+; ================================
 
-	; KIMONO_GIRL
+
+KimonoGirl4Group:
+; ================================
+; ================
+
+	; KIMONO_GIRL_4
 	db "Kuni@"
 	db TRAINERTYPE_ITEM
 	; party
@@ -6726,8 +6742,14 @@ KimonoGirlGroup:
 	db -1 ; end
 
 ; ================
+; ================================
 
-	; KIMONO_GIRL
+
+KimonoGirl5Group:
+; ================================
+; ================
+
+	; KIMONO_GIRL_5
 	db "Miki@"
 	db TRAINERTYPE_ITEM
 	; party
@@ -9419,6 +9441,13 @@ AromaLadyGroup:
 	db 50, BULBASAUR
 	db -1 ; end
 
+; ================
+; ================================
+
+
+WaiterGroup:
+; ================================
+; ================
 ; ================
 ; ================================
 

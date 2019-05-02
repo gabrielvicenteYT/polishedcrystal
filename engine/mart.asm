@@ -8,10 +8,10 @@
 
 OpenMartDialog:: ; 15a45
 	ld a, c
-	ld [EngineBuffer1], a
+	ld [wEngineBuffer1], a
 	call GetMart
 	call LoadMartPointer
-	ld a, [EngineBuffer1]
+	ld a, [wEngineBuffer1]
 	ld hl, .dialogs
 	rst JumpTable
 	ret
@@ -34,8 +34,8 @@ OpenMartDialog:: ; 15a45
 
 MartDialog: ; 15a61
 	xor a
-	ld [EngineBuffer1], a
-	ld [EngineBuffer5], a
+	ld [wEngineBuffer1], a
+	ld [wEngineBuffer5], a
 	jp StandardMart
 ; 15a6e
 
@@ -62,7 +62,7 @@ BargainShop: ; 15a84
 	ld a, [hli]
 	or [hl]
 	jr z, .skip_set
-	ld hl, DailyFlags ; ENGINE_GOLDENROD_UNDERGROUND_MERCHANT_CLOSED
+	ld hl, wDailyFlags ; ENGINE_GOLDENROD_UNDERGROUND_MERCHANT_CLOSED
 	set 6, [hl]
 
 .skip_set
@@ -85,7 +85,7 @@ Pharmacist: ; 15aae
 RooftopSale: ; 15ac4
 	ld b, BANK(RooftopSaleData1) ; BANK(RooftopSaleData2)
 	ld de, RooftopSaleData1
-	ld hl, StatusFlags
+	ld hl, wStatusFlags
 	bit 6, [hl] ; hall of fame
 	jr z, .ok
 	ld de, RooftopSaleData2
@@ -172,19 +172,19 @@ BTMart:
 
 LoadMartPointer: ; 15b10
 	ld a, b
-	ld [MartPointerBank], a
+	ld [wMartPointerBank], a
 	ld a, e
-	ld [MartPointer], a
+	ld [wMartPointer], a
 	ld a, d
-	ld [MartPointer + 1], a
-	ld hl, CurMart
+	ld [wMartPointer + 1], a
+	ld hl, wCurMart
 	xor a
-	ld bc, CurMartEnd - CurMart
+	ld bc, wCurMartEnd - wCurMart
 	call ByteFill
 	xor a
-	ld [EngineBuffer5], a
+	ld [wEngineBuffer5], a
 	ld [wBargainShopFlags], a
-	ld [FacingDirection], a
+	ld [wFacingDirection], a
 	ret
 ; 15b31
 
@@ -201,10 +201,10 @@ GetMart: ; 15b31
 
 StandardMart: ; 15b47
 .loop
-	ld a, [EngineBuffer5]
+	ld a, [wEngineBuffer5]
 	ld hl, .MartFunctions
 	rst JumpTable
-	ld [EngineBuffer5], a
+	ld [wEngineBuffer5], a
 	cp $ff
 	jr nz, .loop
 	ret
@@ -280,13 +280,13 @@ StandardMart: ; 15b47
 ; 15bbb
 
 FarReadMart: ; 15bbb
-	ld hl, MartPointer
+	ld hl, wMartPointer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, CurMart
+	ld de, wCurMart
 .CopyMart:
-	ld a, [MartPointerBank]
+	ld a, [wMartPointerBank]
 	call GetFarByte
 	ld [de], a
 	inc hl
@@ -294,7 +294,7 @@ FarReadMart: ; 15bbb
 	cp -1
 	jr nz, .CopyMart
 	ld hl, wMartItem1BCD
-	ld de, CurMart + 1
+	ld de, wCurMart + 1
 .ReadMartItem:
 	ld a, [de]
 	inc de
@@ -306,13 +306,13 @@ FarReadMart: ; 15bbb
 	jr .ReadMartItem
 ; 15be5
 
-; FarReadTMMart needs to use GetFarByte from MartPointerBank.
+; FarReadTMMart needs to use GetFarByte from wMartPointerBank.
 ; ReadMart could just load from hl directly.
 ; But their structures are identical, so here they both use GetFarByte.
 FarReadTMMart:
 ReadMart: ; 15c25
 ; Load the mart pointer.  Mart data is local (no need for bank).
-	ld hl, MartPointer
+	ld hl, wMartPointer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -320,10 +320,10 @@ ReadMart: ; 15c25
 ; set hl to the first item
 	inc hl
 	ld bc, wMartItem1BCD
-	ld de, CurMart + 1
+	ld de, wCurMart + 1
 .loop
-; copy the item to CurMart + (ItemIndex)
-	ld a, [MartPointerBank]
+; copy the item to wCurMart + (ItemIndex)
+	ld a, [wMartPointerBank]
 	call GetFarByte
 	inc hl
 	ld [de], a
@@ -334,11 +334,11 @@ ReadMart: ; 15c25
 
 	push de
 ; copy the price to de
-	ld a, [MartPointerBank]
+	ld a, [wMartPointerBank]
 	call GetFarByte
 	inc hl
 	ld e, a
-	ld a, [MartPointerBank]
+	ld a, [wMartPointerBank]
 	call GetFarByte
 	inc hl
 	ld d, a
@@ -356,18 +356,18 @@ ReadMart: ; 15c25
 
 .done
 	pop hl
-	ld a, [MartPointerBank]
+	ld a, [wMartPointerBank]
 	call GetFarByte
-	ld [CurMart], a
+	ld [wCurMart], a
 	ret
 
-; FarReadBTMart needs to use GetFarByte from MartPointerBank.
+; FarReadBTMart needs to use GetFarByte from wMartPointerBank.
 ; ReadBlueCardMart could just load from hl directly.
 ; But their structures are identical, so here they both use GetFarByte.
 FarReadBTMart:
 ReadBlueCardMart:
 ; Load the mart pointer.  Mart data is local (no need for bank).
-	ld hl, MartPointer
+	ld hl, wMartPointer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -375,10 +375,10 @@ ReadBlueCardMart:
 ; set hl to the first item
 	inc hl
 	ld bc, wMartItem1BCD
-	ld de, CurMart + 1
+	ld de, wCurMart + 1
 .loop
-; copy the item to CurMart + (ItemIndex)
-	ld a, [MartPointerBank]
+; copy the item to wCurMart + (ItemIndex)
+	ld a, [wMartPointerBank]
 	call GetFarByte
 	inc hl
 	ld [de], a
@@ -388,7 +388,7 @@ ReadBlueCardMart:
 	jr z, .done
 
 ; copy the point cost to [bc]
-	ld a, [MartPointerBank]
+	ld a, [wMartPointerBank]
 	call GetFarByte
 	inc hl
 	ld [bc], a
@@ -398,32 +398,32 @@ ReadBlueCardMart:
 
 .done
 	pop hl
-	ld a, [MartPointerBank]
+	ld a, [wMartPointerBank]
 	call GetFarByte
-	ld [CurMart], a
+	ld [wCurMart], a
 	ret
 
 GetMartItemPrice: ; 15be5
-; Return the price of item a in BCD at hl and in tiles at StringBuffer1.
+; Return the price of item a in BCD at hl and in tiles at wStringBuffer1.
 	push hl
-	ld [CurItem], a
+	ld [wCurItem], a
 	farcall GetItemPrice
 	pop hl
 
 GetMartPrice: ; 15bf0
-; Return price de in BCD at hl and in tiles at StringBuffer1.
+; Return price de in BCD at hl and in tiles at wStringBuffer1.
 	push hl
 	ld a, d
-	ld [StringBuffer2], a
+	ld [wStringBuffer2], a
 	ld a, e
-	ld [StringBuffer2 + 1], a
-	ld hl, StringBuffer1
-	ld de, StringBuffer2
+	ld [wStringBuffer2 + 1], a
+	ld hl, wStringBuffer1
+	ld de, wStringBuffer2
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 6 ; 6 digits
 	call PrintNum
 	pop hl
 
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	ld c, 6 / 2 ; 6 digits
 .loop
 	call .CharToNybble
@@ -455,6 +455,7 @@ BuyMenu: ; 15c62
 	call BuyMenuLoop ; menu loop
 	jr nc, .loop
 BuyMenu_Finish:
+	call SFXDelay2
 	call ReturnToMapWithSpeechTextbox
 	and a
 	ret
@@ -462,7 +463,6 @@ BuyMenu_Finish:
 
 BuyTMMenu:
 	call BuyMenu_InitGFX
-	farcall LoadTMHMIcon
 .loop
 	call BuyTMMenuLoop ; menu loop
 	jr nc, .loop
@@ -527,7 +527,7 @@ BuyMenu_InitGFX:
 ;	lb bc, 4, SCREEN_WIDTH - 2
 ;	call TextBox
 	call EnableLCD
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld b, CGB_BUYMENU_PALS
 	call GetCGBLayout
 	call SetPalettes
@@ -551,7 +551,7 @@ BuyMenu_InitGFX:
 
 LoadBuyMenuText: ; 15c7d
 ; load text from a nested table
-; which table is in EngineBuffer1
+; which table is in wEngineBuffer1
 ; which entry is in register a
 	push af
 	call GetMartDialogGroup ; gets a pointer from GetMartDialogGroup.MartTextFunctionPointers
@@ -570,7 +570,7 @@ LoadBuyMenuText: ; 15c7d
 ; 15c91
 
 MartAskPurchaseQuantity: ; 15c91
-	ld a, [CurItem]
+	ld a, [wCurItem]
 	call GetMartDialogGroup ; gets a pointer from GetMartDialogGroup.MartTextFunctionPointers
 	inc hl
 	inc hl
@@ -583,7 +583,7 @@ MartAskPurchaseQuantity: ; 15c91
 ; 15ca3
 
 GetMartDialogGroup: ; 15ca3
-	ld a, [EngineBuffer1]
+	ld a, [wEngineBuffer1]
 	ld e, a
 	ld d, 0
 	ld hl, .MartTextFunctionPointers
@@ -712,11 +712,11 @@ BuyMenuLoop: ; 15cef
 	jr c, .cancel
 	call MartConfirmPurchase
 	jr c, .cancel
-	ld de, Money
+	ld de, wMoney
 	ld bc, hMoneyTemp
 	call CompareMoney
 	jp c, MartMenuLoop_InsufficientFunds
-	ld hl, NumItems
+	ld hl, wNumItems
 	call ReceiveItem
 	jp nc, MartMenuLoop_InsufficientBagSpace
 	ld a, [wMartItemID]
@@ -726,7 +726,7 @@ BuyMenuLoop: ; 15cef
 	ld hl, wBargainShopFlags
 	call FlagAction
 	call PlayTransactionSound
-	ld de, Money
+	ld de, wMoney
 	ld bc, hMoneyTemp
 	call TakeMoney
 	ld a, MARTTEXT_HERE_YOU_GO
@@ -740,13 +740,13 @@ BuyMenuLoop: ; 15cef
 	cp 10
 	jr c, .cancel
 	ld a, PREMIER_BALL
-	ld [CurItem], a
+	ld [wCurItem], a
 	ld a, [wItemQuantityChangeBuffer]
 	ld c, 10
 	call SimpleDivide
 	ld a, b
 	ld [wItemQuantityChangeBuffer], a
-	ld hl, NumItems
+	ld hl, wNumItems
 	call ReceiveItem
 	jr nc, .cancel
 	ld hl, .PremierBallText
@@ -775,13 +775,13 @@ BuyTMMenuLoop:
 	jr c, .cancel
 	call TMMartConfirmPurchase
 	jr c, .cancel
-	ld de, Money
+	ld de, wMoney
 	ld bc, hMoneyTemp
 	call CompareMoney
 	jp c, MartMenuLoop_InsufficientFunds
 	call ReceiveTMHM
 	call PlayTransactionSound
-	ld de, Money
+	ld de, wMoney
 	ld bc, hMoneyTemp
 	call TakeMoney
 	ld a, MARTTEXT_HERE_YOU_GO
@@ -806,7 +806,7 @@ BlueCardBuyMenuLoop:
 	jr c, .cancel
 	call BlueCardMartComparePoints
 	jp c, MartMenuLoop_InsufficientFunds
-	ld hl, NumItems
+	ld hl, wNumItems
 	call ReceiveItem
 	jp nc, MartMenuLoop_InsufficientBagSpace
 	call PlayTransactionSound
@@ -838,14 +838,14 @@ BTBuyMenuLoop:
 	jr c, .cancel
 	call BTMartCompareBP
 	jp c, MartMenuLoop_InsufficientFunds
-	ld hl, NumItems
+	ld hl, wNumItems
 	call ReceiveItem
 	jp nc, MartMenuLoop_InsufficientBagSpace
 	call PlayTransactionSound
-	ld a, [BattlePoints]
+	ld a, [wBattlePoints]
 	ld hl, hMoneyTemp + 2
 	sub [hl]
-	ld [BattlePoints], a
+	ld [wBattlePoints], a
 	ld a, MARTTEXT_HERE_YOU_GO
 	call LoadBuyMenuText
 	call JoyWaitAorB
@@ -898,7 +898,7 @@ BTMartConfirmPurchase:
 ; 15da5
 
 TMMartConfirmPurchase:
-	ld a, [CurTMHM]
+	ld a, [wCurTMHM]
 	ld [wd265], a
 	call GetTMHMName
 	call CopyName1
@@ -932,7 +932,7 @@ BargainShopAskPurchaseQuantity:
 	ld a, [wMartItemID]
 	ld e, a
 	ld d, $0
-	ld hl, MartPointer
+	ld hl, wMartPointer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -970,7 +970,7 @@ RooftopSaleAskPurchaseQuantity:
 	ld a, [wMartItemID]
 	ld e, a
 	ld d, 0
-	ld hl, MartPointer
+	ld hl, wMartPointer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -986,7 +986,7 @@ RooftopSaleAskPurchaseQuantity:
 ; 15e0e
 
 TMMartAskPurchaseQuantity:
-	ld a, [CurTMHM]
+	ld a, [wCurTMHM]
 	call CheckTMHM
 	jr c, .AlreadyHaveTM
 
@@ -995,7 +995,7 @@ TMMartAskPurchaseQuantity:
 	ld a, [wMartItemID]
 	ld e, a
 	ld d, $0
-	ld hl, MartPointer
+	ld hl, wMartPointer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -1031,7 +1031,7 @@ BTMartAskPurchaseQuantity:
 	ld a, [wMartItemID]
 	ld e, a
 	ld d, $0
-	ld hl, MartPointer
+	ld hl, wMartPointer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -1041,11 +1041,11 @@ BTMartAskPurchaseQuantity:
 	inc hl
 	ld a, [hl]
 	ld c, a
-	ld [Buffer2], a
+	ld [wBuffer2], a
 	xor a
-	ld [Buffer1], a
+	ld [wBuffer1], a
 ; divide BP balance by cost to get maximum quantity
-	ld a, [BattlePoints]
+	ld a, [wBattlePoints]
 	call SimpleDivide
 	ld a, b
 	and a
@@ -1064,7 +1064,7 @@ BlueCardMartComparePoints:
 	ld a, [wMartItemID]
 	ld e, a
 	ld d, $0
-	ld hl, MartPointer
+	ld hl, wMartPointer
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -1084,7 +1084,7 @@ BTMartCompareBP:
 ; compare BP balance with cost
 	ld a, [hMoneyTemp + 2]
 	ld d, a
-	ld a, [BattlePoints]
+	ld a, [wBattlePoints]
 	cp d
 	ret
 
@@ -1114,8 +1114,8 @@ MenuDataHeader_Buy: ; 0x15e18
 	db $30 ; pointers
 	db 4, 8 ; rows, columns
 	db 1 ; horizontal spacing
-	dbw 0, CurMart
-	dba PlaceMenuItemName
+	dbw 0, wCurMart
+	dba PlaceMartItemName
 	dba MartMenu_PrintBCDPrices
 	dba UpdateItemIconAndDescriptionAndBagQuantity
 ; 15e30
@@ -1132,7 +1132,7 @@ TMMenuDataHeader_Buy:
 	db $30 ; pointers
 	db 4, 8 ; rows, columns
 	db 1 ; horizontal spacing
-	dbw 0, CurMart
+	dbw 0, wCurMart
 	dba PlaceMenuTMHMName
 	dba MartMenu_PrintBCDPrices
 	dba UpdateTMHMIconAndDescriptionAndOwnership
@@ -1168,8 +1168,8 @@ BlueCardMenuDataHeader_Buy:
 	db $30 ; pointers
 	db 4, 8 ; rows, columns
 	db 1 ; horizontal spacing
-	dbw 0, CurMart
-	dba PlaceMenuItemName
+	dbw 0, wCurMart
+	dba PlaceMartItemName
 	dba .PrintPointCosts
 	dba UpdateItemIconAndDescriptionAndBagQuantity
 
@@ -1197,8 +1197,8 @@ BTMenuDataHeader_Buy:
 	db $30 ; pointers
 	db 4, 8 ; rows, columns
 	db 1 ; horizontal spacing
-	dbw 0, CurMart
-	dba PlaceMenuItemName
+	dbw 0, wCurMart
+	dba PlaceMartItemName
 	dba .PrintPointCosts
 	dba UpdateItemIconAndDescriptionAndBagQuantity
 
@@ -1476,6 +1476,7 @@ SellMenu: ; 15eb3
 	jr .loop
 
 .quit
+	call SFXDelay2
 	call ReturnToMapWithSpeechTextbox
 	and a
 	ret
@@ -1528,11 +1529,11 @@ SellMenu: ; 15eb3
 	call PrintTextBoxText
 	call YesNoBox
 	jr c, .declined
-	ld de, Money
+	ld de, wMoney
 	ld bc, hMoneyTemp
 	call GiveMoney
 	ld a, [wMartItemID]
-	ld hl, NumItems
+	ld hl, wNumItems
 	call TossItem
 	predef PartyMonItemName
 	hlcoord 1, 14

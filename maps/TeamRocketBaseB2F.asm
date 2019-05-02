@@ -48,8 +48,8 @@ TeamRocketBaseB2F_MapScriptHeader:
 	bg_event 26,  7, SIGNPOST_ITEM + FULL_HEAL, EVENT_TEAM_ROCKET_BASE_B2F_HIDDEN_FULL_HEAL
 
 	db 14 ; object events
-	object_event 20, 16, SPRITE_PETREL, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TEAM_ROCKET_BASE_B2F_PETREL
-	object_event 20, 16, SPRITE_ARIANA, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TEAM_ROCKET_BASE_B2F_ARIANA
+	object_event 20, 16, SPRITE_PETREL, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TEAM_ROCKET_BASE_B2F_PETREL
+	object_event 20, 16, SPRITE_ARIANA, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TEAM_ROCKET_BASE_B2F_ARIANA
 	object_event  5, 13, SPRITE_LANCE, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TEAM_ROCKET_BASE_B2F_LANCE
 	object_event  9, 13, SPRITE_DRAGONITE, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TEAM_ROCKET_BASE_B2F_DRAGONITE
 	object_event  7,  5, SPRITE_ELECTRODE, SPRITEMOVEDATA_POKEMON, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, RocketElectrode1, EVENT_TEAM_ROCKET_BASE_B2F_ELECTRODE_1
@@ -311,8 +311,6 @@ UnknownScript_0x6d184:
 	setevent EVENT_MAHOGANY_TOWN_POKEFAN_M_BLOCKS_GYM
 	setscene $3
 	clearevent EVENT_LAKE_OF_RAGE_CIVILIANS
-	clearevent EVENT_LAKE_OF_RAGE_LANCE
-	variablesprite SPRITE_LAKE_OF_RAGE_LANCE, SPRITE_ENGINEER
 	setevent EVENT_TURNED_OFF_SECURITY_CAMERAS
 	setevent EVENT_SECURITY_CAMERA_1
 	setevent EVENT_SECURITY_CAMERA_2
@@ -366,32 +364,32 @@ MovementData_0x6d21f:
 	step_end
 
 MovementData_0x6d224:
-	big_step_left
-	big_step_left
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_left
 	turn_head_down
 	step_end
 
 MovementData_0x6d22f:
-	big_step_left
-	big_step_left
-	big_step_up
-	big_step_up
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
+	run_step_up
+	run_step_up
+	run_step_left
+	run_step_left
 	step_end
 
 MovementData_0x6d236:
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
 	step_end
 
 MovementData_0x6d23b:
@@ -414,8 +412,8 @@ MovementData_0x6d244:
 	step_end
 
 MovementData_0x6d24c:
-	big_step_left
-	big_step_up
+	run_step_left
+	run_step_up
 	turn_head_left
 	step_end
 

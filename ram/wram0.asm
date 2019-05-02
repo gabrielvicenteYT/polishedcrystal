@@ -1,29 +1,29 @@
 SECTION "Stack", WRAM0
 
 wRAM0Start::
-StackBottom::
+wStackBottom::
 	ds $100 - 1
-Stack::
-StackTop::
+wStack::
+wStackTop::
 	ds 1
 
 
 SECTION "Audio RAM", WRAM0
 
 wMusic::
-MusicPlaying:: ds 1 ; nonzero if playing
+wMusicPlaying:: ds 1 ; nonzero if playing
 
-Channels::
-Channel1:: channel_struct Channel1
-Channel2:: channel_struct Channel2
-Channel3:: channel_struct Channel3
-Channel4:: channel_struct Channel4
+wChannels::
+wChannel1:: channel_struct wChannel1
+wChannel2:: channel_struct wChannel2
+wChannel3:: channel_struct wChannel3
+wChannel4:: channel_struct wChannel4
 
-SFXChannels::
-Channel5:: channel_struct Channel5
-Channel6:: channel_struct Channel6
-Channel7:: channel_struct Channel7
-Channel8:: channel_struct Channel8
+wSFXChannels::
+wChannel5:: channel_struct wChannel5
+wChannel6:: channel_struct wChannel6
+wChannel7:: channel_struct wChannel7
+wChannel8:: channel_struct wChannel8
 
 	ds 1 ; unused
 
@@ -33,9 +33,9 @@ wCurTrackFrequency:: ds 2
 	ds 1 ; BCD value, dummied out
 wCurNoteDuration:: ds 1 ; used in MusicE0 and LoadNote
 
-CurMusicByte:: ds 1
-CurChannel:: ds 1
-Volume::
+wCurMusicByte:: ds 1
+wCurChannel:: ds 1
+wVolume::
 ; corresponds to rNR50
 ; Channel control / ON-OFF / Volume (R/W)
 ;   bit 7 - Vin->SO2 ON/OFF
@@ -43,12 +43,12 @@ Volume::
 ;   bit 3 - Vin->SO1 ON/OFF
 ;   bit 2-0 - SO1 output level (volume) (# 0-7)
 	ds 1
-SoundOutput::
+wSoundOutput::
 ; corresponds to rNR51
 ; bit 4-7: ch1-4 so2 on/off
 ; bit 0-3: ch1-4 so1 on/off
 	ds 1
-SoundInput::
+wSoundInput::
 ; corresponds to rNR52
 ; bit 7: global on/off
 ; bit 0: ch1 on/off
@@ -57,51 +57,51 @@ SoundInput::
 ; bit 3: ch4 on/off
 	ds 1
 
-MusicID::
-MusicIDLo:: ds 1
-MusicIDHi:: ds 1
-MusicBank:: ds 1
-NoiseSampleAddress::
-NoiseSampleAddressLo:: ds 1
-NoiseSampleAddressHi:: ds 1
+wMusicID::
+wMusicIDLo:: ds 1
+wMusicIDHi:: ds 1
+wMusicBank:: ds 1
+wNoiseSampleAddress::
+wNoiseSampleAddressLo:: ds 1
+wNoiseSampleAddressHi:: ds 1
 wNoiseSampleDelay:: ds 1 ; noise delay?
 	ds 1
-MusicNoiseSampleSet:: ds 1
-SFXNoiseSampleSet:: ds 1
-Danger::
+wMusicNoiseSampleSet:: ds 1
+wSFXNoiseSampleSet:: ds 1
+wLowHealthAlarm::
 ; bit 7: on/off
 ; bit 4: pitch
 ; bit 0-3: counter
 	ds 1
-MusicFade::
+wMusicFade::
 ; fades volume over x frames
 ; bit 7: fade in/out
 ; bit 0-5: number of frames for each volume level
 ; $00 = none (default)
 	ds 1
-MusicFadeCount:: ds 1
-MusicFadeID::
-MusicFadeIDLo:: ds 1
-MusicFadeIDHi:: ds 1
+wMusicFadeCount:: ds 1
+wMusicFadeID::
+wMusicFadeIDLo:: ds 1
+wMusicFadeIDHi:: ds 1
 	ds 5
-CryPitch:: ds 2
-CryLength:: ds 2
-LastVolume:: ds 1
+wCryPitch:: ds 2
+wCryLength:: ds 2
+wLastVolume:: ds 1
 	ds 1
-SFXPriority:: ds 1 ; if nonzero, turn off music when playing sfx
+wSFXPriority:: ds 1 ; if nonzero, turn off music when playing sfx
 	ds 1
-Channel1JumpCondition:: ds 1
-Channel2JumpCondition:: ds 1
-Channel3JumpCondition:: ds 1
-Channel4JumpCondition:: ds 1
+wChannel1JumpCondition:: ds 1
+wChannel2JumpCondition:: ds 1
+wChannel3JumpCondition:: ds 1
+wChannel4JumpCondition:: ds 1
 wStereoPanningMask:: ds 1
-CryTracks::
+wCryTracks::
 ; plays only in left or right track depending on what side the monster is on
 ; both tracks active outside of battle
 	ds 1
 wSFXDuration:: ds 1
-CurSFX:: ds 1 ; id of sfx currently playing
-ChannelsEnd::
+wCurSFX:: ds 1 ; id of sfx currently playing
+wChannelsEnd::
 
 wMapMusic:: ds 1
 wDontPlayMapMusicOnReload:: ds 1
@@ -110,20 +110,19 @@ wMusicEnd::
 
 SECTION "WRAM 0", WRAM0
 
-wLZAddress:: ds 2
-wLZBank:: ds 1
+	ds 2
 
-	ds 1
+wTilesetDataAddress:: ds 2
 
 wRNGState:: ds 4
 wRNGCumulativeDividerPlus:: ds 2
 wRNGCumulativeDividerMinus:: ds 1
 
 wBoxAlignment:: ds 1
-InputType:: ds 1
-AutoInputAddress:: ds 2
-AutoInputBank:: ds 1
-AutoInputLength:: ds 1
+wInputType:: ds 1
+wAutoInputAddress:: ds 2
+wAutoInputBank:: ds 1
+wAutoInputLength:: ds 1
 
 wMonStatusFlags:: ds 1
 wGameLogicPaused:: ds 1
@@ -134,7 +133,9 @@ wMapTimeOfDay:: ds 1
 wPrinterConnectionOpen:: ds 1
 wPrinterOpcode:: ds 1
 wLastDexEntry:: ds 1
-wDisableTextAcceleration:: ds 1
+
+	ds 1
+
 wPreviousLandmark:: ds 1
 wCurrentLandmark:: ds 1
 wLandmarkSignTimer:: ds 2
@@ -144,7 +145,7 @@ wLinkMode::
 ; 4 mobile battle
 	ds 1
 
-ScriptVar:: ds 1
+wScriptVar:: ds 1
 
 wPlayerNextMovement:: ds 1
 wPlayerMovement:: ds 1
@@ -166,12 +167,12 @@ wTempObjectCopyX:: ds 1
 wTempObjectCopyY:: ds 1
 wTempObjectCopyRadius:: ds 1
 
-TileDown:: ds 1
-TileUp:: ds 1
-TileLeft:: ds 1
-TileRight:: ds 1
+wTileDown:: ds 1
+wTileUp:: ds 1
+wTileLeft:: ds 1
+wTileRight:: ds 1
 
-TilePermissions::
+wTilePermissions::
 ; set if tile behavior prevents
 ; you from walking in that direction
 ; bit 3: down
@@ -191,22 +192,22 @@ wSpriteAnimDict:: ds 10 * 2
 wSpriteAnimationStructs::
 ; Field  0: Index
 ; Fields 1-3: Loaded from SpriteAnimSeqData
-SpriteAnim1::  sprite_anim_struct SpriteAnim1
-SpriteAnim2::  sprite_anim_struct SpriteAnim2
-SpriteAnim3::  sprite_anim_struct SpriteAnim3
-SpriteAnim4::  sprite_anim_struct SpriteAnim4
-SpriteAnim5::  sprite_anim_struct SpriteAnim5
-SpriteAnim6::  sprite_anim_struct SpriteAnim6
-SpriteAnim7::  sprite_anim_struct SpriteAnim7
-SpriteAnim8::  sprite_anim_struct SpriteAnim8
-SpriteAnim9::  sprite_anim_struct SpriteAnim9
-SpriteAnim10:: sprite_anim_struct SpriteAnim10
+wSpriteAnim1::  sprite_anim_struct wSpriteAnim1
+wSpriteAnim2::  sprite_anim_struct wSpriteAnim2
+wSpriteAnim3::  sprite_anim_struct wSpriteAnim3
+wSpriteAnim4::  sprite_anim_struct wSpriteAnim4
+wSpriteAnim5::  sprite_anim_struct wSpriteAnim5
+wSpriteAnim6::  sprite_anim_struct wSpriteAnim6
+wSpriteAnim7::  sprite_anim_struct wSpriteAnim7
+wSpriteAnim8::  sprite_anim_struct wSpriteAnim8
+wSpriteAnim9::  sprite_anim_struct wSpriteAnim9
+wSpriteAnim10:: sprite_anim_struct wSpriteAnim10
 wSpriteAnimationStructsEnd::
 
 wSpriteAnimCount:: ds 1
 wCurrSpriteOAMAddr:: ds 1
 
-CurIcon:: ds 1
+wCurIcon:: ds 1
 
 
 wCurIconTile:: ds 1
@@ -226,7 +227,7 @@ wSpriteAnimsEnd::
 
 SECTION "Music Player RAM", WRAM0
 
-MusicPlayerWRAM::
+wMusicPlayerWRAM::
 wSongSelection:: ds 2
 wNumNoteLines:: ds 1
 wTmpCh:: ds 1
@@ -258,12 +259,12 @@ wPitchTransposition:: ds 1
 wTempoAdjustment:: ds 1
 ; audio engine output
 wNoiseHit:: ds 1
-MusicPlayerWRAMEnd::
+wMusicPlayerWRAMEnd::
 
 
 SECTION "Sprites", WRAM0
 
-Sprites::
+wSprites::
 ; 4 bytes per sprite
 ; 40 sprites
 ; struct:
@@ -278,25 +279,24 @@ Sprites::
 ;		bit 3: vram bank (cgb only)
 ;		bit 2-0: pal # (cgb only)
 	ds 4 * 40
-SpritesEnd::
+wSpritesEnd::
 
 
 SECTION "Tilemap", WRAM0
 
-TileMap:: ds SCREEN_WIDTH * SCREEN_HEIGHT ; 20x18 grid of 8x8 tiles
-TileMapEnd::
+wTileMap:: ds SCREEN_WIDTH * SCREEN_HEIGHT ; 20x18 grid of 8x8 tiles
+wTileMapEnd::
 
 
 SECTION "Battle", WRAM0
 
 UNION
-; miscellaneous
 wMisc:: ds (SCREEN_WIDTH + 4) * (SCREEN_HEIGHT + 2)
 wMiscEnd::
 
 NEXTU
 ; odd egg
-wOddEgg:: party_struct OddEgg
+wOddEgg:: party_struct wOddEgg
 wOddEggName:: ds PKMN_NAME_LENGTH
 wOddEggOTName:: ds PKMN_NAME_LENGTH
 
@@ -323,15 +323,16 @@ wLinkPlayerFixedPartyMon1ID:: ds 3
 NEXTU
 ; battle
 	ds 1
+NEXTU
 
 wBattle::
 wEnemyMoveStruct::  move_struct wEnemyMoveStruct
 wPlayerMoveStruct:: move_struct wPlayerMoveStruct
 
-EnemyMonNick:: ds PKMN_NAME_LENGTH
-BattleMonNick:: ds PKMN_NAME_LENGTH
+wEnemyMonNick:: ds PKMN_NAME_LENGTH
+wBattleMonNick:: ds PKMN_NAME_LENGTH
 
-BattleMon:: battle_struct BattleMon
+wBattleMon:: battle_struct wBattleMon
 
 	ds 2
 
@@ -341,9 +342,9 @@ wEnemyTrainerItem1:: ds 1
 wEnemyTrainerItem2:: ds 1
 wEnemyTrainerBaseReward:: ds 1
 wEnemyTrainerAIFlags:: ds 3
-OTClassName:: ds TRAINER_CLASS_NAME_LENGTH
+wOTClassName:: ds TRAINER_CLASS_NAME_LENGTH
 
-CurOTMon:: ds 1
+wCurOTMon:: ds 1
 
 wBattleParticipantsNotFainted::
 ; Bit array.  Bits 0 - 5 correspond to party members 1 - 6.
@@ -353,25 +354,25 @@ wBattleParticipantsNotFainted::
 ; All bits cleared if the enemy faints.
 	ds 1
 
-TypeModifier::
+wTypeModifier::
 ; >10: super-effective
 ;  10: normal
 ; <10: not very effective
 ; bit 7: stab
 	ds 1
 
-CriticalHit::
+wCriticalHit::
 ; 0 if not critical
 ; 1 for a critical hit
 ; 2 for a OHKO
 	ds 1
 
-AttackMissed::
+wAttackMissed::
 ; nonzero for a miss
 	ds 1
 
-BattleSubStatusWRAM::
-PlayerSubStatus1::
+wBattleSubStatusWRAM::
+wPlayerSubStatus1::
 ; bit
 ; 7 attract
 ; 6 encore
@@ -382,7 +383,7 @@ PlayerSubStatus1::
 ; 1 curse
 ; 0 unburden
 	ds 1
-PlayerSubStatus2::
+wPlayerSubStatus2::
 ; bit
 ; 7 cant run
 ; 6 destiny bond
@@ -393,7 +394,7 @@ PlayerSubStatus2::
 ; 1
 ; 0 toxic
 	ds 1
-PlayerSubStatus3::
+wPlayerSubStatus3::
 ; bit
 ; 7 confused
 ; 6 flying
@@ -404,7 +405,7 @@ PlayerSubStatus3::
 ; 1 rollout
 ; 0 bide
 	ds 1
-PlayerSubStatus4::
+wPlayerSubStatus4::
 ; bit
 ; 7 leech seed
 ; 6 rage
@@ -416,126 +417,125 @@ PlayerSubStatus4::
 ; 0 curled
 	ds 1
 
-EnemySubStatus1::
-; see PlayerSubStatus1
+wEnemySubStatus1::
+; see wPlayerSubStatus1
 	ds 1
-EnemySubStatus2::
-; see PlayerSubStatus2
+wEnemySubStatus2::
+; see wPlayerSubStatus2
 	ds 1
-EnemySubStatus3::
-; see PlayerSubStatus3
+wEnemySubStatus3::
+; see wPlayerSubStatus3
 	ds 1
-EnemySubStatus4::
-; see PlayerSubStatus4
-	ds 1
-
-PlayerAbility:: ds 1
-PlayerRolloutCount:: ds 1
-PlayerConfuseCount:: ds 1
-PlayerToxicCount:: ds 1
-PlayerDisableCount:: ds 1
-PlayerEncoreCount:: ds 1
-PlayerPerishCount:: ds 1
-PlayerProtectCount:: ds 1
+wEnemySubStatus4::
+; see wPlayerSubStatus4
 	ds 1
 
-EnemyAbility:: ds 1
-EnemyRolloutCount:: ds 1
-EnemyConfuseCount:: ds 1
-EnemyToxicCount:: ds 1
-EnemyDisableCount:: ds 1
-EnemyEncoreCount:: ds 1
-EnemyPerishCount:: ds 1
-EnemyProtectCount:: ds 1
+; Some code depend on the order of these
+wPlayerAbility:: ds 1
+wPlayerRolloutCount:: ds 1
+wPlayerConfuseCount:: ds 1
+wPlayerToxicCount:: ds 1
+wPlayerDisableCount:: ds 1
+wPlayerEncoreCount:: ds 1
+wPlayerPerishCount:: ds 1
+wPlayerProtectCount:: ds 1
 	ds 1
-BattleSubStatusWRAMEnd::
 
-PlayerDamageTaken:: ds 2
-EnemyDamageTaken:: ds 2
+wEnemyAbility:: ds 1
+wEnemyRolloutCount:: ds 1
+wEnemyConfuseCount:: ds 1
+wEnemyToxicCount:: ds 1
+wEnemyDisableCount:: ds 1
+wEnemyEncoreCount:: ds 1
+wEnemyPerishCount:: ds 1
+wEnemyProtectCount:: ds 1
+	ds 1
+wBattleSubStatusWRAMEnd::
+
+wPlayerDamageTaken:: ds 2
+wEnemyDamageTaken:: ds 2
 
 wBattleReward:: ds 3
 wBattleAnimParam::
 wKickCounter:: ds 1
 
-PartyBackupItems::
+wPartyBackupItems::
 ; Back up of party items before a battle. Modified in-battle for consumed/harvested.
 ; Berries and items stolen from wild Pokémon since those changes are retained.
 	ds PARTY_LENGTH
 
-PartyUsedItems::
+wPartyUsedItems::
 ; For the benefit of Pickup/Harvest
 	ds PARTY_LENGTH
 
-OTPartyUsedItems::
+wOTPartyUsedItems::
 ; See PartyUsedItems
 	ds PARTY_LENGTH
 
 ; What move was selected last.
 ; Used for Choice locking and the Metronome item
-PlayerSelectedMove:: ds 1
-EnemySelectedMove:: ds 1
+wPlayerSelectedMove:: ds 1
+wEnemySelectedMove:: ds 1
 
 ; How much the Metronome item is boosted. (Counts even if you don't have the item.)
-PlayerMetronomeCount:: ds 1
-EnemyMetronomeCount:: ds 1
+wPlayerMetronomeCount:: ds 1
+wEnemyMetronomeCount:: ds 1
 
 ; Stores enemy struct data temporarily when checking non-current mons
-AITempAbility:: ds 1
-AITempItem:: ds 1
+wAITempAbility:: ds 1
+wAITempItem:: ds 1
 
-wEnemyBackupSpecies:: ds 1
+	ds 16
 
-	ds 15
-
-BattleScriptBufferLoc:: ds 2
+wBattleScriptBufferLoc:: ds 2
 
 wTurnEnded:: ds 1
 
 	ds 13
 
-PlayerStatLevels::
+wPlayerStatLevels::
 ; 07 neutral
-PlayerAtkLevel:: ds 1
-PlayerDefLevel:: ds 1
-PlayerSpdLevel:: ds 1
-PlayerSAtkLevel:: ds 1
+wPlayerAtkLevel:: ds 1
+wPlayerDefLevel:: ds 1
+wPlayerSpdLevel:: ds 1
+wPlayerSAtkLevel:: ds 1
 
 UNION
 ; battle subsection
-PlayerSDefLevel:: ds 1
-PlayerAccLevel:: ds 1
-PlayerEvaLevel:: ds 1
+wPlayerSDefLevel:: ds 1
+wPlayerAccLevel:: ds 1
+wPlayerEvaLevel:: ds 1
 	ds 1
 
-EnemyStatLevels::
+wEnemyStatLevels::
 ; 07 neutral
-EnemyAtkLevel:: ds 1
-EnemyDefLevel:: ds 1
-EnemySpdLevel:: ds 1
-EnemySAtkLevel:: ds 1
-EnemySDefLevel:: ds 1
-EnemyAccLevel:: ds 1
-EnemyEvaLevel:: ds 1
+wEnemyAtkLevel:: ds 1
+wEnemyDefLevel:: ds 1
+wEnemySpdLevel:: ds 1
+wEnemySAtkLevel:: ds 1
+wEnemySDefLevel:: ds 1
+wEnemyAccLevel:: ds 1
+wEnemyEvaLevel:: ds 1
 	ds 1
 
-EnemyTurnsTaken:: ds 1
-PlayerTurnsTaken:: ds 1
+wEnemyTurnsTaken:: ds 1
+wPlayerTurnsTaken:: ds 1
 
-PlayerSubstituteHP:: ds 2
-EnemySubstituteHP:: ds 2
+wPlayerSubstituteHP:: ds 2
+wEnemySubstituteHP:: ds 2
 
-	ds 1
+wBackupEnemyMonBaseExp:: ds 1
 
-CurPlayerMove:: ds 1
-CurEnemyMove:: ds 1
+wCurPlayerMove:: ds 1
+wCurEnemyMove:: ds 1
 
-LinkBattleRNCount:: ds 1 ; how far through the prng stream
+wLinkBattleRNCount:: ds 1 ; how far through the prng stream
 
 wEnemyItemState:: ds 1
 
 	ds 2
 
-CurEnemyMoveNum:: ds 1
+wCurEnemyMoveNum:: ds 1
 
 wEnemyHPAtTimeOfPlayerSwitch:: ds 2
 wPayDayMoney:: ds 3
@@ -557,28 +557,28 @@ wEnemyBackupFainted::
 wEnemyBackupForm::
 	ds 1
 
-AlreadyDisobeyed:: ds 1
+wAlreadyDisobeyed:: ds 1
 
-DisabledMove:: ds 1
-EnemyDisabledMove:: ds 1
+wDisabledMove:: ds 1
+wEnemyDisabledMove:: ds 1
 
 wWhichMonFaintedFirst:: ds 1
 
 ; exists so you can't counter on switch
-LastEnemyCounterMove:: ds 1
-LastPlayerCounterMove:: ds 1
+wLastEnemyCounterMove:: ds 1
+wLastPlayerCounterMove:: ds 1
 
 wEnemyMinimized:: ds 1
 
-AlreadyFailed:: ds 1
+wAlreadyFailed:: ds 1
 
 wBattleParticipantsIncludingFainted:: ds 1
 
-wDanger:: ds 1
+wBattleLowHealthAlarm:: ds 1
 
 wPlayerMinimized:: ds 1
 
-PlayerScreens::
+wPlayerScreens::
 ; bit
 ; 4 reflect
 ; 3 light screen
@@ -586,23 +586,20 @@ PlayerScreens::
 ; 0 spikes
 	ds 1
 
-EnemyScreens::
-; see PlayerScreens
+wEnemyScreens::
+; see wPlayerScreens
 	ds 1
 
-PlayerSafeguardCount:: ds 1
-PlayerLightScreenCount:: ds 1
-PlayerReflectCount:: ds 1
+wPlayerSafeguardCount:: ds 1
+wPlayerLightScreenCount:: ds 1
+wPlayerReflectCount:: ds 1
 	ds 1
 
-EnemySafeguardCount:: ds 1
-EnemyLightScreenCount:: ds 1
-EnemyReflectCount:: ds 1
+wEnemySafeguardCount:: ds 1
+wEnemyLightScreenCount:: ds 1
+wEnemyReflectCount:: ds 1
 	ds 1
-
-	ds 1
-
-Weather::
+wWeather::
 ; 00 normal
 ; 01 rain
 ; 02 sun
@@ -612,18 +609,18 @@ Weather::
 ; 06 sandstorm subsided
 	ds 1
 
-WeatherCount:: ds 1 ; # turns remaining
+wWeatherCount:: ds 1 ; # turns remaining
 
-LoweredStat:: ds 1
-EffectFailed:: ds 1
-FailedMessage:: ds 1
+wLoweredStat:: ds 1
+wEffectFailed:: ds 1
+wFailedMessage:: ds 1
 
 wEnemyGoesFirst:: ds 1
 
 wPlayerIsSwitching:: ds 1
 wEnemyIsSwitching::  ds 1
 
-PlayerUsedMoves::
+wPlayerUsedMoves::
 ; add a move that has been used once by the player
 ; added in order of use
 	ds NUM_MOVES
@@ -634,12 +631,15 @@ wEnemySwitchMonIndex:: ds 1
 
 wTempLevel:: ds 1
 
-LastPlayerMon:: ds 1
+wLastPlayerMon:: ds 1
 
-LastPlayerMove:: ds 1
-LastEnemyMove:: ds 1
+wLastPlayerMove:: ds 1
+wLastEnemyMove:: ds 1
 
-	ds 9
+wEnemyUsingItem:: ds 1
+wEnemySwitchItemCheck:: ds 1
+
+	ds 7
 
 wPlayerFutureSightCount:: ds 1
 wEnemyFutureSightCount:: ds 1
@@ -654,9 +654,9 @@ wEnemyCharging:: ds 1
 
 wGivingExperienceToExpShareHolders:: ds 1
 
-AnimationsDisabled:: ds 1 ; used to temporarily disable animations for abilities
+wAnimationsDisabled:: ds 1 ; used to temporarily disable animations for abilities
 
-BattleEnded:: ds 1
+wBattleEnded:: ds 1
 
 wWildMonMoves:: ds NUM_MOVES
 wWildMonPP:: ds NUM_MOVES
@@ -665,10 +665,10 @@ wAmuletCoin:: ds 1
 
 wSomeoneIsRampaging:: ds 1
 
-wPlayerJustGotFrozen:: ds 1
-wEnemyJustGotFrozen:: ds 1
+wPlayerEndturnSwitched:: ds 1
+wEnemyEndturnSwitched:: ds 1
 
-DVAndPersonalityBuffer:: ds 5
+wDVAndPersonalityBuffer:: ds 5
 wBattleEnd::
 
 NEXTU
@@ -800,13 +800,12 @@ ENDU
 
 ENDU
 
-
 SECTION "Overworld Map", WRAM0
 
 UNION
 ; overworld map
-OverworldMap:: ds 1300
-OverworldMapEnd::
+wOverworldMap:: ds 1300
+wOverworldMapEnd::
 
 NEXTU
 ; credits image
@@ -868,24 +867,26 @@ ENDU
 
 SECTION "Video", WRAM0
 
-BGMapBuffer:: ds 40
-BGMapPalBuffer:: ds 40
-BGMapBufferPtrs:: ds 40 ; 20 bg map addresses (16x8 tiles)
+wBGMapBuffer:: ds 40
+wBGMapPalBuffer:: ds 40
+wBGMapBufferPtrs:: ds 40 ; 20 bg map addresses (16x8 tiles)
 
-CreditsPos:: ds 2
-CreditsTimer:: ds 1
+wCreditsPos:: ds 2
+wCreditsTimer:: ds 1
 
-MemCGBLayout:: ds 1
+wMemCGBLayout:: ds 1
 
-PlayerHPPal:: ds 1
-EnemyHPPal:: ds 1
+wPlayerHPPal:: ds 1
+wEnemyHPPal:: ds 1
 wHPPals:: ds PARTY_LENGTH
 wCurHPPal:: ds 1
 wHPPalIndex:: ds 1
 
-	ds 51
+wCopyingSGBTileData:: ds 1
 
-AttrMap::
+	ds 50
+
+wAttrMap::
 ; 20x18 grid of palettes for 8x8 tiles
 ; read horizontally from the top row
 ; bit 7: priority
@@ -895,7 +896,7 @@ AttrMap::
 ; bit 3: vram bank (cgb only)
 ; bit 2-0: pal # (cgb only)
 	ds SCREEN_WIDTH * SCREEN_HEIGHT
-AttrMapEnd::
+wAttrMapEnd::
 
 wTileAnimBuffer:: ds 16
 
@@ -907,10 +908,10 @@ wcf57:: ds 4 ; TODO: replace with meaningful label
 wLinkTimeoutFrames:: ds 2
 wcf5d:: ds 2 ; TODO: replace with meaningful label
 
-MonType:: ds 1
+wMonType:: ds 1
 
-CurSpecies::
-CurMove::
+wCurSpecies::
+wCurMove::
 wCreditsSpawn::
 	ds 1
 
@@ -961,20 +962,21 @@ wcf66:: ds 1 ; TODO: replace with meaningful labels
 
 ENDU
 
-Requested2bpp::
-Requested2bppSize:: ds 1
-Requested2bppSource:: ds 2
-Requested2bppDest:: ds 2
+wPalFadeMode::
+; bit 0-1: which (0: everything, 1: BG, 2: OBJ)
+; bit 2: perform a smooth dark flash
+; bit 3: partial fade (fade b of c frames)
+; bit 4: skip the last palette
+	ds 1
 
-Requested1bpp::
-Requested1bppSize:: ds 1
-Requested1bppSource:: ds 2
-Requested1bppDest:: ds 2
+wCurForm:: ds 1
+
+	ds 8 ; unused
 
 wWindowStackPointer:: ds 2
 wMenuJoypad:: ds 1
-MenuSelection:: ds 1
-MenuSelectionQuantity:: ds 1
+wMenuSelection:: ds 1
+wMenuSelectionQuantity:: ds 1
 wWhichIndexSet:: ds 1
 wScrollingMenuCursorPosition:: ds 1
 wWindowStackSize:: ds 9
@@ -1054,32 +1056,33 @@ wTrainerCardBadgePaletteAddr:: ds 2
 
 wBTTempOTSprite:: ds 1
 
-OverworldDelay:: ds 1
-TextDelayFrames:: ds 1
-VBlankOccurred:: ds 1
+wOverworldDelay:: ds 1
+wTextDelayFrames:: ds 1
+wVBlankOccurred:: ds 1
+wGenericDelay:: ds 1
 
-	ds 8 ; unused
+	ds 7 ; unused
 
-GameTimerPause::
+wGameTimerPause::
 ; bit 0
 	ds 1
 
-InputFlags::
+wInputFlags::
 ; bits 7, 6, and 4 can be used to disable joypad input
 	ds 2
 
-InBattleTowerBattle:: ds 1
+wInBattleTowerBattle:: ds 1
 
-	ds 1
+wIsBattleMenu:: ds 1
 
-FXAnimID::
-FXAnimIDLo:: ds 1
-FXAnimIDHi:: ds 1
+wFXAnimID::
+wFXAnimIDLo:: ds 1
+wFXAnimIDHi:: ds 1
 
 wPlaceBallsX:: ds 1
 wPlaceBallsY:: ds 1
 
-TileAnimationTimer:: ds 1
+wTileAnimationTimer:: ds 1
 
 ; palette backups?
 wBGP:: ds 1
@@ -1088,27 +1091,28 @@ wOBP1:: ds 1
 
 wNumHits:: ds 2
 
-Options1::
-; bit 0-2: number of frames to delay when printing text
-;   fast 1; mid 3; slow 5
-; bit 3: ?
-; bit 4: no text delay
-; bit 5: stereo off/on
-; bit 6: battle scene off/on
-; bit 7: unused
+wOptions1::
+; bit 0-1: text delay
+;   inst 0; fast 1; mid 2; slow 3
+; bit 2-3: text autoscroll
+;   none 0; start 1; a+b 2; a or b 3
+; bit 4: turning step
+; bit 5: no text delay
+; bit 6: stereo off/on
+; bit 7: battle scene off/on
 	ds 1
 
 wSaveFileExists:: ds 1
 
-TextBoxFrame::
+wTextBoxFrame::
 ; bits 0-3: textbox frame 0-8
 	ds 1
 
-TextBoxFlags:: ds 1
+wTextBoxFlags:: ds 1
 
 	ds 1
 
-Options2::
+wOptions2::
 ; bit 0-2: typeface
 ; bit 3: running shoes off/on
 ; bit 4: clock format 12/24-hour
@@ -1118,7 +1122,7 @@ Options2::
 ; (bits 6 and 7 are never both set)
 	ds 1
 
-InitialOptions::
+wInitialOptions::
 ; bit 0: natures off/on
 ; bit 1: abilities off/on
 ; bit 2: color variation off/on
@@ -1129,8 +1133,8 @@ InitialOptions::
 ; bit 7: ask to reset at start
 	ds 1
 
-OptionsBuffer:: ds 1
-OptionsEnd::
+wOptionsBuffer:: ds 1
+wOptionsEnd::
 
 ; Time buffer, for counting the amount of time since an event began
 wSecondsSince:: ds 1

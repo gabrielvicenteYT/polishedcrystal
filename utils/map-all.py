@@ -16,24 +16,26 @@ tileset_filename     = 'constants/tileset_constants.asm'
 maps_filename        = 'constants/map_constants.asm'
 map_headers_filename = 'data/maps/maps.asm'
 block_data_filename  = 'data/maps/blocks.asm'
-block_filename_fmt   = 'maps/%s.blk'
+block_filename_fmt   = 'maps/%s.ablk'
 
-tileset_names = ['johto1', 'johto2', 'johto3', 'johto4', 'kanto1', 'kanto2',
-                 'shamouti', 'valencia', 'faraway', 'house1', 'house2', 'house3',
-                 'pokecenter', 'pokecom', 'mart', 'gate', 'gym1', 'gym2', 'gym3',
-                 'port', 'lab', 'facility', 'mansion', 'game_corner', 'decor',
-                 'museum', 'hotel', 'tower', 'battle_tower', 'radio_tower',
-                 'lighthouse', 'warehouse', 'cave', 'quiet_cave', 'ice_path',
-                 'tunnel', 'forest', 'park', 'safari', 'ruins', 'alph',
-                 'pokemon_mansion']
+tileset_names = [
+	'johto_traditional', 'johto_modern', 'battle_tower_outside', 'johto_overcast',
+	'kanto', 'indigo_plateau', 'shamouti_island', 'valencia_island', 'faraway_island',
+	'johto_house', 'kanto_house', 'traditional_house', 'pokecenter', 'pokecom_center',
+	'mart', 'gate', 'gym', 'magnet_train', 'champions_room', 'port', 'lab',
+	'facility', 'celadon_mansion', 'game_corner', 'home_decor_store', 'museum',
+	'hotel', 'sprout_tower', 'battle_tower_inside', 'radio_tower', 'lighthouse',
+	'underground', 'cave', 'quiet_cave', 'ice_path', 'tunnel', 'forest', 'park',
+	'safari_zone', 'ruins_of_alph', 'alph_word_room', 'pokemon_mansion'
+]
 
-# {'TILESET_JOHTO_1': 1, ...}
+# {'TILESET_PC_JOHTO_1': 1, ...}
 tileset_ids = {}
 # {'NEW_BARK_TOWN': 10, ...}
 map_widths = OrderedDict()
-# {'NewBarkTown': 'TILESET_JOHTO_1', ...}
+# {'NewBarkTown': 'TILESET_PC_JOHTO_1', ...}
 map_tilesets = OrderedDict()
-# {'NewBarkTown': 'NewBarkTown.blk', ...}
+# {'NewBarkTown': 'NewBarkTown.ablk', ...}
 map_block_data_exceptions = {}
 
 def read_tileset_ids():
@@ -79,8 +81,8 @@ def read_map_block_data():
 			line = line.strip()
 			if line.endswith('_BlockData:'):
 				map_names.append(line[:-11])
-			elif line.startswith('INCBIN "maps/') and line.endswith('.blk"'):
-				block_data_name = line[13:-5]
+			elif line.startswith('INCBIN "maps/') and line.endswith('.ablk.lz"'):
+				block_data_name = line[13:-9]
 				for map_name in map_names:
 					if map_name != block_data_name:
 						map_block_data_exceptions[map_name] = block_data_name
@@ -90,8 +92,9 @@ def render_map_images(valid_tilesets):
 	rendered = set()
 	for map_const, map_name in sorted(zip(map_widths, map_tilesets)):
 		map_width = map_widths[map_const]
-		tileset_name = tileset_names[tileset_ids[map_tilesets[map_name]] - 1]
-		if not valid_tilesets or tileset_name in valid_tilesets:
+		tileset_id = tileset_ids[map_tilesets[map_name]]
+		tileset_name = tileset_names[tileset_id - 1] if tileset_id <= len(tileset_names) else None
+		if tileset_name and (not valid_tilesets or tileset_name in valid_tilesets):
 			block_data_name = map_block_data_exceptions.get(map_name, map_name)
 			if block_data_name in rendered:
 				continue

@@ -32,7 +32,6 @@ These changes have been made since the current 2.2.0 release. If you build the p
    * Gengar has the ability Cursed Body. (Can also have Levitate in non-Faithful.)
    * Raikou, Entei, and Suicune have the hidden ability Inner Focus. (Faithful only.)
    * New item: Protect Pads (abbreviated "Protective Pads"). "Protect the holder from effects caused by making direct contact with the target."
-   * Paralysis halves Speed.
    * Timer Ball catch rate multiplier is 1 + (turns passed × 3) / 10.
    * Nest Ball catch rate multiplier is (41 − enemy mon level) / 5.
 * Add: Flash is required to return Falkner to the Gym.
@@ -81,11 +80,13 @@ These changes have been made since the current 2.2.0 release. If you build the p
 * Add: Give in-game trades good natures.
 * Add: TM prices from OR/AS.
 * Add: Show quantity in Bag in marts.
+* Add: Fancier Bag interface with color-coded pockets.
 * Add: Get a free Premier Ball with every 10 Balls bought.
 * Add: Show Pokémon portraits when using field moves (thanks to TPP:AC).
 * Add: Time boundaries from HG/SS (day lasts until 8 PM, not 6 PM).
 * Add: Use DVs to vary Pokémon colors like in Stadium.
 * Add: Update random Wonder Trade OT names.
+* Add: Teleport switches in trainer battles, like Let's Go.
 * Add: Rock Smash has 60 power (non-Faithful).
 * Add: Strength is Fighting-type (non-Faithful).
 * Add: Submission has 120 power (non-Faithful).
@@ -100,7 +101,6 @@ These changes have been made since the current 2.2.0 release. If you build the p
 * Add: Oak's lab looks different from Elm's lab.
 * Add: Grass-green for Faraway Island.
 * Add: TM prices from OR/AS.
-* Add: 15 Atk/10 Def DVs result in a Naive nature (+Spe −Sp.Def), not Hardy (neutral).
 * Add: Update random Wonder Trade OT names.
 * Add: Mr. Pokémon gives you a non-OT Ditto, not an Egg, for the Masuda breeding method.
 * Add: Use original Jynx sprite.
@@ -143,6 +143,7 @@ These changes have been made since the current 2.2.0 release. If you build the p
 * Add: Reset initial options by pressing Left+B at the title screen.
 * Add: Music resumes where it left off after a battle (from TPP).
 * Add: Use a proper menu for resurrecting Fossils.
+* Add: Press B in the battle menu to move the cursor to Run.
 * Add: Music player with piano roll by Sanqui.
 * Add: Instant text option.
 * Add: Imperial or metric units.
@@ -185,6 +186,7 @@ These changes have been made since the current 2.2.0 release. If you build the p
 * Fix: Fix some sprites.
 * Fix: Sandstorm and Hail double, not halve, Special Defense and Defense.
 * Fix: Enemy Psystrike uses player's Defense.
+* Fix: TMs do not refresh PP.
 * Fix: Sketch fails if user is transformed.
 * Fix: Wild encounter battle transitions correctly depend on relative levels.
 * Fix: Dig and Fly prevent capture.

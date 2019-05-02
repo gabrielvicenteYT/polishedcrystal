@@ -1,8 +1,8 @@
 InitDecorations: ; 26751 (9:6751)
 	ld a, DECO_FEATHERY_BED
-	ld [Bed], a
+	ld [wBed], a
 	ld a, DECO_TOWN_MAP
-	ld [Poster], a
+	ld [wPoster], a
 	ret
 
 _KrisDecorationMenu: ; 0x2675c
@@ -11,18 +11,18 @@ _KrisDecorationMenu: ; 0x2675c
 	ld hl, .MenuDataHeader
 	call LoadMenuDataHeader
 	xor a
-	ld [Buffer5], a
+	ld [wBuffer5], a
 	ld a, $1
-	ld [Buffer6], a
+	ld [wBuffer6], a
 .top_loop
-	ld a, [Buffer6]
+	ld a, [wBuffer6]
 	ld [wMenuCursorBuffer], a
 	call .FindCategoriesWithOwnedDecos
 	call DoNthMenu
 	ld a, [wMenuCursorY]
-	ld [Buffer6], a
+	ld [wBuffer6], a
 	jr c, .exit_menu
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	ld hl, .pointers
 	call MenuJumptable
 	jr nc, .top_loop
@@ -31,7 +31,7 @@ _KrisDecorationMenu: ; 0x2675c
 	call ExitMenu
 	pop af
 	ld [wWhichIndexSet], a
-	ld a, [Buffer5]
+	ld a, [wBuffer5]
 	ld c, a
 	ret
 ; 0x2679a
@@ -79,13 +79,14 @@ _KrisDecorationMenu: ; 0x2675c
 	call .FindOwndDecos
 	ld a, 7
 	call .AppendToStringBuffer2
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	ld de, wd002
 	ld bc, ITEM_NAME_LENGTH
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 .ClearStringBuffer2: ; 26822 (9:6822)
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	xor a
 	ld [hli], a
 	ld bc, ITEM_NAME_LENGTH - 1
@@ -93,7 +94,7 @@ _KrisDecorationMenu: ; 0x2675c
 	jp ByteFill
 
 .AppendToStringBuffer2: ; 26830 (9:6830)
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	inc [hl]
 	ld e, [hl]
 	ld d, 0
@@ -460,7 +461,8 @@ PopulateDecoCategoryMenu: ; 2695b
 GetDecorationData: ; 269dd
 	ld hl, DecorationAttributes
 	ld bc, 6
-	jp AddNTimes
+	rst AddNTimes
+	ret
 ; 269e7
 
 GetDecorationName: ; 269e7
@@ -472,7 +474,7 @@ GetDecorationName: ; 269e7
 ; 269f3
 
 DecorationMenuFunction: ; 269f3
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	push de
 	call GetDecorationData
 	call GetDecoName
@@ -481,7 +483,7 @@ DecorationMenuFunction: ; 269f3
 ; 26a02
 
 DoDecorationAction2: ; 26a02
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	call GetDecorationData
 	ld de, 2 ; function 2
 	add hl, de
@@ -537,6 +539,12 @@ GetDecorationSprite: ; 26a44
 	ret
 ; 26a4f
 
+GetDecorationSpecies::
+	call GetDecorationData
+	inc hl
+	ld a, [hl]
+	ret
+
 _GetDecorationSprite: ; 27085
 	ld c, a
 	push de
@@ -555,7 +563,7 @@ INCLUDE "data/decorations/names.asm"
 GetDecoName: ; 26c72
 	ld a, [hli]
 	ld e, [hl]
-	ld bc, StringBuffer2
+	ld bc, wStringBuffer2
 	push bc
 	ld hl, .NameFunctions
 	rst JumpTable
@@ -645,75 +653,75 @@ DecoAction_nothing: ; 26ce3
 ; 26ce5
 
 DecoAction_setupbed: ; 26ce5
-	ld hl, Bed
+	ld hl, wBed
 	jp DecoAction_TrySetItUp
 ; 26ceb
 
 DecoAction_putawaybed: ; 26ceb
-	ld hl, Bed
+	ld hl, wBed
 	jp DecoAction_TryPutItAway
 ; 26cf1
 
 DecoAction_setupcarpet: ; 26cf1
-	ld hl, Carpet
+	ld hl, wCarpet
 	jp DecoAction_TrySetItUp
 ; 26cf7
 
 DecoAction_putawaycarpet: ; 26cf7
-	ld hl, Carpet
+	ld hl, wCarpet
 	jp DecoAction_TryPutItAway
 ; 26cfd
 
 DecoAction_setupplant: ; 26cfd
-	ld hl, Plant
+	ld hl, wPlant
 	jp DecoAction_TrySetItUp
 ; 26d03
 
 DecoAction_putawayplant: ; 26d03
-	ld hl, Plant
+	ld hl, wPlant
 	jp DecoAction_TryPutItAway
 ; 26d09
 
 DecoAction_setupposter: ; 26d09
-	ld hl, Poster
+	ld hl, wPoster
 	jp DecoAction_TrySetItUp
 ; 26d0f
 
 DecoAction_putawayposter: ; 26d0f
-	ld hl, Poster
+	ld hl, wPoster
 	jp DecoAction_TryPutItAway
 ; 26d15
 
 DecoAction_setupconsole: ; 26d15
-	ld hl, Console
+	ld hl, wConsole
 	jp DecoAction_TrySetItUp
 ; 26d1b
 
 DecoAction_putawayconsole: ; 26d1b
-	ld hl, Console
+	ld hl, wConsole
 	jp DecoAction_TryPutItAway
 ; 26d21
 
 DecoAction_setupbigdoll: ; 26d21
-	ld hl, BigDoll
+	ld hl, wBigDoll
 	jp DecoAction_TrySetItUp
 ; 26d27
 
 DecoAction_putawaybigdoll: ; 26d27
-	ld hl, BigDoll
+	ld hl, wBigDoll
 	jp DecoAction_TryPutItAway
 ; 26d2d
 
 DecoAction_TrySetItUp: ; 26d2d
 	ld a, [hl]
-	ld [Buffer1], a
+	ld [wBuffer1], a
 	push hl
 	call DecoAction_SetItUp
 	jr c, .failed
 	ld a, 1
-	ld [Buffer5], a
+	ld [wBuffer5], a
 	pop hl
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	ld [hl], a
 	xor a
 	ret
@@ -726,20 +734,20 @@ DecoAction_TrySetItUp: ; 26d2d
 
 DecoAction_SetItUp: ; 26d46
 ; See if there's anything of the same type already out
-	ld a, [Buffer1]
+	ld a, [wBuffer1]
 	and a
 	jr z, .nothingthere
 ; See if that item is already out
 	ld b, a
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	cp b
 	jr z, .alreadythere
 ; Put away the item that's already out, and set up the new one
-	ld a, [MenuSelection]
-	ld hl, StringBuffer4
+	ld a, [wMenuSelection]
+	ld hl, wStringBuffer4
 	call GetDecorationName
-	ld a, [Buffer1]
-	ld hl, StringBuffer3
+	ld a, [wBuffer1]
+	ld hl, wStringBuffer3
 	call GetDecorationName
 	ld hl, DecoText_PutAwayAndSetUp
 	call MenuTextBoxBackup
@@ -747,8 +755,8 @@ DecoAction_SetItUp: ; 26d46
 	ret
 
 .nothingthere
-	ld a, [MenuSelection]
-	ld hl, StringBuffer3
+	ld a, [wMenuSelection]
+	ld hl, wStringBuffer3
 	call GetDecorationName
 	ld hl, DecoText_SetUpTheDeco
 	call MenuTextBoxBackup
@@ -765,18 +773,18 @@ DecoAction_SetItUp: ; 26d46
 DecoAction_TryPutItAway: ; 26d86
 ; If there is no item of that type already set, there is nothing to put away.
 	ld a, [hl]
-	ld [Buffer1], a
+	ld [wBuffer1], a
 	xor a
 	ld [hl], a
-	ld a, [Buffer1]
+	ld a, [wBuffer1]
 	and a
 	jr z, .nothingthere
 ; Put it away.
 	ld a, $1
-	ld [Buffer5], a
-	ld a, [Buffer1]
-	ld [MenuSelection], a
-	ld hl, StringBuffer3
+	ld [wBuffer5], a
+	ld a, [wBuffer1]
+	ld [wMenuSelection], a
+	ld hl, wStringBuffer3
 	call GetDecorationName
 	ld hl, DecoText_PutAwayTheDeco
 	call MenuTextBoxBackup
@@ -797,7 +805,7 @@ DecoAction_setupornament: ; 26db3
 	call DecoAction_SetItUp_Ornament
 	jr c, .cancel
 	ld a, $1
-	ld [Buffer5], a
+	ld [wBuffer5], a
 	jr DecoAction_FinishUp_Ornament
 
 .cancel
@@ -817,30 +825,30 @@ DecoAction_putawayornament: ; 26dc9
 
 DecoAction_FinishUp_Ornament: ; 26dd6
 	call QueryWhichSide
-	ld a, [Buffer3]
+	ld a, [wBuffer3]
 	ld [hl], a
-	ld a, [Buffer4]
+	ld a, [wBuffer4]
 	ld [de], a
 	xor a
 	ret
 ; 26de3
 
 DecoAction_SetItUp_Ornament: ; 26de3
-	ld a, [Buffer3]
+	ld a, [wBuffer3]
 	and a
 	jr z, .nothingthere
 	ld b, a
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	cp b
 	jr z, .failed
 	ld a, b
-	ld hl, StringBuffer3
+	ld hl, wStringBuffer3
 	call GetDecorationName
-	ld a, [MenuSelection]
-	ld hl, StringBuffer4
+	ld a, [wMenuSelection]
+	ld hl, wStringBuffer4
 	call GetDecorationName
-	ld a, [MenuSelection]
-	ld [Buffer3], a
+	ld a, [wMenuSelection]
+	ld [wBuffer3], a
 	call .getwhichside
 	ld hl, DecoText_PutAwayAndSetUp
 	call MenuTextBoxBackup
@@ -848,11 +856,11 @@ DecoAction_SetItUp_Ornament: ; 26de3
 	ret
 
 .nothingthere
-	ld a, [MenuSelection]
-	ld [Buffer3], a
+	ld a, [wMenuSelection]
+	ld [wBuffer3], a
 	call .getwhichside
-	ld a, [MenuSelection]
-	ld hl, StringBuffer3
+	ld a, [wMenuSelection]
+	ld hl, wStringBuffer3
 	call GetDecorationName
 	ld hl, DecoText_SetUpTheDeco
 	call MenuTextBoxBackup
@@ -867,13 +875,13 @@ DecoAction_SetItUp_Ornament: ; 26de3
 ; 26e33
 
 .getwhichside ; 26e33
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	ld b, a
-	ld a, [Buffer4]
+	ld a, [wBuffer4]
 	cp b
 	ret nz
 	xor a
-	ld [Buffer4], a
+	ld [wBuffer4], a
 	ret
 ; 26e41
 
@@ -884,15 +892,15 @@ UnknownText_0x26e41: ; 0x26e41
 ; 0x26e46
 
 DecoAction_PutItAway_Ornament: ; 26e46
-	ld a, [Buffer3]
+	ld a, [wBuffer3]
 	and a
 	jr z, .nothingthere
-	ld hl, StringBuffer3
+	ld hl, wStringBuffer3
 	call GetDecorationName
 	ld a, $1
-	ld [Buffer5], a
+	ld [wBuffer5], a
 	xor a
-	ld [Buffer3], a
+	ld [wBuffer3], a
 	ld hl, DecoText_PutAwayTheDeco
 	call MenuTextBoxBackup
 	xor a
@@ -921,12 +929,12 @@ DecoAction_AskWhichSide: ; 26e70
 	ld a, [wMenuCursorY]
 	cp 3
 	jr z, .nope
-	ld [Buffer2], a
+	ld [wBuffer2], a
 	call QueryWhichSide
 	ld a, [hl]
-	ld [Buffer3], a
+	ld [wBuffer3], a
 	ld a, [de]
-	ld [Buffer4], a
+	ld [wBuffer4], a
 	xor a
 	ret
 
@@ -936,9 +944,9 @@ DecoAction_AskWhichSide: ; 26e70
 ; 26e9a
 
 QueryWhichSide: ; 26e9a
-	ld hl, RightOrnament
-	ld de, LeftOrnament
-	ld a, [Buffer2]
+	ld hl, wRightOrnament
+	ld de, wLeftOrnament
+	ld a, [wBuffer2]
 	cp 1
 	ret z
 	push hl
@@ -1010,7 +1018,7 @@ DecorationFlagAction_c: ; 26ef1
 GetDecorationName_c: ; 26ef5 (9:6ef5)
 	ld a, c
 	call GetDecorationID
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	push hl
 	call GetDecorationName
 	pop de
@@ -1047,7 +1055,7 @@ JumpTable_DecorationDesc: ; 26f5f
 ; 26f69
 
 DecorationDesc_Poster: ; 26f69
-	ld a, [Poster]
+	ld a, [wPoster]
 	ld hl, DecorationDesc_PosterPointers
 	ld de, 3
 	call IsInArray
@@ -1123,33 +1131,49 @@ DecorationDesc_NullPoster: ; 26fb8
 ; 26fb9
 
 DecorationDesc_LeftOrnament: ; 26fb9
-	ld a, [LeftOrnament]
-	jr DecorationDesc_OrnamentOrConsole
+	ld a, [wLeftOrnament]
+	jr DecorationDesc_Ornament
 
 DecorationDesc_RightOrnament: ; 26fbe
-	ld a, [RightOrnament]
-	jr DecorationDesc_OrnamentOrConsole
+	ld a, [wRightOrnament]
+DecorationDesc_Ornament:
+	ld c, a
+	cp DECO_GOLD_TROPHY_DOLL
+	jr z, DecorationDesc_Console.go
+	cp DECO_SILVER_TROPHY_DOLL
+	jr z, DecorationDesc_Console.go
+	ld de, wStringBuffer3
+	call GetDecorationName_c_de
+	ld b, BANK(.OrnamentScript)
+	ld de, .OrnamentScript
+	ret
+
+.OrnamentScript:
+	jumptext .OrnamentText
+
+.OrnamentText:
+	; It's an adorable @ .
+	text_jump UnknownText_0x1bc5d7
+	db "@"
 
 DecorationDesc_Console: ; 26fc3
-	ld a, [Console]
-	; fallthrough
-
-DecorationDesc_OrnamentOrConsole: ; 26fc8
+	ld a, [wConsole]
 	ld c, a
-	ld de, StringBuffer3
+.go:
+	ld de, wStringBuffer3
 	call GetDecorationName_c_de
-	ld b, BANK(.OrnamentConsoleScript)
-	ld de, .OrnamentConsoleScript
+	ld b, BANK(.ConsoleScript)
+	ld de, .ConsoleScript
 	ret
 ; 26fd5
 
-.OrnamentConsoleScript: ; 26fd5
-	jumptext .OrnamentConsoleText
+.ConsoleScript: ; 26fd5
+	jumptext .ConsoleText
 ; 26fd8
 
-.OrnamentConsoleText: ; 0x26fd8
-	; It's an adorable @ .
-	text_jump UnknownText_0x1bc5d7
+.ConsoleText: ; 0x26fd8
+	; It's a shiny @ .
+	text_jump DecoConsoleText
 	db "@"
 ; 0x26fdd
 
@@ -1171,18 +1195,18 @@ DecorationDesc_GiantOrnament: ; 26fdd
 
 ToggleMaptileDecorations: ; 26feb
 	lb de, 0, 4
-	ld a, [Bed]
+	ld a, [wBed]
 	call SetDecorationTile
 	lb de, 7, 4
-	ld a, [Plant]
+	ld a, [wPlant]
 	call SetDecorationTile
 	lb de, 6, 0
-	ld a, [Poster]
+	ld a, [wPoster]
 	call SetDecorationTile
 	call SetPosterVisibility
 	lb de, 0, 0
 	call PadCoords_de
-	ld a, [Carpet]
+	ld a, [wCarpet]
 	and a
 	ret z
 	call _GetDecorationSprite
@@ -1202,7 +1226,7 @@ ToggleMaptileDecorations: ; 26feb
 
 SetPosterVisibility: ; 27027
 	ld b, SET_FLAG
-	ld a, [Poster]
+	ld a, [wPoster]
 	and a
 	jr nz, .ok
 	ld b, RESET_FLAG
@@ -1225,24 +1249,33 @@ SetDecorationTile: ; 27037
 
 ToggleDecorationsVisibility: ; 27043
 	ld de, EVENT_KRISS_HOUSE_2F_CONSOLE
-	ld hl, VariableSprites + SPRITE_CONSOLE - SPRITE_VARS
-	ld a, [Console]
-	call .ToggleDecorationVisibility
-	ld de, EVENT_KRISS_HOUSE_2F_DOLL_1
-	ld hl, VariableSprites + SPRITE_DOLL_1 - SPRITE_VARS
-	ld a, [LeftOrnament]
-	call .ToggleDecorationVisibility
-	ld de, EVENT_KRISS_HOUSE_2F_DOLL_2
-	ld hl, VariableSprites + SPRITE_DOLL_2 - SPRITE_VARS
-	ld a, [RightOrnament]
+	ld hl, wVariableSprites + SPRITE_CONSOLE - SPRITE_VARS
+	ld a, [wConsole]
 	call .ToggleDecorationVisibility
 	ld de, EVENT_KRISS_HOUSE_2F_BIG_DOLL
-	ld hl, VariableSprites + SPRITE_BIG_DOLL - SPRITE_VARS
-	ld a, [BigDoll]
+	ld hl, wVariableSprites + SPRITE_BIG_DOLL - SPRITE_VARS
+	ld a, [wBigDoll]
+	call .ToggleDecorationVisibility
+	ld de, EVENT_KRISS_HOUSE_2F_DOLL_1
+	ld hl, wVariableSprites + SPRITE_DOLL_1 - SPRITE_VARS
+	ld a, [wLeftOrnament]
+	call .ToggleDecorationVisibility
+	ld de, EVENT_KRISS_HOUSE_2F_DOLL_2
+	ld hl, wVariableSprites + SPRITE_DOLL_2 - SPRITE_VARS
+	ld a, [wRightOrnament]
+	and a
+	jr z, .hide
+	call _GetDecorationSprite
+	cp SPRITE_MON_DOLL_1
+	jr nz, .ok
+	inc a ; SPRITE_MON_DOLL_2
+	jr .ok
+
 .ToggleDecorationVisibility: ; 27074
 	and a
 	jr z, .hide
 	call _GetDecorationSprite
+.ok
 	ld [hl], a
 	ld b, RESET_FLAG
 	jp EventFlagAction

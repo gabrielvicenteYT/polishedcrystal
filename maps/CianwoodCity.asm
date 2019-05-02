@@ -28,21 +28,21 @@ CianwoodCity_MapScriptHeader:
 	bg_event  5, 29, SIGNPOST_ITEM + MAX_ETHER, EVENT_CIANWOOD_CITY_HIDDEN_MAX_ETHER
 
 	db 15 ; object events
-	object_event 11, 21, SPRITE_OLIVINE_RIVAL, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CIANWOOD_CITY_EUSINE
+	object_event 11, 21, SPRITE_EUSINE, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CIANWOOD_CITY_EUSINE
 	object_event 10, 14, SPRITE_SUICUNE, SPRITEMOVEDATA_POKEMON, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_SAW_SUICUNE_AT_CIANWOOD_CITY
-	object_event 21, 37, SPRITE_YOUNGSTER, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1a02df, -1
-	object_event 16, 33, SPRITE_POKEFAN_M, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 1, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1a0319, -1
-	object_event 14, 42, SPRITE_LASS, SPRITEMOVEDATA_WALK_UP_DOWN, 2, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1a0394, -1
+	object_event 21, 37, SPRITE_CAMPER, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1a02df, -1
+	object_event 16, 33, SPRITE_POKEFAN_M, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 1, -1, -1, PAL_NPC_BROWN, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1a0319, -1
+	object_event 14, 42, SPRITE_CUTE_GIRL, SPRITEMOVEDATA_WALK_UP_DOWN, 2, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1a0394, -1
 	smashrock_event  8, 16
 	smashrock_event  9, 17
 	smashrock_event  6, 24
 	smashrock_event  4, 29
 	smashrock_event 10, 27
 	smashrock_event  4, 19
-	object_event 10, 46, SPRITE_POKEFAN_F, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 1, -1, -1, 0, PERSONTYPE_SCRIPT, 0, PokefanFScript_0x1a0084, -1
+	object_event 10, 46, SPRITE_MATRON, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 1, -1, -1, PAL_NPC_BROWN, PERSONTYPE_SCRIPT, 0, PokefanFScript_0x1a0084, -1
 	object_event  4, 26, SPRITE_ROCKET, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, CianwoodCityRocketText, EVENT_BEAT_CHUCK
-	object_event  9, 25, SPRITE_SAILOR, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_COMMAND, jumptextfaceplayer, CianwoodCitySailorText, -1
-	object_event 22, 32, SPRITE_FISHER, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, CianwoodCityFisherText, -1
+	object_event  9, 25, SPRITE_SAILOR, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, CianwoodCitySailorText, -1
+	object_event 22, 32, SPRITE_FISHER, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, CianwoodCityFisherText, -1
 
 	const_def 1 ; object constants
 	const CIANWOODCITY_EUSINE
@@ -81,27 +81,21 @@ UnknownScript_0x1a001e:
 	checkevent EVENT_BEAT_EUSINE
 	iftrue .Done
 	setevent EVENT_BEAT_EUSINE
-	variablesprite SPRITE_OLIVINE_RIVAL, SPRITE_EUSINE
-	special MapCallbackSprites_LoadUsedSpritesGFX
 	playmusic MUSIC_MYSTICALMAN_ENCOUNTER
 	appear CIANWOODCITY_EUSINE
 	applymovement CIANWOODCITY_EUSINE, MovementData_0x1a00e7
 	showtext UnknownText_0x1a0433
-	variablesprite SPRITE_OLIVINE_RIVAL, SPRITE_COWGIRL
 	winlosstext UnknownText_0x1a05a1, EusineLossText
 	setlasttalked CIANWOODCITY_EUSINE
 	loadtrainer MYSTICALMAN, EUSINE
 	startbattle
 	dontrestartmapmusic
-	variablesprite SPRITE_OLIVINE_RIVAL, SPRITE_EUSINE
 	reloadmapafterbattle
 	special DeleteSavedMusic
 	playmusic MUSIC_MYSTICALMAN_ENCOUNTER
 	showtext UnknownText_0x1a05c3
 	applymovement CIANWOODCITY_EUSINE, MovementData_0x1a00ec
 	disappear CIANWOODCITY_EUSINE
-	variablesprite SPRITE_OLIVINE_RIVAL, SPRITE_COWGIRL
-	special MapCallbackSprites_LoadUsedSpritesGFX
 	pause 20
 	special Special_FadeOutMusic
 	playmapmusic
@@ -193,8 +187,13 @@ UnknownText_0x1a0319:
 	line "something."
 
 	para "Your #mon could"
+if DEF(FAITHFUL)
 	line "use Rock Smash to"
 	cont "break them."
+else
+	line "use Brick Break"
+	cont "to smash them."
+endc
 	done
 
 UnknownText_0x1a0394:

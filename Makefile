@@ -15,7 +15,7 @@ endif
 
 RGBASM_FLAGS =
 RGBLINK_FLAGS = -n $(ROM_NAME).sym -m $(ROM_NAME).map -l contents/contents.link -p $(FILLER)
-RGBFIX_FLAGS = -Cjv -t $(TITLE) -i $(MCODE) -n $(ROMVERSION) -p $(FILLER) -k 01 -l 0x33 -m 0x10 -r 3
+RGBFIX_FLAGS = -csjv -t $(TITLE) -i $(MCODE) -n $(ROMVERSION) -p $(FILLER) -k 01 -l 0x33 -m 0x10 -r 3
 
 CFLAGS = -O3 -std=c11 -Wall -Wextra -pedantic
 
@@ -27,6 +27,9 @@ RGBASM_FLAGS += -DNO_RTC
 endif
 ifeq ($(filter monochrome,$(MAKECMDGOALS)),monochrome)
 RGBASM_FLAGS += -DMONOCHROME
+endif
+ifeq ($(filter noir,$(MAKECMDGOALS)),noir)
+RGBASM_FLAGS += -DNOIR
 endif
 ifeq ($(filter hgss,$(MAKECMDGOALS)),hgss)
 RGBASM_FLAGS += -DHGSS
@@ -69,7 +72,7 @@ data/pokemon/egg_moves.o \
 data/pokemon/evos_attacks.o \
 data/maps/map_data.o \
 data/text/common.o \
-data/tileset_data.o \
+data/tilesets.o \
 engine/credits.o \
 engine/events.o \
 gfx/pics.o \
@@ -85,6 +88,7 @@ crystal: $(NAME)-$(VERSION).gbc
 faithful: crystal
 nortc: crystal
 monochrome: crystal
+noir: crystal
 hgss: crystal
 debug: crystal
 
@@ -141,5 +145,5 @@ gfx/pokemon/%/bitmask.asm gfx/pokemon/%/frames.asm: gfx/pokemon/%/front.2bpp
 %.png: ; $(error ERROR: Cannot find '$@')
 %.asm: ; $(error ERROR: Cannot find '$@')
 %.bin: ; $(error ERROR: Cannot find '$@')
-%.blk: ; $(error ERROR: Cannot find '$@')
+%.ablk: ; $(error ERROR: Cannot find '$@')
 %.tilemap: ; $(error ERROR: Cannot find '$@')

@@ -1,10 +1,11 @@
-BattleCommand_Spikes:
+BattleCommand_spikes:
 	ld a, [hBattleTurn]
 	and a
-	ld hl, EnemyScreens
+	ld hl, wEnemyScreens
 	jr z, .got_screens
-	ld hl, PlayerScreens
+	ld hl, wPlayerScreens
 .got_screens
+	ld a, [hl]
 	and SCREENS_SPIKES
 	cp SCREENS_SPIKES
 	jp z, FailSpikes
@@ -17,13 +18,14 @@ BattleCommand_Spikes:
 	ld hl, SpikesText
 	jp StdBattleTextBox
 
-BattleCommand_ToxicSpikes:
+BattleCommand_toxicspikes:
 	ld a, [hBattleTurn]
 	and a
-	ld hl, EnemyScreens
+	ld hl, wEnemyScreens
 	jr z, .got_screens
-	ld hl, PlayerScreens
+	ld hl, wPlayerScreens
 .got_screens
+	ld a, [hl]
 	and SCREENS_TOXIC_SPIKES
 	cp (SCREENS_TOXIC_SPIKES / 3) * 2
 	jp z, FailSpikes

@@ -175,6 +175,7 @@ INCLUDE "audio/music/rby/ceruleancave.asm"
 INCLUDE "audio/music/rby/cinnabarmansion.asm"
 INCLUDE "audio/music/rby/diglettscave.asm"
 INCLUDE "audio/music/rby/indigoplateau.asm"
+INCLUDE "audio/music/rby/bikeriding.asm"
 
 
 SECTION "RBY Music 2", ROMX
@@ -182,11 +183,13 @@ SECTION "RBY Music 2", ROMX
 INCLUDE "audio/music/rby/lavendertown.asm"
 INCLUDE "audio/music/rby/lookjessiejames.asm"
 INCLUDE "audio/music/rby/pokemontower.asm"
+INCLUDE "audio/music/rby/surfing.asm"
 INCLUDE "audio/music/rby/surfingpikachu.asm"
 
 
 SECTION "RSE Music 1", ROMX
 
+INCLUDE "audio/music/rse/surfing.asm"
 INCLUDE "audio/music/rse/abandonedship.asm"
 INCLUDE "audio/music/rse/championbattle.asm"
 INCLUDE "audio/music/rse/evergrandecity.asm"

@@ -16,7 +16,7 @@ MahoganyMart1F_MapScriptHeader:
 	db 0 ; bg events
 
 	db 5 ; object events
-	object_event  4,  3, SPRITE_PHARMACIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, PharmacistScript_0x6c367, EVENT_TEAM_ROCKET_BASE_POPULATION
+	object_event  4,  3, SPRITE_PHARMACIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, PharmacistScript_0x6c367, EVENT_TEAM_ROCKET_BASE_POPULATION
 	object_event  1,  6, SPRITE_BLACK_BELT, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, BlackBeltScript_0x6c37b, EVENT_TEAM_ROCKET_BASE_POPULATION
 	object_event  4,  6, SPRITE_LANCE, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_MAHOGANY_MART_LANCE_AND_DRAGONITE
 	object_event  3,  6, SPRITE_DRAGONITE, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_MAHOGANY_MART_LANCE_AND_DRAGONITE
@@ -91,14 +91,14 @@ UnknownScript_0x6c38f:
 
 MovementData_0x6c3f6:
 	fix_facing
-	big_step_left
-	big_step_right
+	run_step_left
+	run_step_right
 	remove_fixed_facing
 	step_end
 
 MovementData_0x6c3fb:
 	fix_facing
-	big_step_left
+	run_step_left
 	remove_fixed_facing
 	turn_head_down
 	turn_head_left
@@ -108,7 +108,7 @@ MovementData_0x6c3fb:
 
 MovementData_0x6c403:
 	fix_facing
-	big_step_left
+	run_step_left
 	remove_fixed_facing
 	step_end
 

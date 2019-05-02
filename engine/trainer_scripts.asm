@@ -11,7 +11,7 @@ SeenByTrainerScript:: ; 0xbe675
 	encountermusic
 	showemote EMOTE_SHOCK, LAST_TALKED, 30
 	callasm TrainerWalkToPlayer
-	applymovement2 MovementBuffer
+	applymovement2 wMovementBuffer
 	writepersonxy LAST_TALKED
 	faceobject PLAYER, LAST_TALKED
 	jump StartBattleWithMapTrainerScript
@@ -35,5 +35,5 @@ AlreadyBeatenTrainerScript:
 
 CheckTrainerClass:
 	ld a, [wTempTrainerClass]
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret

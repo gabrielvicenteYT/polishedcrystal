@@ -1,4 +1,4 @@
-BattleCommand_Thief:
+BattleCommand_thief:
 	; Pickpocket uses this too
 	call CanStealItem
 	ret nz
@@ -14,10 +14,10 @@ BattleCommand_Thief:
 	call StdBattleTextBox
 
 	; Update parties
-	ld a, [CurBattleMon]
-	ld hl, PartyMon1Item
+	ld a, [wCurBattleMon]
+	ld hl, wPartyMon1Item
 	call GetPartyLocation
-	ld a, [BattleMonItem]
+	ld a, [wBattleMonItem]
 	ld [hl], a
 	ld b, a
 
@@ -26,17 +26,17 @@ BattleCommand_Thief:
 	dec a
 	jp z, SetBackupItem
 
-	ld a, [CurOTMon]
-	ld hl, OTPartyMon1Item
+	ld a, [wCurOTMon]
+	ld hl, wOTPartyMon1Item
 	call GetPartyLocation
-	ld a, [EnemyMonItem]
+	ld a, [wEnemyMonItem]
 	ld [hl], a
 	ret
 
 CanStealItem:
 ; Returns z if we can and put item into d, target item addr into bc, user item addr into hl
 	; Maybe Substitute/Sheer Force prevents the steal
-	ld a, [EffectFailed]
+	ld a, [wEffectFailed]
 	and a
 	ret nz
 
@@ -45,10 +45,13 @@ CanStealItem:
 	cp STICKY_HOLD
 	jr z, .cant
 
+	call OpponentCanLoseItem
+	jr z, .cant
+
 	ld a, [hBattleTurn]
 	and a
-	ld hl, BattleMonItem
-	ld bc, EnemyMonItem
+	ld hl, wBattleMonItem
+	ld bc, wEnemyMonItem
 	jr z, .got_target
 
 	; Wildmons can't steal items
@@ -56,28 +59,12 @@ CanStealItem:
 	dec a
 	ret z
 
-	ld hl, EnemyMonItem
-	ld bc, BattleMonItem
+	ld hl, wEnemyMonItem
+	ld bc, wBattleMonItem
 .got_target
 	; Check if user is holding an item already
 	ld a, [hl]
 	and a
-	ret nz
-
-	; Check if target has an item to steal
-	ld a, [bc]
-	and a
-	jr z, .cant
-
-	; Armor Suit can't be stolen
-	cp ARMOR_SUIT
-	jr z, .cant
-
-	; Mail can't be stolen
-	ld d, a
-	call ItemIsMail
-	jr c, .cant
-	xor a
 	ret
 
 .cant

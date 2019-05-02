@@ -1,7 +1,8 @@
 TrainerHouseB1F_MapScriptHeader:
 	db 0 ; scene scripts
 
-	db 0 ; callbacks
+	db 1 ; callbacks
+	callback MAPCALLBACK_OBJECTS, TrainerHouseB1FCallback
 
 	db 1 ; warp events
 	warp_event  9,  4, TRAINER_HOUSE_1F, 3
@@ -12,13 +13,25 @@ TrainerHouseB1F_MapScriptHeader:
 	db 0 ; bg events
 
 	db 3 ; object events
-	object_event  6, 11, SPRITE_CHRIS, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TRAINER_HOUSE_CAL
-	object_event  6, 11, SPRITE_KRIS, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TRAINER_HOUSE_CARRIE
+	object_event  6, 11, SPRITE_CHRIS, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TRAINER_HOUSE_CAL
+	object_event  6, 11, SPRITE_KRIS, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TRAINER_HOUSE_CARRIE
 	object_event  7,  1, SPRITE_RECEPTIONIST, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, ObjectEvent, -1
 
 	const_def 1 ; object constants
 	const TRAINERHOUSEB1F_CAL
 	const TRAINERHOUSEB1F_CARRIE
+
+TrainerHouseB1FCallback:
+	checkflag ENGINE_PLAYER_IS_FEMALE
+	iftrue .Cal
+	disappear TRAINERHOUSEB1F_CAL
+	appear TRAINERHOUSEB1F_CARRIE
+	jump .Done
+.Cal:
+	disappear TRAINERHOUSEB1F_CARRIE
+	appear TRAINERHOUSEB1F_CAL
+.Done:
+	return
 
 TrainerHouseReceptionistScript:
 	turnobject PLAYER, UP
@@ -29,13 +42,9 @@ TrainerHouseReceptionistScript:
 	buttonsound
 	checkflag ENGINE_PLAYER_IS_FEMALE
 	iftrue .GetCalName
-	disappear TRAINERHOUSEB1F_CAL
-	appear TRAINERHOUSEB1F_CARRIE
 	trainertotext CARRIE, 1, $0
 	jump .GotName
 .GetCalName
-	disappear TRAINERHOUSEB1F_CARRIE
-	appear TRAINERHOUSEB1F_CAL
 	trainertotext CAL, 1, $0
 .GotName:
 	writetext TrainerHouseB1FYourOpponentIsText
@@ -134,7 +143,7 @@ TrainerHouseB1FIntroText:
 	done
 
 TrainerHouseB1FYourOpponentIsText:
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text " is your"
 	line "opponent today."
 	done

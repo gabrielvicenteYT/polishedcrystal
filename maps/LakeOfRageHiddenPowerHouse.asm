@@ -15,7 +15,7 @@ LakeOfRageHiddenPowerHouse_MapScriptHeader:
 	bg_event  7,  1, SIGNPOST_JUMPSTD, difficultbookshelf
 
 	db 1 ; object events
-	object_event  2,  3, SPRITE_FISHER, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, HiddenPowerGuy, -1
+	object_event  2,  3, SPRITE_FAT_GUY, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, HiddenPowerGuy, -1
 
 HiddenPowerGuy:
 	faceplayer
@@ -46,11 +46,11 @@ HiddenPowerGuy:
 	text "I can sense it…"
 
 	para "Your @"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text ""
 	line "has a Hidden Power"
 	cont "of @"
-	text_from_ram StringBuffer1
+	text_from_ram wStringBuffer1
 	text "!"
 	done
 

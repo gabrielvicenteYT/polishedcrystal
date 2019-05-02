@@ -60,7 +60,7 @@ TeamRocketBaseB1F_MapScriptHeader:
 	db 6 ; object events
 	object_event  0,  0, SPRITE_ROCKET, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_TEAM_ROCKET_BASE_SECURITY_GRUNTS
 	object_event  2,  4, SPRITE_ROCKET, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 3, GenericTrainerGruntM16, EVENT_TEAM_ROCKET_BASE_POPULATION
-	object_event 18, 12, SPRITE_SCIENTIST, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_GENERICTRAINER, 3, GenericTrainerRocketScientistJed, EVENT_TEAM_ROCKET_BASE_POPULATION
+	object_event 18, 12, SPRITE_SCIENTIST, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 3, GenericTrainerRocketScientistJed, EVENT_TEAM_ROCKET_BASE_POPULATION
 	itemball_event 27,  6, HYPER_POTION, 1, EVENT_TEAM_ROCKET_BASE_B1F_HYPER_POTION
 	itemball_event 14, 15, NUGGET, 1, EVENT_TEAM_ROCKET_BASE_B1F_NUGGET
 	itemball_event 21, 12, GUARD_SPEC, 1, EVENT_TEAM_ROCKET_BASE_B1F_GUARD_SPEC
@@ -593,91 +593,91 @@ UnknownScript_0x6cabe:
 	jumpopenedtext UnknownText_0x6cdd0
 
 SecurityCameraMovement1:
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
 	step_end
 
 SecurityCameraMovement2:
-	big_step_up
-	big_step_right
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_up
+	run_step_up
+	run_step_right
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_up
 	turn_head_right
 	step_end
 
 SecurityCameraMovement3:
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_left
+	run_step_left
 	step_end
 
 SecurityCameraMovement4:
 ; he jumps over a trap
 	jump_step_up
-	big_step_right
-	big_step_up
-	big_step_up
-	big_step_up
+	run_step_right
+	run_step_up
+	run_step_up
+	run_step_up
 	turn_head_right
 	step_end
 
 SecurityCameraMovement5:
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_up
-	big_step_up
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_up
+	run_step_up
+	run_step_left
+	run_step_left
 	step_end
 
 SecurityCameraMovement6:
-	big_step_up
-	big_step_up
-	big_step_right
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_left
+	run_step_up
+	run_step_up
+	run_step_right
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_left
 	step_end
 
 SecurityCameraMovement7:
-	big_step_up
-	big_step_up
-	big_step_up
-	big_step_right
-	big_step_up
-	big_step_up
-	big_step_left
+	run_step_up
+	run_step_up
+	run_step_up
+	run_step_right
+	run_step_up
+	run_step_up
+	run_step_left
 	step_end
 
 SecurityCameraMovement8:
-	big_step_down
-	big_step_down
-	big_step_right
-	big_step_down
-	big_step_down
-	big_step_down
-	big_step_left
-	big_step_left
-	big_step_left
+	run_step_down
+	run_step_down
+	run_step_right
+	run_step_down
+	run_step_down
+	run_step_down
+	run_step_left
+	run_step_left
+	run_step_left
 	step_end
 
 SecurityCameraMovement9:
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_left
 	step_end
 
 CameraGrunt1SeenText:

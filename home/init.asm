@@ -10,10 +10,10 @@ SoftReset:: ; 150
 	ld [rIE], a
 	ei
 
-	ld hl, InputFlags
+	ld hl, wInputFlags
 	set 7, [hl]
 
-	ld c, 32
+	ld c, 3
 	call DelayFrames
 
 	jr Init
@@ -31,7 +31,7 @@ _Start:: ; 16e
 
 .load
 	ld [hCGB], a
-
+	; fallthrough
 
 Init:: ; 17d
 
@@ -54,9 +54,6 @@ Init:: ; 17d
 	ld [rTAC], a
 	ld [wRAM1Start], a
 
-	ld a, %100 ; Start timer at 4096Hz
-	ld [rTAC], a
-
 .wait
 	ld a, [rLY]
 	cp 145
@@ -76,7 +73,7 @@ Init:: ; 17d
 	or c
 	jr nz, .ByteFill
 
-	ld sp, Stack
+	ld sp, wStack
 
 ; Clear HRAM
 	ld a, [hCGB]
@@ -141,6 +138,8 @@ Init:: ; 17d
 	ld a, CONNECTION_NOT_ESTABLISHED
 	ld [hSerialConnectionStatus], a
 
+	farcall InitSGBBorder
+
 	farcall InitCGBPals
 
 	ld a, VBGMap1 / $100
@@ -154,11 +153,13 @@ Init:: ; 17d
 	ld [MBC3LatchClock], a
 	ld [MBC3SRamEnable], a
 
-	call NormalSpeed
+	ld a, [hCGB]
+	and a
+	call nz, DoubleSpeed
 
 	xor a
 	ld [rIF], a
-	ld a, %1111 ; VBlank, LCDStat, Timer, Serial interrupts
+	ld a, 1 << VBLANK | 1 << SERIAL
 	ld [rIE], a
 	ei
 

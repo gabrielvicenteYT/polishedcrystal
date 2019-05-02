@@ -35,13 +35,13 @@ VermilionCity_MapScriptHeader:
 
 	db 14 ; object events
 	object_event 35, 18, SPRITE_BIG_SNORLAX, SPRITEMOVEDATA_SNORLAX, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, VermilionSnorlax, EVENT_VERMILION_CITY_SNORLAX
-	object_event 19, 28, SPRITE_VERMILION_LAWRENCE, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_LAWRENCE_VERMILION_CITY
-	object_event 18, 13, SPRITE_VERMILION_LAWRENCE, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_RED, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1aaa15, -1
+	object_event 19, 28, SPRITE_LAWRENCE, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_LAWRENCE_VERMILION_CITY
+	object_event 18, 13, SPRITE_BATTLE_GIRL, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_RED, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1aaa15, -1
 	object_event 23, 10, SPRITE_GRAMPS, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, VermilionMachokeOwnerText, -1
 	object_event 26, 11, SPRITE_MACHOKE, SPRITEMOVEDATA_POKEMON, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, VermilionMachoke, -1
 	object_event 14, 20, SPRITE_ROCKER, SPRITEMOVEDATA_WANDER, 1, 1, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, UnknownText_0x1aab1a, -1
-	object_event 25, 16, SPRITE_SUPER_NERD, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, VermilionCitySuperNerdText, -1
-	object_event 10,  9, SPRITE_SAILOR, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 2, -1, -1, PAL_NPC_BLUE, PERSONTYPE_COMMAND, jumptextfaceplayer, VermilionCitySailorText, -1
+	object_event 25, 16, SPRITE_POKEMANIAC, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_COMMAND, jumptextfaceplayer, VermilionCitySuperNerdText, -1
+	object_event 10,  9, SPRITE_SAILOR, SPRITEMOVEDATA_WALK_LEFT_RIGHT, 0, 2, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, VermilionCitySailorText, -1
 	object_event 31, 16, SPRITE_POKEFAN_M, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, VermilionGymBadgeGuy, -1
 	cuttree_event 13, 23, EVENT_VERMILION_CITY_CUT_TREE
 	smashrock_event 26, 14
@@ -72,8 +72,6 @@ LawrenceLeftIntroScript:
 	applymovement VERMILIONCITY_LAWRENCE, LawrenceDepartLeftMovementData
 	playsound SFX_EXIT_BUILDING
 	disappear VERMILIONCITY_LAWRENCE
-	variablesprite SPRITE_VERMILION_LAWRENCE, SPRITE_COOLTRAINER_F
-	special MapCallbackSprites_LoadUsedSpritesGFX
 	setscene $1
 	setflag ENGINE_FLYPOINT_VERMILION
 	special RestartMapMusic
@@ -98,8 +96,6 @@ LawrenceRightIntroScript:
 	applymovement VERMILIONCITY_LAWRENCE, LawrenceDepartRightMovementData
 	playsound SFX_EXIT_BUILDING
 	disappear VERMILIONCITY_LAWRENCE
-	variablesprite SPRITE_VERMILION_LAWRENCE, SPRITE_COOLTRAINER_F
-	special MapCallbackSprites_LoadUsedSpritesGFX
 	setscene $1
 	setflag ENGINE_FLYPOINT_VERMILION
 	special RestartMapMusic
@@ -116,7 +112,7 @@ LawrenceApproachRightMovementData:
 LawrenceBumpLeftMovementData:
 LawrenceBumpRightMovementData:
 	fix_facing
-	big_step_up
+	run_step_up
 	remove_fixed_facing
 	step_sleep_8
 	step_sleep_8

@@ -4,6 +4,14 @@ UpdateItemIconAndDescription::
 
 UpdateTMHMIconAndDescriptionAndOwnership::
 	farcall UpdateTMHMDescriptionAndOwnership
+	ld a, [wMenuSelection]
+	cp -1
+	jr z, .cancel
+	call LoadTMHMIcon
+	jr .ok
+.cancel
+	call ClearTMHMIcon
+.ok
 	farcall LoadTMHMIconPalette
 	jp SetPalettes
 
@@ -11,7 +19,7 @@ UpdateItemIconAndDescriptionAndBagQuantity::
 	farcall UpdateItemDescriptionAndBagQuantity
 UpdateItemIcon::
 	ld hl, ItemIconPointers
-	ld a, [CurSpecies]
+	ld a, [wCurSpecies]
 	ld e, a
 	ld d, 0
 	add hl, de
@@ -27,7 +35,7 @@ UpdateItemIcon::
 
 GetItemIconBank:
 	lb bc, BANK(ItemIcons1), 9
-	ld a, [CurSpecies]
+	ld a, [wCurSpecies]
 	cp SCOPE_LENS ; first icon in ItemIcons2
 	ret c
 	cp METAL_POWDER ; after Scope Lens, but in ItemIcons1
@@ -47,6 +55,12 @@ LoadTMHMIcon::
 	ld hl, TMHMIcon
 	ld de, VTiles2 tile $1e
 	lb bc, BANK(TMHMIcon), 9
+	jp DecompressRequest2bpp
+
+ClearTMHMIcon::
+	ld hl, NoItemIcon
+	ld de, VTiles2 tile $1e
+	lb bc, BANK(NoItemIcon), 9
 	jp DecompressRequest2bpp
 
 INCLUDE "data/items/icon_pointers.asm"
@@ -195,7 +209,7 @@ JabocaBerryIcon:  INCBIN "gfx/items/jaboca_berry.2bpp.lz"
 RowapBerryIcon:   INCBIN "gfx/items/rowap_berry.2bpp.lz"
 KeeBerryIcon:     INCBIN "gfx/items/kee_berry.2bpp.lz"
 MarangaBerryIcon: INCBIN "gfx/items/marangaberry.2bpp.lz"
-BerryJuiceIcon:   INCBIN "gfx/items/berry_juice.2bpp.lz"
+PewterCrunchIcon: INCBIN "gfx/items/pewtercrunch.2bpp.lz"
 SilkScarfIcon:
 ChoiceScarfIcon:  INCBIN "gfx/items/scarf.2bpp.lz"
 BlackBeltIcon:    INCBIN "gfx/items/black_belt.2bpp.lz"
@@ -259,9 +273,7 @@ WiseGlassesIcon:  INCBIN "gfx/items/wise_glasses.2bpp.lz"
 ZoomLensIcon:     INCBIN "gfx/items/zoom_lens.2bpp.lz"
 MentalHerbIcon:
 PowerHerbIcon:
-WhiteHerbIcon:
-SilverLeafIcon:
-GoldLeafIcon:     INCBIN "gfx/items/leaf.2bpp.lz"
+WhiteHerbIcon:    INCBIN "gfx/items/herb.2bpp.lz"
 DampRockIcon:     INCBIN "gfx/items/damp_rock.2bpp.lz"
 HeatRockIcon:     INCBIN "gfx/items/heat_rock.2bpp.lz"
 SmoothRockIcon:   INCBIN "gfx/items/smooth_rock.2bpp.lz"
@@ -297,6 +309,8 @@ BigPearlIcon:     INCBIN "gfx/items/big_pearl.2bpp.lz"
 PearlStringIcon:  INCBIN "gfx/items/pearl_string.2bpp.lz"
 StarPieceIcon:    INCBIN "gfx/items/star_piece.2bpp.lz"
 BrickPieceIcon:   INCBIN "gfx/items/brick_piece.2bpp.lz"
+SilverLeafIcon:
+GoldLeafIcon:     INCBIN "gfx/items/leaf.2bpp.lz"
 SlowpokeTailIcon: INCBIN "gfx/items/slowpoketail.2bpp.lz"
 BottleCapIcon:    INCBIN "gfx/items/bottle_cap.2bpp.lz"
 HelixFossilIcon:  INCBIN "gfx/items/helix_fossil.2bpp.lz"

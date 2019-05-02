@@ -21,40 +21,40 @@ connection: MACRO
 ;\6: strip length
 if "\1" == "north"
 	map_id \3
-	dw \2_BlockData + \3_WIDTH * (\3_HEIGHT - 3) + \5
-	dw OverworldMap + \4 + 3
+	dw wDecompressScratch + \3_WIDTH * (\3_HEIGHT - 3) + \5
+	dw wOverworldMap + \4 + 3
 	db \6
 	db \3_WIDTH
 	db \3_HEIGHT * 2 - 1
 	db (\4 - \5) * -2
-	dw OverworldMap + \3_HEIGHT * (\3_WIDTH + 6) + 1
+	dw wOverworldMap + \3_HEIGHT * (\3_WIDTH + 6) + 1
 elif "\1" == "south"
 	map_id \3
-	dw \2_BlockData + \5
-	dw OverworldMap + (CURRENT_MAP_HEIGHT + 3) * (CURRENT_MAP_WIDTH + 6) + \4 + 3
+	dw wDecompressScratch + \5
+	dw wOverworldMap + (CURRENT_MAP_HEIGHT + 3) * (CURRENT_MAP_WIDTH + 6) + \4 + 3
 	db \6
 	db \3_WIDTH
 	db 0
 	db (\4 - \5) * -2
-	dw OverworldMap + \3_WIDTH + 7
+	dw wOverworldMap + \3_WIDTH + 7
 elif "\1" == "west"
 	map_id \3
-	dw \2_BlockData + (\3_WIDTH * \5) + \3_WIDTH - 3
-	dw OverworldMap + (CURRENT_MAP_WIDTH + 6) * (\4 + 3)
+	dw wDecompressScratch + (\3_WIDTH * \5) + \3_WIDTH - 3
+	dw wOverworldMap + (CURRENT_MAP_WIDTH + 6) * (\4 + 3)
 	db \6
 	db \3_WIDTH
 	db (\4 - \5) * -2
 	db \3_WIDTH * 2 - 1
-	dw OverworldMap + \3_WIDTH * 2 + 6
+	dw wOverworldMap + \3_WIDTH * 2 + 6
 elif "\1" == "east"
 	map_id \3
-	dw \2_BlockData + (\3_WIDTH * \5)
-	dw OverworldMap + (CURRENT_MAP_WIDTH + 6) * (\4 + 3 + 1) - 3
+	dw wDecompressScratch + (\3_WIDTH * \5)
+	dw wOverworldMap + (CURRENT_MAP_WIDTH + 6) * (\4 + 3 + 1) - 3
 	db \6
 	db \3_WIDTH
 	db (\4 - \5) * -2
 	db 0
-	dw OverworldMap + \3_WIDTH + 7
+	dw wOverworldMap + \3_WIDTH + 7
 endc
 ENDM
 
@@ -224,14 +224,14 @@ ENDM
 
 	map_attributes ViridianCity, VIRIDIAN_CITY, $f, NORTH | SOUTH | WEST
 	connection north, Route2South, ROUTE_2_SOUTH, 5, 0, 10
-	connection south, Route1, ROUTE_1, 9, 0, 10
+	connection south, Route1, ROUTE_1, 5, 0, 10
 	connection west, Route22, ROUTE_22, 4, 0, 9
 
 	map_attributes Route22, ROUTE_22, $2c, EAST
 	connection east, ViridianCity, VIRIDIAN_CITY, -3, 1, 15
 
 	map_attributes Route1, ROUTE_1, $f, NORTH | SOUTH
-	connection north, ViridianCity, VIRIDIAN_CITY, -3, 6, 13
+	connection north, ViridianCity, VIRIDIAN_CITY, -3, 2, 13
 	connection south, PalletTown, PALLET_TOWN, 1, 0, 10
 
 	map_attributes PalletTown, PALLET_TOWN, $f, NORTH | SOUTH
@@ -736,9 +736,9 @@ ENDM
 	map_attributes LavenderNameRater, LAVENDER_NAME_RATER, $0, 0
 	map_attributes LavenderMart, LAVENDER_MART, $0, 0
 	map_attributes SoulHouse, SOUL_HOUSE, $0, 0
-	map_attributes SoulHouseB1F, SOUL_HOUSE_B1F, $0, 0
-	map_attributes SoulHouseB2F, SOUL_HOUSE_B2F, $0, 0
-	map_attributes SoulHouseB3F, SOUL_HOUSE_B3F, $0, 0
+	map_attributes SoulHouseB1F, SOUL_HOUSE_B1F, $6c, 0
+	map_attributes SoulHouseB2F, SOUL_HOUSE_B2F, $6c, 0
+	map_attributes SoulHouseB3F, SOUL_HOUSE_B3F, $6c, 0
 	map_attributes LavRadioTower1F, LAV_RADIO_TOWER_1F, $0, 0
 	map_attributes LavRadioTower2F, LAV_RADIO_TOWER_2F, $0, 0
 	map_attributes LavRadioTower3F, LAV_RADIO_TOWER_3F, $0, 0

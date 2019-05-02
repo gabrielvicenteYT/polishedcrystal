@@ -362,9 +362,10 @@ step_end: macro
 	db movement_step_end ; $47
 	endm
 
-; Whatever Movement_48 is, it takes a one-byte parameter
-
-__enum__ = $49
+	enum movement_step_resume
+step_resume: macro
+	db movement_step_resume ; $48
+	endm
 
 	enum movement_remove_person
 remove_person: macro
@@ -453,4 +454,44 @@ return_dig: macro
 	enum movement_skyfall_top
 skyfall_top: macro
 	db movement_skyfall_top ; $59
+	endm
+
+	enum movement_run_step_down
+run_step_down: macro
+	db movement_run_step_down ; $5a
+	endm
+
+	enum movement_run_step_up
+run_step_up: macro
+	db movement_run_step_up ; $5b
+	endm
+
+	enum movement_run_step_left
+run_step_left: macro
+	db movement_run_step_left ; $5c
+	endm
+
+	enum movement_run_step_right
+run_step_right: macro
+	db movement_run_step_right ; $5d
+	endm
+
+	enum movement_fast_step_down
+fast_step_down: macro
+	db movement_fast_step_down ; $5e
+	endm
+
+	enum movement_fast_step_up
+fast_step_up: macro
+	db movement_fast_step_up ; $5f
+	endm
+
+	enum movement_fast_step_left
+fast_step_left: macro
+	db movement_fast_step_left ; $60
+	endm
+
+	enum movement_fast_step_right
+fast_step_right: macro
+	db movement_fast_step_right ; $61
 	endm

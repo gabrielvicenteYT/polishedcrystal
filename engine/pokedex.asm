@@ -22,14 +22,14 @@ Pokedex: ; 40000
 	push hl
 	ld a, [hSCX]
 	push af
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
-	ld a, [VramState]
+	ld a, [wVramState]
 	push af
 	xor a
-	ld [VramState], a
+	ld [wVramState], a
 	ld a, [hInMenu]
 	push af
 	ld a, $1
@@ -60,9 +60,9 @@ Pokedex: ; 40000
 	pop af
 	ld [hInMenu], a
 	pop af
-	ld [VramState], a
+	ld [wVramState], a
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	pop af
 	ld [hSCX], a
 	pop hl
@@ -102,7 +102,7 @@ InitPokedex: ; 40063
 	jp Pokedex_ResetBGMapMode
 
 Pokedex_CheckUnlockedUnownMode: ; 400a2
-	ld a, [StatusFlags]
+	ld a, [wStatusFlags]
 	bit 1, a
 	jr nz, .unlocked
 
@@ -194,7 +194,7 @@ Pokedex_InitMainScreen: ; 4013c (10:413c)
 	ld [hBGMapMode], a
 	call ClearSprites
 	xor a
-	hlcoord 0, 0, AttrMap
+	hlcoord 0, 0, wAttrMap
 	ld bc, SCREEN_HEIGHT * SCREEN_WIDTH
 	call ByteFill
 	call Pokedex_DrawListWindow
@@ -214,11 +214,11 @@ Pokedex_InitMainScreen: ; 4013c (10:413c)
 	ld [hWX], a
 	xor a
 	ld [hWY], a
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 
 	call Pokedex_ResetBGMapMode
 	ld a, -1
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	xor a
 	ld [wDexMonShiny], a
 	ld a, CGB_POKEDEX
@@ -305,16 +305,16 @@ Pokedex_InitDexEntryScreen: ; 40217 (10:4217)
 	ld [wLastDexEntry], a
 	farcall DisplayDexEntry
 	call Pokedex_DrawFootprint
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld a, $a7
 	ld [hWX], a
 	call Pokedex_GetSelectedMon
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	xor a
 	ld [wDexMonShiny], a
 	ld a, CGB_POKEDEX
 	call Pokedex_GetCGBLayout
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	call PlayCry
 	jp Pokedex_IncrementDexPointer
 
@@ -344,11 +344,11 @@ Pokedex_UpdateDexEntryScreen: ; 40258 (10:4258)
 	jp hl
 
 .return_to_prev_screen
-	ld a, [LastVolume]
+	ld a, [wLastVolume]
 	and a
 	jr z, .max_volume
 	ld a, $77
-	ld [LastVolume], a
+	ld [wLastVolume], a
 
 .max_volume
 	call MaxVolume
@@ -363,7 +363,7 @@ Pokedex_Page: ; 40292
 	call Pokedex_GetSelectedMon
 	ld [wLastDexEntry], a
 	farcall DisplayDexEntry
-	jp WaitBGMap
+	jp ApplyTilemapInVBlank
 
 Pokedex_ReinitDexEntryScreen: ; 402aa (10:42aa)
 ; Reinitialize the Pokédex entry screen after changing the selected mon.
@@ -380,12 +380,12 @@ Pokedex_ReinitDexEntryScreen: ; 402aa (10:42aa)
 	farcall DisplayDexEntry
 	call Pokedex_DrawFootprint
 	call Pokedex_LoadSelectedMonTiles
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call Pokedex_GetSelectedMon
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	ld a, CGB_POKEDEX
 	call Pokedex_GetCGBLayout
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	call PlayCry
 	ld hl, wJumptableIndex
 	dec [hl]
@@ -434,14 +434,14 @@ DexEntryScreen_MenuActionJumptable: ; 402f2
 	call DelayFrame
 	call Pokedex_RedisplayDexEntry
 	call Pokedex_LoadSelectedMonTiles
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call Pokedex_GetSelectedMon
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	ld a, CGB_POKEDEX
 	jp Pokedex_GetCGBLayout
 
 .Cry: ; 40340
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	jp PlayCry
 
 .Shiny:
@@ -449,7 +449,7 @@ DexEntryScreen_MenuActionJumptable: ; 402f2
 	ld a, [hl]
 	xor SHINY_MASK ; alternate 0 and SHINY_MASK
 	ld [hl], a
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	ld a, CGB_POKEDEX
 	jp Pokedex_GetCGBLayout
 
@@ -470,7 +470,7 @@ Pokedex_InitOptionScreen: ; 4039d (10:439d)
 	ld a, [wCurrentDexMode]
 	ld [wDexArrowCursorPosIndex], a
 	call Pokedex_DisplayModeDescription
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld a, CGB_POKEDEX_SEARCH_OPTION
 	call Pokedex_GetCGBLayout
 	jp Pokedex_IncrementDexPointer
@@ -577,7 +577,7 @@ Pokedex_InitSearchScreen: ; 40443 (10:4443)
 	xor a
 	ld [wDexSearchSlowpokeFrame], a
 	farcall DoDexSearchSlowpokeFrame
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld a, CGB_POKEDEX_SEARCH_OPTION
 	call Pokedex_GetCGBLayout
 	jp Pokedex_IncrementDexPointer
@@ -638,7 +638,7 @@ Pokedex_UpdateSearchScreen: ; 40471 (10:4471)
 	call Pokedex_DrawSearchScreenBG
 	call Pokedex_InitArrowCursor
 	call Pokedex_PlaceSearchScreenTypeStrings
-	jp WaitBGMap
+	jp ApplyTilemapInVBlank
 
 .show_search_results
 	ld [wDexListingEnd], a
@@ -666,7 +666,7 @@ Pokedex_InitSearchResultsScreen: ; 4050a (10:450a)
 	xor a
 	ld [hBGMapMode], a
 	xor a
-	hlcoord 0, 0, AttrMap
+	hlcoord 0, 0, wAttrMap
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 	call ByteFill
 	call Pokedex_SetBGMapMode4
@@ -685,13 +685,13 @@ Pokedex_InitSearchResultsScreen: ; 4050a (10:450a)
 	ld [hWX], a
 	xor a
 	ld [hWY], a
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call Pokedex_ResetBGMapMode
 	call Pokedex_DrawSearchResultsWindow
 	call Pokedex_PlaceSearchResultsTypeStrings
 	call Pokedex_UpdateSearchResultsCursorOAM
 	ld a, $ff
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	ld a, CGB_POKEDEX
 	call Pokedex_GetCGBLayout
 	jp Pokedex_IncrementDexPointer
@@ -749,7 +749,7 @@ Pokedex_InitUnownMode: ; 405bd (10:45bd)
 	call Pokedex_LoadUnownFrontpicTiles
 	call Pokedex_UnownModePlaceCursor
 	farcall PrintUnownWord
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld a, CGB_POKEDEX_UNOWN_MODE
 	call Pokedex_GetCGBLayout
 	jp Pokedex_IncrementDexPointer
@@ -760,10 +760,10 @@ Pokedex_UpdateUnownMode: ; 405df (10:45df)
 	and A_BUTTON | B_BUTTON
 	jr z, Pokedex_UnownModeHandleDPadInput
 	call Pokedex_BlackOutBG
-	ld a, [OptionsBuffer]
-	ld [Options2], a
+	ld a, [wOptionsBuffer]
+	ld [wOptions2], a
 	xor a
-	ld [OptionsBuffer], a
+	ld [wOptionsBuffer], a
 	call LoadStandardFont
 	ld a, DEXSTATE_OPTION_SCR
 	ld [wJumptableIndex], a
@@ -1021,8 +1021,8 @@ Pokedex_DrawMainScreenBG: ; 4074c (10:474c)
 	hlcoord 1, 11
 	ld de, String_SEEN
 	call Pokedex_PlaceString
-	ld hl, PokedexSeen
-	ld b, EndPokedexSeen - PokedexSeen
+	ld hl, wPokedexSeen
+	ld b, wEndPokedexSeen - wPokedexSeen
 	call CountSetBits
 	ld de, wd265
 	hlcoord 5, 12
@@ -1031,8 +1031,8 @@ Pokedex_DrawMainScreenBG: ; 4074c (10:474c)
 	hlcoord 1, 14
 	ld de, String_OWN
 	call Pokedex_PlaceString
-	ld hl, PokedexCaught
-	ld b, EndPokedexCaught - PokedexCaught
+	ld hl, wPokedexCaught
+	ld b, wEndPokedexCaught - wPokedexCaught
 	call CountSetBits
 	ld de, wd265
 	hlcoord 5, 15
@@ -1060,9 +1060,9 @@ Pokedex_DrawMainScreenBG: ; 4074c (10:474c)
 	jp Pokedex_PlaceFrontpicTopLeftCorner
 
 String_SEEN: ; 407e1
-	db "Seen", $ff
+	db "S","e","e","n", $ff
 String_OWN: ; 407e6
-	db "Own", $ff
+	db "O","w","n", $ff
 String_SELECT_OPTION: ; 407ea
 ;	db $3b, $48, $49, $4a, $44, $45, $46, $47 ; SELECT > OPTION
 	db $3b, $41, $42, $43, $44, $45, $46, $47
@@ -1090,7 +1090,7 @@ Pokedex_DrawDexEntryScreenBG: ; 407fd
 	ld bc, 18
 	ld a, " "
 	call ByteFill
-	ld a, [Options2]
+	ld a, [wOptions2]
 	bit POKEDEX_UNITS, a
 	jr nz, .metric
 	hlcoord 9, 7
@@ -1128,9 +1128,9 @@ Pokedex_DrawDexEntryScreenBG: ; 407fd
 .WeightMetric:
 	db "Wt   ???kg", $ff ; WT   ???kg
 .MenuItems: ; 40867
-	db $3b, " Page Area Cry     ", $ff
+	db $3b, " ","P","a","g","e"," A","r","e","a"," ","C","r","y"," "," "," "," "," ", $ff
 .MenuItemsShinyCharm:
-	db $3b, " Page Area Cry Shny", $ff
+	db $3b, " ","P","a","g","e"," A","r","e","a"," ","C","r","y"," ","S","h","n","y", $ff
 
 Pokedex_DrawDexEntryScreenRightEdge: ; 1de247
 	ld a, [hBGMapAddress]
@@ -1154,9 +1154,9 @@ Pokedex_DrawDexEntryScreenRightEdge: ; 1de247
 	ld [hl], $3c
 	xor a
 	ld b, SCREEN_HEIGHT
-	hlcoord 19, 0, AttrMap
+	hlcoord 19, 0, wAttrMap
 	call Pokedex_FillColumn
-	call WaitBGMap2
+	call ApplyAttrAndTilemapInVBlank
 	pop hl
 	ld a, l
 	ld [hBGMapAddress], a
@@ -1186,7 +1186,7 @@ Pokedex_DrawOptionScreenBG: ; 4087c (10:487c)
 	jp PlaceString
 
 .Title: ; 408b2
-	db $3b, " Option ", $3c, $ff
+	db $3b, " ","O","p","t","i","o","n"," ", $3c, $ff
 
 .Modes: ; 408bd
 	db   "Johto Mode"
@@ -1219,10 +1219,10 @@ Pokedex_DrawSearchScreenBG: ; 408f0 (10:48f0)
 	jp PlaceString
 
 .Title: ; 4092a
-	db $3b, " Search ", $3c, $ff
+	db $3b, " ","S","e","a","r","c","h"," ", $3c, $ff
 
 .TypeLeftRightArrows: ; 40935
-	db $3d, "        ", "▷", $ff
+	db $3d, " "," "," "," "," "," "," "," ","▷", $ff
 
 .Types: ; 40940
 	db   "Type1"
@@ -1303,7 +1303,7 @@ Pokedex_DrawUnownModeBG: ; 409f1 (10:49f1)
 	ld de, 0
 	lb bc, 0, NUM_UNOWN
 .loop
-	ld hl, UnownDex
+	ld hl, wUnownDex
 	add hl, de
 	ld a, [hl]
 	and a
@@ -1958,7 +1958,7 @@ Pokedex_SearchForMons: ; 41086
 	and a
 	jr z, .next_mon
 	ld [wd265], a
-	ld [CurSpecies], a
+	ld [wCurSpecies], a
 	call Pokedex_CheckCaught
 	jr z, .next_mon
 	push hl
@@ -1968,10 +1968,10 @@ Pokedex_SearchForMons: ; 41086
 	pop hl
 	ld a, [wDexConvertedMonType]
 	ld b, a
-	ld a, [BaseType1]
+	ld a, [wBaseType1]
 	cp b
 	jr z, .match_found
-	ld a, [BaseType2]
+	ld a, [wBaseType2]
 	cp b
 	jr nz, .next_mon
 
@@ -2102,7 +2102,7 @@ Pokedex_UpdateCursor:
 	ret
 
 Pokedex_LoadCursorOAM: ; 412f1 (10:52f1)
-	ld de, Sprites
+	ld de, wSprites
 .loop
 	bit 7, [hl]
 	jr nz, .special
@@ -2145,7 +2145,7 @@ Pokedex_PutScrollbarOAM: ; 4130e (10:530e)
 	jr z, .asm_4133f
 	ld hl, $0
 	ld bc, $79
-	call AddNTimes
+	rst AddNTimes
 	ld e, l
 	ld d, h
 	ld b, $0
@@ -2315,7 +2315,7 @@ _Pokedex_JustBlackOutBG:
 	push af
 	ld a, $5
 	ld [rSVBK], a
-	ld hl, UnknBGPals
+	ld hl, wUnknBGPals
 if !DEF(MONOCHROME)
 	ld bc, 8 palettes
 	xor a
@@ -2373,9 +2373,9 @@ Pokedex_LoadSelectedMonTiles: ; 4143b
 .use_first_magikarp
 	ld a, [wFirstMagikarpSeen]
 .continue
-	ld [MonVariant], a
+	ld [wCurForm], a
 	ld a, [wd265]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	call GetBaseData
 	ld de, VTiles2
 	predef GetFrontpic
@@ -2437,8 +2437,9 @@ Pokedex_LoadAnyFootprint: ; 4147b
 	lb bc, BANK(Footprints), 2
 	jp Request1bpp
 
-Pokedex_LoadGFX: ; 414b7
+Pokedex_LoadGFX:
 	call DisableLCD
+Pokedex_LoadGFX2:
 	ld hl, VTiles2
 	ld bc, $31 tiles
 	xor a
@@ -2456,35 +2457,37 @@ Pokedex_LoadGFX: ; 414b7
 	jp EnableLCD
 
 Pokedex_LoadUnownFont: ; 41a2c
-	ld a, [Options2]
-	ld [OptionsBuffer], a
+	ld a, [wOptions2]
+	ld [wOptionsBuffer], a
 	and $ff - FONT_MASK
 	or UNOWN_FONT
-	ld [Options2], a
+	ld [wOptions2], a
 	jp LoadStandardFont
 
 Pokedex_LoadUnownFrontpicTiles: ; 41a58 (10:5a58)
-	ld a, [MonVariant]
+	ld a, [wCurForm]
 	push af
 	ld a, [wDexCurrentUnownIndex]
 	ld e, a
 	ld d, 0
-	ld hl, UnownDex
+	ld hl, wUnownDex
 	add hl, de
 	ld a, [hl]
-	ld [MonVariant], a
+	ld [wCurForm], a
 	ld a, UNOWN
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	call GetBaseData
 	ld de, VTiles2 tile $00
 	predef GetFrontpic
 	pop af
-	ld [MonVariant], a
+	ld [wCurForm], a
 	ret
 
 NewPokedexEntry: ; fb877
 	ld a, [hMapAnims]
 	push af
+	ld a, [wEnemyBackupShiny]
+	ld [wDexMonShiny], a
 	xor a
 	ld [hMapAnims], a
 	call LowVolume
@@ -2525,10 +2528,10 @@ NewPokedexEntry: ; fb877
 	call DisableLCD
 	call LoadStandardFont
 	call LoadFontsExtra
-	call Pokedex_LoadGFX
+	call Pokedex_LoadGFX2
 	call Pokedex_LoadAnyFootprint
 	ld a, [wd265]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	call Pokedex_DrawDexEntryScreenBG
 	call Pokedex_DrawFootprint
 	hlcoord 0, 17
@@ -2539,13 +2542,13 @@ NewPokedexEntry: ; fb877
 	call ByteFill
 	farcall DisplayDexEntry
 	call EnableLCD
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call GetBaseData
 	ld de, VTiles2
 	predef GetFrontpic
 	ld a, CGB_POKEDEX
 	call Pokedex_GetCGBLayout
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	jp PlayCry
 
 .ReturnFromDexRegistration:
@@ -2553,12 +2556,12 @@ NewPokedexEntry: ; fb877
 	call LoadFontsExtra
 	call LoadStandardFont
 	call Pokedex_PlaceFrontpicTopLeftCorner
-	call WaitBGMap2
+	call ApplyAttrAndTilemapInVBlank
 	farcall GetEnemyMonPersonality
 	ld a, [hli]
-	ld [TempMonPersonality], a
+	ld [wTempMonPersonality], a
 	ld a, [hl]
-	ld [TempMonPersonality + 1], a
+	ld [wTempMonPersonality + 1], a
 	ld b, CGB_TRAINER_OR_MON_FRONTPIC_PALS
 	call GetCGBLayout
 	jp SetPalettes
@@ -2572,8 +2575,7 @@ Pokedex_SetBGMapMode4: ; 41ae1 (10:5ae1)
 	ld a, $4
 Pokedex_SetBGMapMode:
 	ld [hBGMapMode], a
-	ld c, 4
-	jp DelayFrames
+	jp Delay2
 
 Pokedex_ResetBGMapMode: ; 41af7
 	xor a

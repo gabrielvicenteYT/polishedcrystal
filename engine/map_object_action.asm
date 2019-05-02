@@ -21,6 +21,9 @@ Pointers445f: ; 445f
 	dw SetFacingStandFlip,             SetFacingStandFlip         ; PERSON_ACTION_STAND_FLIP
 	dw SetFacingPokecomNews,           SetFacingPokecomNews       ; PERSON_ACTION_POKECOM_NEWS
 	dw SetFacingArchTree,              SetFacingArchTree          ; PERSON_ACTION_ARCH_TREE
+	dw SetFacingRun,                   SetFacingCurrent           ; PERSON_ACTION_RUN
+	dw SetFacingSailboatTop,           SetFacingSailboatTop       ; PERSON_ACTION_SAILBOAT_TOP
+	dw SetFacingSailboatBottom,        SetFacingSailboatBottom    ; PERSON_ACTION_SAILBOAT_BOTTOM
 ; 44a3
 
 SetFacingStanding: ; 44a3
@@ -51,8 +54,16 @@ SetFacingPokecomNews:
 	ld a, FACING_POKECOM_NEWS
 	jr SetFixedFacing
 
+SetFacingSailboatTop:
+	ld a, FACING_SAILBOAT_TOP
+	jr SetFixedFacing
+
+SetFacingSailboatBottom:
+	ld a, FACING_SAILBOAT_BOTTOM
+	jr SetFixedFacing
+
 SetFacingBigDoll: ; 45c5
-	ld a, [VariableSprites + SPRITE_BIG_DOLL - SPRITE_VARS]
+	ld a, [wVariableSprites + SPRITE_BIG_DOLL - SPRITE_VARS]
 	cp SPRITE_BIG_ONIX
 	ld a, FACING_BIG_DOLL_ASYM
 	jr z, SetFixedFacing
@@ -88,16 +99,16 @@ SetFixedFacing:
 	ret
 ; 44b5
 
-SetFacingStandAction: ; 44b5
+SetFacingStandAction:
 	ld hl, OBJECT_FACING_STEP
 	add hl, bc
 	ld a, [hl]
 	and 1
-	jr nz, SetFacingStepAction
-	jr SetFacingCurrent
-; 44c1
+	jr z, SetFacingCurrent
+	; fallthrough
 
-SetFacingStepAction: ; 44c1
+SetFacingStepAction:
+SetFacingBumpAction:
 	ld hl, OBJECT_FLAGS1
 	add hl, bc
 	bit SLIDING, [hl]
@@ -105,15 +116,21 @@ SetFacingStepAction: ; 44c1
 
 	ld hl, OBJECT_STEP_FRAME
 	add hl, bc
+	inc [hl]
 	ld a, [hl]
-	inc a
-	and %00001111
+	rrca
+	rrca
+	rrca
+	and %11
+	ld d, a
+	call GetSpriteDirection
+	or d
+	ld hl, OBJECT_FACING_STEP
+	add hl, bc
 	ld [hl], a
+	ret
 
-	jr _FinishFacingStepAction
-; 44e4
-
-SetFacingSkyfall: ; 44e4
+SetFacingSkyfall:
 	ld hl, OBJECT_FLAGS1
 	add hl, bc
 	bit SLIDING, [hl]
@@ -123,42 +140,23 @@ SetFacingSkyfall: ; 44e4
 	add hl, bc
 	ld a, [hl]
 	add 2
-	and %00001111
 	ld [hl], a
-	; fallthrough
-
-_FinishFacingStepAction:
 	rrca
 	rrca
-	and %00000011
+	rrca
+	and %11
 	ld d, a
 
 	call GetSpriteDirection
 	or d
 	jr SetFixedFacing
-; 4508
-
-SetFacingBumpAction: ; 4508
-	ld hl, OBJECT_FLAGS1
-	add hl, bc
-	bit SLIDING, [hl]
-	jp nz, SetFacingCurrent
-
-	ld hl, OBJECT_STEP_FRAME
-	add hl, bc
-	inc [hl]
-
-	ld a, [hl]
-	rrca
-	jr _FinishFacingStepAction
-; 4529
 
 SetFacingCounterclockwiseSpin: ; 4529
 	call CounterclockwiseSpinAction
 	ld hl, OBJECT_FACING
 	add hl, bc
 	ld a, [hl]
-	jp SetFixedFacing
+	jr SetFixedFacing
 ; 4539
 
 SetFacingCounterclockwiseSpin2: ; 4539
@@ -166,11 +164,7 @@ SetFacingCounterclockwiseSpin2: ; 4539
 	jp SetFacingStanding
 ; 453f
 
-CounterclockwiseSpinAction: ; 453f
-; Here, OBJECT_STEP_FRAME consists of two 2-bit components,
-; using only bits 0,1 and 4,5.
-; bits 0,1 is a timer (4 overworld frames)
-; bits 4,5 determines the facing - the direction is counterclockwise.
+CounterclockwiseSpinAction:
 	ld hl, OBJECT_STEP_FRAME
 	add hl, bc
 	ld a, [hl]
@@ -181,7 +175,7 @@ CounterclockwiseSpinAction: ; 453f
 	inc a
 	and %00001111
 	ld d, a
-	cp 4
+	cp 2
 	jr c, .ok
 
 	ld d, 0
@@ -204,11 +198,9 @@ CounterclockwiseSpinAction: ; 453f
 	add hl, bc
 	ld [hl], a
 	ret
-; 456a
 
-.Directions: ; 456a
+.Directions
 	db OW_DOWN, OW_RIGHT, OW_UP, OW_LEFT
-; 456e
 
 SetFacingBounce: ; 4590
 	ld hl, OBJECT_STEP_FRAME
@@ -265,7 +257,7 @@ SetFacingBoulderDust: ; 45da
 	jp SetFixedFacing
 ; 45ed
 
-SetFacingGrassShake: ; 45ed
+SetFacingGrassShake:
 	ld hl, OBJECT_STEP_FRAME
 	add hl, bc
 	inc [hl]
@@ -289,3 +281,24 @@ SetFacingPuddleSplash:
 	inc a ; FACING_SPLASH_2
 .ok
 	jp SetFixedFacing
+
+SetFacingRun:
+	ld hl, OBJECT_FLAGS1
+	add hl, bc
+	bit SLIDING, [hl]
+	jp nz, SetFacingCurrent
+
+	ld hl, OBJECT_STEP_FRAME
+	add hl, bc
+	inc [hl]
+	ld a, [hl]
+	rrca
+	rrca
+	and %11
+	ld d, a
+	call GetSpriteDirection
+	or d
+	ld hl, OBJECT_FACING_STEP
+	add hl, bc
+	ld [hl], a
+	ret

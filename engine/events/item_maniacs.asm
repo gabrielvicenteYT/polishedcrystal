@@ -10,8 +10,8 @@ GetFossilManiacPrice:
 	ld hl, FossilManiacItemRewards
 GetItemManiacPrice:
 	xor a ; ld a, FALSE
-	ld [ScriptVar], a
-	ld a, [CurItem]
+	ld [wScriptVar], a
+	ld a, [wCurItem]
 	ld b, a
 .loop
 	ld a, [hli]
@@ -30,12 +30,12 @@ GetItemManiacPrice:
 	xor a
 	ld [hMoneyTemp], a
 	inc a ; ld a, TRUE
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 INCLUDE "data/items/item_maniacs.asm"
 
 Give_hMoneyTemp:
-	ld de, Money
+	ld de, wMoney
 	ld bc, hMoneyTemp
 	farjp GiveMoney

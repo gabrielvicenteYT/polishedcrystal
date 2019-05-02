@@ -93,12 +93,12 @@ LoadMonAnimation: ; d00a3
 	ld [wPokeAnimGraphicStartTile], a
 
 	ld a, $1
-	ld hl, CurPartySpecies
+	ld hl, wCurPartySpecies
 	call GetFarWRAMByte
 	ld [wPokeAnimSpecies], a
 
 	ld a, $1
-	ld hl, MonVariant
+	ld hl, wCurForm
 	call GetFarWRAMByte
 	ld [wPokeAnimVariant], a
 
@@ -266,7 +266,7 @@ PokeAnim_CryNoWait: ; d0188
 
 PokeAnim_StereoCry: ; d0196
 	ld a, $f
-	ld [CryTracks], a
+	ld [wCryTracks], a
 	ld a, [wPokeAnimSpecies]
 	call PlayStereoCry2
 	ld a, [wPokeAnimSceneIndex]
@@ -290,7 +290,7 @@ PokeAnim_DeinitFrames: ; d01a9
 ; d01c6
 
 AnimateMon_CheckIfPokemon: ; d01c6
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	cp EGG
 	jr z, .fail
 	call IsAPokemon
@@ -395,7 +395,7 @@ PokeAnim_GetDuration: ; d02ae
 	ld b, $0
 	ld hl, 0
 	ld a, [wPokeAnimSpeed]
-	call AddNTimes
+	rst AddNTimes
 	ld a, h
 	swap a
 	and $f0
@@ -485,7 +485,7 @@ PokeAnim_CopyBitmaskToBuffer: ; d033b
 	ld h, [hl]
 	ld l, a
 	ld a, [wPokeAnimCurBitmask]
-	call AddNTimes
+	rst AddNTimes
 	pop bc
 	ld de, wPokeAnimBitmaskBuffer
 	ld a, [wPokeAnimBitmaskBank]
@@ -591,7 +591,7 @@ PokeAnim_ConvertAndApplyBitmask: ; d036b
 	call .GetStartCoord
 	ld a, [wPokeAnimBitmaskCurRow]
 	ld bc, SCREEN_WIDTH
-	call AddNTimes
+	rst AddNTimes
 	ld a, [wBoxAlignment]
 	and a
 	jr nz, .go
@@ -860,7 +860,7 @@ PokeAnim_GetAttrMapCoord: ; d0551
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, AttrMap - TileMap
+	ld de, wAttrMap - wTileMap
 	add hl, de
 	ret
 ; d055c
@@ -906,10 +906,10 @@ PokeAnim_GetFrontpicDims: ; d05b4
 	push af
 	ld a, $1
 	ld [rSVBK], a
-	ld a, [CurPartySpecies]
-	ld [CurSpecies], a
+	ld a, [wCurPartySpecies]
+	ld [wCurSpecies], a
 	call GetBaseData
-	ld a, [BasePicSize]
+	ld a, [wBasePicSize]
 	and $f
 	ld c, a
 	pop af
@@ -1014,7 +1014,7 @@ HOF_AnimateFrontpic: ; d066e
 	xor a
 	ld [wBoxAlignment], a
 	inc a
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	ret
 ; d0695
 

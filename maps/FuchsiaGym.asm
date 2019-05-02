@@ -14,7 +14,7 @@ FuchsiaGym_MapScriptHeader:
 	bg_event  6, 15, SIGNPOST_READ, FuchsiaGymStatue
 
 	db 6 ; object events
-	object_event  5,  7, SPRITE_JANINE, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, JanineScript_0x195db9, -1
+	object_event  5,  7, SPRITE_JANINE, SPRITEMOVEDATA_SPINRANDOM_SLOW, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, JanineScript_0x195db9, -1
 	object_event  1, 10, SPRITE_FUCHSIA_GYM_1, SPRITEMOVEDATA_SPINRANDOM_FAST, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, FuchsiaGym1Script_0x195e1b, -1
 	object_event  5, 11, SPRITE_FUCHSIA_GYM_2, SPRITEMOVEDATA_SPINRANDOM_FAST, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, FuchsiaGym2Script_0x195e55, -1
 	object_event  9,  4, SPRITE_FUCHSIA_GYM_3, SPRITEMOVEDATA_SPINRANDOM_FAST, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, FuchsiaGym3Script_0x195e8f, -1
@@ -42,10 +42,10 @@ JanineScript_0x195db9:
 	setevent EVENT_BEAT_LASS_LINDA
 	setevent EVENT_BEAT_PICNICKER_CINDY
 	setevent EVENT_BEAT_CAMPER_BARRY
-	variablesprite SPRITE_FUCHSIA_GYM_1, SPRITE_LASS
-	variablesprite SPRITE_FUCHSIA_GYM_2, SPRITE_LASS
-	variablesprite SPRITE_FUCHSIA_GYM_3, SPRITE_LASS
-	variablesprite SPRITE_FUCHSIA_GYM_4, SPRITE_YOUNGSTER
+	variablesprite SPRITE_FUCHSIA_GYM_1, SPRITE_CUTE_GIRL
+	variablesprite SPRITE_FUCHSIA_GYM_2, SPRITE_CUTE_GIRL
+	variablesprite SPRITE_FUCHSIA_GYM_3, SPRITE_CUTE_GIRL
+	variablesprite SPRITE_FUCHSIA_GYM_4, SPRITE_SCHOOLBOY
 	special MapCallbackSprites_LoadUsedSpritesGFX
 	opentext
 	writetext UnknownText_0x195feb
@@ -143,7 +143,7 @@ FuchsiaGym3Script_0x195e8f:
 	iftrue UnknownScript_0x195ea0
 	applymovement FUCHSIAGYM_FUCHSIA_GYM_3, MovementData_0x195f27
 	faceplayer
-	variablesprite SPRITE_FUCHSIA_GYM_3, SPRITE_LASS
+	variablesprite SPRITE_FUCHSIA_GYM_3, SPRITE_PICNICKER
 	special MapCallbackSprites_LoadUsedSpritesGFX
 UnknownScript_0x195ea0:
 	checkevent EVENT_BEAT_PICNICKER_CINDY
@@ -168,7 +168,7 @@ FuchsiaGym4Script_0x195ec9:
 	iftrue UnknownScript_0x195eda
 	applymovement FUCHSIAGYM_FUCHSIA_GYM_4, MovementData_0x195f27
 	faceplayer
-	variablesprite SPRITE_FUCHSIA_GYM_4, SPRITE_YOUNGSTER
+	variablesprite SPRITE_FUCHSIA_GYM_4, SPRITE_SCHOOLBOY
 	special MapCallbackSprites_LoadUsedSpritesGFX
 UnknownScript_0x195eda:
 	checkevent EVENT_BEAT_CAMPER_BARRY

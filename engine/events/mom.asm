@@ -141,11 +141,11 @@ Special_BankOfMom: ; 16218
 	ld hl, UnknownText_0x16662
 	call PrintText
 	xor a
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	ld [hli], a
 	ld [hli], a
 	ld [hl], a
-	ld a, $5
+	ld a, $6
 	ld [wcf64], a
 	call LoadStandardMenuDataHeader
 	call Mom_SetUpDepositMenu
@@ -153,31 +153,31 @@ Special_BankOfMom: ; 16218
 	call Mom_WithdrawDepositMenuJoypad
 	call CloseWindow
 	jr c, .CancelDeposit
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	ld a, [hli]
 	or [hl]
 	inc hl
 	or [hl]
 	jr z, .CancelDeposit
-	ld de, Money
-	ld bc, StringBuffer2
+	ld de, wMoney
+	ld bc, wStringBuffer2
 	farcall CompareMoney
 	jr c, .DontHaveThatMuchToDeposit
-	ld hl, StringBuffer2
-	ld de, StringBuffer2 + 3
+	ld hl, wStringBuffer2
+	ld de, wStringBuffer2 + 3
 	ld bc, 3
-	call CopyBytes
+	rst CopyBytes
 	ld bc, wMomsMoney
-	ld de, StringBuffer2
+	ld de, wStringBuffer2
 	farcall GiveMoney
 	jr c, .CantDepositThatMuch
-	ld bc, StringBuffer2 + 3
-	ld de, Money
+	ld bc, wStringBuffer2 + 3
+	ld de, wMoney
 	farcall TakeMoney
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	ld de, wMomsMoney
 	ld bc, 3
-	call CopyBytes
+	rst CopyBytes
 	ld de, SFX_TRANSACTION
 	call PlaySFX
 	call WaitSFX
@@ -206,11 +206,11 @@ Special_BankOfMom: ; 16218
 	ld hl, UnknownText_0x16667
 	call PrintText
 	xor a
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	ld [hli], a
 	ld [hli], a
 	ld [hl], a
-	ld a, $5
+	ld a, $6
 	ld [wcf64], a
 	call LoadStandardMenuDataHeader
 	call Mom_SetUpWithdrawMenu
@@ -218,31 +218,31 @@ Special_BankOfMom: ; 16218
 	call Mom_WithdrawDepositMenuJoypad
 	call CloseWindow
 	jr c, .CancelWithdraw
-	ld hl, StringBuffer2
+	ld hl, wStringBuffer2
 	ld a, [hli]
 	or [hl]
 	inc hl
 	or [hl]
 	jr z, .CancelWithdraw
-	ld hl, StringBuffer2
-	ld de, StringBuffer2 + 3
+	ld hl, wStringBuffer2
+	ld de, wStringBuffer2 + 3
 	ld bc, 3
-	call CopyBytes
+	rst CopyBytes
 	ld de, wMomsMoney
-	ld bc, StringBuffer2
+	ld bc, wStringBuffer2
 	farcall CompareMoney
 	jr c, .InsufficientFundsInBank
-	ld bc, Money
-	ld de, StringBuffer2
+	ld bc, wMoney
+	ld de, wStringBuffer2
 	farcall GiveMoney
 	jr c, .NotEnoughRoomInWallet
-	ld bc, StringBuffer2 + 3
+	ld bc, wStringBuffer2 + 3
 	ld de, wMomsMoney
 	farcall TakeMoney
-	ld hl, StringBuffer2
-	ld de, Money
+	ld hl, wStringBuffer2
+	ld de, wMoney
 	ld bc, 3
-	call CopyBytes
+	rst CopyBytes
 	ld de, SFX_TRANSACTION
 	call PlaySFX
 	call WaitSFX
@@ -360,33 +360,33 @@ DSTChecks: ; 16439
 ; 164b9
 
 .SetClockForward: ; 164b9
-	ld a, [StartHour]
+	ld a, [wStartHour]
 	add 1
 	sub 24
 	jr nc, .DontLoopHourForward
 	add 24
 .DontLoopHourForward:
-	ld [StartHour], a
+	ld [wStartHour], a
 	ccf
-	ld a, [StartDay]
+	ld a, [wStartDay]
 	adc 0
-	ld [StartDay], a
+	ld [wStartDay], a
 	ret
 ; 164d1
 
 .SetClockBack: ; 164d1
-	ld a, [StartHour]
+	ld a, [wStartHour]
 	sub 1
 	jr nc, .DontLoopHourBack
 	add 24
 .DontLoopHourBack:
-	ld [StartHour], a
-	ld a, [StartDay]
+	ld [wStartHour], a
+	ld a, [wStartDay]
 	sbc 0
 	jr nc, .DontLoopDayBack
 	add 7
 .DontLoopDayBack:
-	ld [StartDay], a
+	ld [wStartDay], a
 	ret
 ; 164ea
 
@@ -450,26 +450,26 @@ Mom_ContinueMenuSetup: ; 1651a
 	hlcoord 1, 2
 	ld de, Mom_SavedString
 	call PlaceString
-	hlcoord 12, 2
+	hlcoord 11, 2
 	ld de, wMomsMoney
-	lb bc, PRINTNUM_MONEY | 3, 6
+	lb bc, PRINTNUM_MONEY | 3, 7
 	call PrintNum
 	hlcoord 1, 4
 	ld de, Mom_HeldString
 	call PlaceString
-	hlcoord 12, 4
-	ld de, Money
-	lb bc, PRINTNUM_MONEY | 3, 6
+	hlcoord 11, 4
+	ld de, wMoney
+	lb bc, PRINTNUM_MONEY | 3, 7
 	call PrintNum
 	hlcoord 1, 6
 	pop de
 	call PlaceString
-	hlcoord 12, 6
-	ld de, StringBuffer2
-	lb bc, PRINTNUM_MONEY | PRINTNUM_LEADINGZEROS | 3, 6
+	hlcoord 11, 6
+	ld de, wStringBuffer2
+	lb bc, PRINTNUM_MONEY | PRINTNUM_LEADINGZEROS | 3, 7
 	call PrintNum
 	call UpdateSprites
-	jp LoadEDTile
+	jp CopyTilemapAtOnce
 ; 1656b
 
 Mom_Wait10Frames: ; 1656b
@@ -490,18 +490,18 @@ Mom_WithdrawDepositMenuJoypad: ; 16571
 	call .dpadaction
 	xor a
 	ld [hBGMapMode], a
-	hlcoord 12, 6
-	ld bc, 7
+	hlcoord 11, 6
+	ld bc, 8
 	ld a, " "
 	call ByteFill
-	hlcoord 12, 6
-	ld de, StringBuffer2
-	lb bc, PRINTNUM_MONEY | PRINTNUM_LEADINGZEROS | 3, 6
+	hlcoord 11, 6
+	ld de, wStringBuffer2
+	lb bc, PRINTNUM_MONEY | PRINTNUM_LEADINGZEROS | 3, 7
 	call PrintNum
 	ld a, [hVBlankCounter]
 	and $10
 	jr nz, .skip
-	hlcoord 13, 6
+	hlcoord 12, 6
 	ld a, [wMomBankDigitCursorPosition]
 	ld c, a
 	ld b, 0
@@ -509,7 +509,7 @@ Mom_WithdrawDepositMenuJoypad: ; 16571
 	ld [hl], " "
 
 .skip
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	jr .loop
 
 .pressedB
@@ -549,7 +549,7 @@ Mom_WithdrawDepositMenuJoypad: ; 16571
 .movecursorright
 	ld hl, wMomBankDigitCursorPosition
 	ld a, [hl]
-	cp 5
+	cp 6
 	ret nc
 	inc [hl]
 	ret
@@ -559,7 +559,7 @@ Mom_WithdrawDepositMenuJoypad: ; 16571
 	call .getdigitquantity
 	ld c, l
 	ld b, h
-	ld de, StringBuffer2
+	ld de, wStringBuffer2
 	farjp GiveMoney
 
 .decrementdigit
@@ -567,7 +567,7 @@ Mom_WithdrawDepositMenuJoypad: ; 16571
 	call .getdigitquantity
 	ld c, l
 	ld b, h
-	ld de, StringBuffer2
+	ld de, wStringBuffer2
 	farjp TakeMoney
 ; 16607
 
@@ -584,6 +584,7 @@ Mom_WithdrawDepositMenuJoypad: ; 16571
 ; 16613
 
 .DigitQuantities: ; 16613
+	dt 1000000
 	dt 100000
 	dt 10000
 	dt 1000
@@ -591,6 +592,7 @@ Mom_WithdrawDepositMenuJoypad: ; 16571
 	dt 10
 	dt 1
 
+	dt 1000000
 	dt 100000
 	dt 10000
 	dt 1000
@@ -598,6 +600,7 @@ Mom_WithdrawDepositMenuJoypad: ; 16571
 	dt 10
 	dt 1
 
+	dt 9000000
 	dt 900000
 	dt 90000
 	dt 9000

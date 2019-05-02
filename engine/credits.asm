@@ -184,14 +184,16 @@ Credits:: ; 109847
 	xor a
 	ld [wCreditsLYOverride], a
 
-	ld hl, LYOverrides
+	ld hl, wLYOverrides
 	ld bc, $100
 	xor a
 	call ByteFill
 
-	ld a, rSCX - $ff00
+	ld a, rSCX & $ff
 	ld [hLCDCPointer], a
 
+	ld hl, rIE
+	set LCD_STAT, [hl]
 	call GetCreditsPalette
 	call SetPalettes
 	ld a, [hVBlank]
@@ -202,9 +204,9 @@ Credits:: ; 109847
 	ld [hInMenu], a
 	xor a
 	ld [hBGMapMode], a
-	ld [CreditsPos], a
-	ld [CreditsPos+1], a
-	ld [CreditsTimer], a
+	ld [wCreditsPos], a
+	ld [wCreditsPos+1], a
+	ld [wCreditsTimer], a
 
 .execution_loop
 	call Credits_HandleBButton
@@ -220,6 +222,8 @@ Credits:: ; 109847
 	xor a
 	ld [hLCDCPointer], a
 	ld [hBGMapAddress], a
+	ld hl, rIE
+	res LCD_STAT, [hl]
 	pop af
 	ld [hVBlank], a
 	pop af
@@ -243,7 +247,7 @@ Credits_HandleBButton: ; 109908
 	ld a, [wJumptableIndex]
 	bit 6, a
 	ret z
-	ld hl, CreditsPos
+	ld hl, wCreditsPos
 	ld a, [hli]
 	cp $d
 	jr nc, .okay
@@ -251,7 +255,7 @@ Credits_HandleBButton: ; 109908
 	and a
 	ret z
 .okay
-	ld hl, CreditsTimer
+	ld hl, wCreditsTimer
 	ld a, [hl]
 	and a
 	ret z
@@ -311,20 +315,20 @@ Credits_PrepBGMapUpdate: ; 10995e (42:595e)
 Credits_UpdateGFXRequestPath: ; 109964 (42:5964)
 	call Credits_LoadBorderGFX
 	ld a, l
-	ld [Requested2bppSource], a
+	ld [hRequestedVTileSource], a
 	ld a, h
-	ld [Requested2bppSource + 1], a
+	ld [hRequestedVTileSource + 1], a
 	ld a, VTiles2 % $100
-	ld [Requested2bppDest], a
+	ld [hRequestedVTileDest], a
 	ld a, VTiles2 / $100
-	ld [Requested2bppDest + 1], a
+	ld [hRequestedVTileDest + 1], a
 	; fallthrough
 
 Credits_RequestGFX: ; 10997b (42:597b)
 	xor a
 	ld [hBGMapMode], a
 	ld a, $8
-	ld [Requested2bpp], a
+	ld [hRequested2bpp], a
 	jp Credits_Next
 
 Credits_LYOverride: ; 109986 (42:5986)
@@ -335,9 +339,9 @@ Credits_LYOverride: ; 109986 (42:5986)
 	dec a
 	dec a
 	ld [wCreditsLYOverride], a
-	ld hl, LYOverrides + $1f
+	ld hl, wLYOverrides + $1f
 	call .Fill
-	ld hl, LYOverrides + $87
+	ld hl, wLYOverrides + $87
 	call .Fill
 	jp Credits_Next
 
@@ -357,7 +361,7 @@ ParseCredits: ; 1099aa
 	jp nz, .done
 
 ; Wait until the timer has run out to parse the next command.
-	ld hl, CreditsTimer
+	ld hl, wCreditsTimer
 	ld a, [hl]
 	and a
 	jr z, .parse
@@ -434,7 +438,7 @@ ParseCredits: ; 1099aa
 ; Print strings spaced every two lines.
 	call .get
 	ld bc, 20 * 2
-	call AddNTimes
+	rst AddNTimes
 	call PlaceString
 	jr .loop
 
@@ -483,16 +487,16 @@ ParseCredits: ; 1099aa
 .wait2
 ; Wait for some amount of ticks.
 	call .get
-	ld [CreditsTimer], a
+	ld [wCreditsTimer], a
 	jr .done
 
 .wait
 ; Wait for some amount of ticks, and do something else.
 	call .get
-	ld [CreditsTimer], a
+	ld [wCreditsTimer], a
 
 	xor a
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	ld a, 1
 	ld [hBGMapMode], a
 
@@ -504,29 +508,29 @@ ParseCredits: ; 1099aa
 	ld hl, wJumptableIndex
 	set 7, [hl]
 	ld a, 32
-	ld [MusicFade], a
+	ld [wMusicFade], a
 	ld a, MUSIC_POST_CREDITS % $100
-	ld [MusicFadeID], a
+	ld [wMusicFadeID], a
 	ld a, MUSIC_POST_CREDITS / $100
-	ld [MusicFadeIDHi], a
+	ld [wMusicFadeIDHi], a
 	ret
 
 .get
-; Get byte CreditsPos from CreditsScript
+; Get byte wCreditsPos from CreditsScript
 	push hl
 	push de
-	ld a, [CreditsPos]
+	ld a, [wCreditsPos]
 	ld e, a
-	ld a, [CreditsPos+1]
+	ld a, [wCreditsPos+1]
 	ld d, a
 	ld hl, CreditsScript
 	add hl, de
 
 	inc de
 	ld a, e
-	ld [CreditsPos], a
+	ld [wCreditsPos], a
 	ld a, d
-	ld [CreditsPos+1], a
+	ld [wCreditsPos+1], a
 	ld a, [hl]
 	pop de
 	pop hl
@@ -558,33 +562,33 @@ ConstructCreditsTilemap: ; 109a95 (42:5a95)
 	ld a, $20
 	call DrawCreditsBorder
 
-	hlcoord 0, 0, AttrMap
+	hlcoord 0, 0, wAttrMap
 	ld bc, 4 * SCREEN_WIDTH
 	xor a
 	call ByteFill
 
-	hlcoord 0, 4, AttrMap
+	hlcoord 0, 4, wAttrMap
 	ld bc, SCREEN_WIDTH
 	ld a, $1
 	call ByteFill
 
-	hlcoord 0, 5, AttrMap
+	hlcoord 0, 5, wAttrMap
 	ld bc, 12 * SCREEN_WIDTH
 	ld a, $2
 	call ByteFill
 
-	hlcoord 0, 17, AttrMap
+	hlcoord 0, 17, wAttrMap
 	ld bc, SCREEN_WIDTH
 	ld a, $1
 	call ByteFill
 
-	call WaitBGMap2
+	call ApplyAttrAndTilemapInVBlank
 	xor a
 	ld [hBGMapMode], a
 	ld [hBGMapAddress], a
 	hlcoord 0, 0
 	call .InitTopPortion
-	jp WaitBGMap2
+	jp ApplyAttrAndTilemapInVBlank
 
 .InitTopPortion: ; 109aff (42:5aff)
 	ld b, 5
@@ -654,23 +658,24 @@ GetCreditsPalette: ; 109b2c
 
 	push af
 	push hl
-	add UnknBGPals % $100
+	add wUnknBGPals % $100
 	ld e, a
 	ld a, 0 ; not xor a; preserve carry flag?
-	adc UnknBGPals / $100
+	adc wUnknBGPals / $100
 	ld d, a
 	ld bc, 24
-	call CopyBytes
+	rst CopyBytes
 
 	pop hl
 	pop af
-	add BGPals % $100
+	add wBGPals % $100
 	ld e, a
 	ld a, 0 ; not xor a; preserve carry flag?
-	adc BGPals / $100
+	adc wBGPals / $100
 	ld d, a
 	ld bc, 24
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 
 CreditsPalettes:

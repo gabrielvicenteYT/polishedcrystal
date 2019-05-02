@@ -1,10 +1,10 @@
 SelectMonFromParty: ; 50000
 	call DisableSpriteUpdates
 	xor a
-	ld [PartyMenuActionText], a
+	ld [wPartyMenuActionText], a
 	call ClearBGPalettes
 	call InitPartyMenuLayout
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call SetPalettes
 	call DelayFrame
 	call PartyMenuSelect
@@ -14,11 +14,11 @@ SelectMonFromParty: ; 50000
 
 SelectTradeOrDaycareMon: ; 5001d
 	ld a, b
-	ld [PartyMenuActionText], a
+	ld [wPartyMenuActionText], a
 	call DisableSpriteUpdates
 	call ClearBGPalettes
 	call InitPartyMenuLayout
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld b, CGB_PARTY_MENU
 	call GetCGBLayout
 	call SetPalettes
@@ -43,7 +43,7 @@ LoadPartyMenuGFX: ; 5004f
 
 
 WritePartyMenuTilemap: ; 0x5005f
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl] ; Disable text delay
@@ -65,7 +65,7 @@ WritePartyMenuTilemap: ; 0x5005f
 	jr .loop ; 0x50082 $f3
 .end
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	ret
 ; 0x50089
 
@@ -78,11 +78,12 @@ WritePartyMenuTilemap: ; 0x5005f
 	dw PlacePartyMonTMHMCompatibility
 	dw PlacePartyMonEvoStoneCompatibility
 	dw PlacePartyMonGender
+	dw PlacePartyMonRemindable
 ; 5009b
 
 PlacePartyNicknames: ; 5009b
 	hlcoord 3, 1
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	jr z, .end
 	ld c, a
@@ -91,7 +92,7 @@ PlacePartyNicknames: ; 5009b
 	push bc
 	push hl
 	push hl
-	ld hl, PartyMonNicknames
+	ld hl, wPartyMonNicknames
 	ld a, b
 	call GetNick
 	pop hl
@@ -119,7 +120,7 @@ PlacePartyNicknames: ; 5009b
 PlacePartyHPBar: ; 500cf
 	xor a
 	ld [wHPPalIndex], a
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	ret z
 	ld c, a
@@ -159,8 +160,8 @@ PlacePartyHPBar: ; 500cf
 PlacePartymonHPBar: ; 50117
 	ld a, b
 	ld bc, PARTYMON_STRUCT_LENGTH
-	ld hl, PartyMon1HP
-	call AddNTimes
+	ld hl, wPartyMon1HP
+	rst AddNTimes
 	ld a, [hli]
 	or [hl]
 	jr nz, .not_fainted
@@ -184,7 +185,7 @@ PlacePartymonHPBar: ; 50117
 ; 50138
 
 PlacePartyMenuHPDigits: ; 50138
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	ret z
 	ld c, a
@@ -198,8 +199,8 @@ PlacePartyMenuHPDigits: ; 50138
 	push hl
 	ld a, b
 	ld bc, PARTYMON_STRUCT_LENGTH
-	ld hl, PartyMon1HP
-	call AddNTimes
+	ld hl, wPartyMon1HP
+	rst AddNTimes
 	ld e, l
 	ld d, h
 	pop hl
@@ -226,7 +227,7 @@ PlacePartyMenuHPDigits: ; 50138
 ; 50176
 
 PlacePartyMonLevel: ; 50176
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	ret z
 	ld c, a
@@ -240,8 +241,8 @@ PlacePartyMonLevel: ; 50176
 	push hl
 	ld a, b
 	ld bc, PARTYMON_STRUCT_LENGTH
-	ld hl, PartyMon1Level
-	call AddNTimes
+	ld hl, wPartyMon1Level
+	rst AddNTimes
 	ld e, l
 	ld d, h
 	pop hl
@@ -250,10 +251,10 @@ PlacePartyMonLevel: ; 50176
 	jr nc, .ThreeDigits
 	ld a, "<LV>"
 	ld [hli], a
-	lb bc, PRINTNUM_RIGHTALIGN | 1, 2
+	lb bc, PRINTNUM_LEFTALIGN | 1, 2
 	; jr .okay
 .ThreeDigits:
-	lb bc, PRINTNUM_RIGHTALIGN | 1, 3
+	lb bc, PRINTNUM_LEFTALIGN | 1, 3
 ; .okay
 	call PrintNum
 
@@ -269,7 +270,7 @@ PlacePartyMonLevel: ; 50176
 ; 501b2
 
 PlacePartyMonStatus: ; 501b2
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	ret z
 	ld c, a
@@ -283,8 +284,8 @@ PlacePartyMonStatus: ; 501b2
 	push hl
 	ld a, b
 	ld bc, PARTYMON_STRUCT_LENGTH
-	ld hl, PartyMon1Status
-	call AddNTimes
+	ld hl, wPartyMon1Status
+	rst AddNTimes
 	ld e, l
 	ld d, h
 	pop hl
@@ -302,7 +303,7 @@ PlacePartyMonStatus: ; 501b2
 ; 501e0
 
 PlacePartyMonTMHMCompatibility: ; 501e0
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	ret z
 	ld c, a
@@ -314,12 +315,12 @@ PlacePartyMonTMHMCompatibility: ; 501e0
 	call PartyMenuCheckEgg
 	jr z, .next
 	push hl
-	ld hl, PartySpecies
+	ld hl, wPartySpecies
 	ld e, b
 	ld d, 0
 	add hl, de
 	ld a, [hl]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	predef CanLearnTMHMMove
 	pop hl
 	call .PlaceAbleNotAble
@@ -358,7 +359,7 @@ PlacePartyMonTMHMCompatibility: ; 501e0
 
 
 PlacePartyMonEvoStoneCompatibility: ; 5022f
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	ret z
 	ld c, a
@@ -372,8 +373,8 @@ PlacePartyMonEvoStoneCompatibility: ; 5022f
 	push hl
 	ld a, b
 	ld bc, PARTYMON_STRUCT_LENGTH
-	ld hl, PartyMon1Species
-	call AddNTimes
+	ld hl, wPartyMon1Species
+	rst AddNTimes
 	ld a, [hl]
 	dec a
 	ld e, a
@@ -397,21 +398,21 @@ PlacePartyMonEvoStoneCompatibility: ; 5022f
 ; 50268
 
 .DetermineCompatibility: ; 50268
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	ld a, BANK(EvosAttacksPointers)
 	ld bc, 2
 	call FarCopyBytes
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 ; Only reads first 4 evolution entries
 ; https://hax.iimarck.us/topic/4567/
 	ld a, BANK(EvosAttacks)
 	ld bc, $10
 	call FarCopyBytes
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 .loop2
 	ld a, [hli]
 	and a
@@ -422,7 +423,7 @@ PlacePartyMonEvoStoneCompatibility: ; 5022f
 	jr nz, .loop2
 	dec hl
 	dec hl
-	ld a, [CurItem]
+	ld a, [wCurItem]
 	cp [hl]
 	inc hl
 	inc hl
@@ -444,7 +445,7 @@ PlacePartyMonEvoStoneCompatibility: ; 5022f
 
 
 PlacePartyMonGender: ; 502b1
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	ret z
 	ld c, a
@@ -455,14 +456,14 @@ PlacePartyMonGender: ; 502b1
 	push hl
 	call PartyMenuCheckEgg
 	jr z, .next
-	ld [CurPartySpecies], a
-	ld a, [CurPartyMon]
+	ld [wCurPartySpecies], a
+	ld a, [wCurPartyMon]
 	push af
 	ld a, b
-	ld [CurPartyMon], a
+	ld [wCurPartyMon], a
 	push hl
 	xor a
-	ld [MonType], a
+	ld [wMonType], a
 	call GetGender
 	ld a, " "
 	jr c, .got_gender
@@ -474,7 +475,7 @@ PlacePartyMonGender: ; 502b1
 	pop hl
 	ld [hli], a
 	pop af
-	ld [CurPartyMon], a
+	ld [wCurPartyMon], a
 
 .next
 	pop hl
@@ -490,11 +491,67 @@ PlacePartyMonGender: ; 502b1
 ; 502ee
 
 
+PlacePartyMonRemindable: ; 501e0
+	ld a, [wPartyCount]
+	and a
+	ret z
+	ld c, a
+	ld b, 0
+	hlcoord 12, 2
+.loop
+	push bc
+	push hl
+	call PartyMenuCheckEgg
+	jr z, .next
+	push hl
+	ld hl, wPartySpecies
+	ld e, b
+	ld d, 0
+	add hl, de
+	ld a, [hl]
+	ld [wCurPartySpecies], a
+	farcall GetForgottenMoves
+	pop hl
+	call .PlaceAbleNotAble
+	call PlaceString
+
+.next
+	pop hl
+	ld de, SCREEN_WIDTH * 2
+	add hl, de
+	pop bc
+	inc b
+	dec c
+	jr nz, .loop
+	ret
+; 50215
+
+.PlaceAbleNotAble: ; 50215
+	ld a, c
+	and a
+	jr nz, .able
+	ld de, .string_not_able
+	ret
+
+.able
+	ld de, .string_able
+	ret
+; 50221
+
+.string_able ; 50221
+	db "Able@"
+; 50226
+
+.string_not_able ; 50226
+	db "Not able@"
+; 5022f
+
+
 PartyMenuCheckEgg: ; 50389
-	ld a, PartySpecies % $100
+	ld a, wPartySpecies % $100
 	add b
 	ld e, a
-	ld a, PartySpecies / $100
+	ld a, wPartySpecies / $100
 	adc 0
 	ld d, a
 	ld a, [de]
@@ -503,10 +560,10 @@ PartyMenuCheckEgg: ; 50389
 ; 50396
 
 GetPartyMenuTilemapPointers: ; 50396
-	ld a, [PartyMenuActionText]
+	ld a, [wPartyMenuActionText]
 	and $f0
 	jr nz, .skip
-	ld a, [PartyMenuActionText]
+	ld a, [wPartyMenuActionText]
 	and $f
 	ld e, a
 	ld d, 0
@@ -527,7 +584,7 @@ INCLUDE "data/party_menu_qualities.asm"
 
 
 InitPartyMenuGFX: ; 503e0
-	ld hl, PartyCount
+	ld hl, wPartyCount
 	ld a, [hli]
 	and a
 	ret z
@@ -554,7 +611,7 @@ InitPartyMenuWithCancel: ; 50405
 	ld [wSwitchMon], a
 	ld de, PartyMenuAttributes
 	call SetMenuAttributes
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	inc a
 	ld [w2DMenuNumRows], a ; list length
 	dec a
@@ -580,7 +637,7 @@ InitPartyMenuNoCancel: ; 0x5042d
 ; no cancel
 	ld de, PartyMenuAttributes
 	call SetMenuAttributes
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	ld [w2DMenuNumRows], a ; list length
 	ld b, a
 	ld a, [wPartyMenuCursor]
@@ -616,9 +673,9 @@ PartyMenuAttributes: ; 5044f
 
 PartyMenuSelect: ; 0x50457
 ; sets carry if exitted menu.
-	call StaticMenuJoypad
+	call DoMenuJoypadLoop
 	call PlaceHollowCursor
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	inc a
 	ld b, a
 	ld a, [wMenuCursorY] ; menu selection?
@@ -631,24 +688,28 @@ PartyMenuSelect: ; 0x50457
 	jr nz, .exitmenu ; B button
 	ld a, [wMenuCursorY]
 	dec a
-	ld [CurPartyMon], a
+	ld [wCurPartyMon], a
 	ld c, a
 	ld b, $0
-	ld hl, PartySpecies
+	ld hl, wPartySpecies
 	add hl, bc
 	ld a, [hl]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 
 	ld de, SFX_READ_TEXT_2
 	call PlaySFX
-	call WaitSFX
+	push bc
+	call SFXDelay2
+	pop bc
 	and a
 	ret
 
 .exitmenu
 	ld de, SFX_READ_TEXT_2
 	call PlaySFX
-	call WaitSFX
+	push bc
+	call SFXDelay2
+	pop bc
 	scf
 	ret
 ; 0x5049a
@@ -658,13 +719,13 @@ PrintPartyMenuText: ; 5049a
 	hlcoord 0, 14
 	lb bc, 2, 18
 	call TextBox
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	jr nz, .haspokemon
 	ld de, YouHaveNoPKMNString
 	jr .gotstring
 .haspokemon ; 504ae
-	ld a, [PartyMenuActionText]
+	ld a, [wPartyMenuActionText]
 	and $f ; drop high nibble
 	ld hl, PartyMenuStrings
 	ld e, a
@@ -675,18 +736,19 @@ PrintPartyMenuText: ; 5049a
 	ld d, [hl]
 	ld e, a
 .gotstring ; 504be
-	ld a, [Options1]
+	ld a, [wOptions1]
 	push af
 	set NO_TEXT_SCROLL, a ; disable text delay
-	ld [Options1], a
+	ld [wOptions1], a
 	hlcoord 1, 16 ; Coord
 	call PlaceString
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	ret
 ; 0x504d2
 
 PartyMenuStrings: ; 0x504d2
+; needs to match PartyMenuQualityPointers
 	dw ChooseAMonString
 	dw UseOnWhichPKMNString
 	dw WhichPKMNString
@@ -696,6 +758,7 @@ PartyMenuStrings: ; 0x504d2
 	dw ChooseAMonString ; Probably used to be ChooseAFemalePKMNString
 	dw ChooseAMonString ; Probably used to be ChooseAMalePKMNString
 	dw ToWhichPKMNString
+	dw TutorWhichPKMNString
 
 ChooseAMonString: ; 0x504e4
 	db "Choose a #mon.@"
@@ -705,6 +768,8 @@ WhichPKMNString: ; 0x50504
 	db "Which <PK><MN>?@"
 TeachWhichPKMNString: ; 0x5050e
 	db "Teach which <PK><MN>?@"
+TutorWhichPKMNString: ; 0x5050e
+	db "Tutor which <PK><MN>?@"
 MoveToWhereString: ; 0x5051e
 	db "Move to where?@"
 ToWhichPKMNString: ; 0x50549
@@ -715,10 +780,10 @@ YouHaveNoPKMNString: ; 0x50556
 
 
 PrintPartyMenuActionText: ; 50566
-	ld a, [CurPartyMon]
-	ld hl, PartyMonNicknames
+	ld a, [wCurPartyMon]
+	ld hl, wPartyMonNicknames
 	call GetNick
-	ld a, [PartyMenuActionText]
+	ld a, [wPartyMenuActionText]
 	and $f
 	ld hl, .MenuActionTexts
 	jp .PrintText
@@ -806,12 +871,12 @@ PrintPartyMenuActionText: ; 50566
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld a, [Options1]
+	ld a, [wOptions1]
 	push af
 	set NO_TEXT_SCROLL, a
-	ld [Options1], a
+	ld [wOptions1], a
 	call PrintText
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	ret
 ; 505da

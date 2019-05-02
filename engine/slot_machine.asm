@@ -8,7 +8,7 @@ SLOTS_STARYU EQU $14
 REEL_SIZE EQU 15
 
 _SlotMachine:
-	ld hl, Options1
+	ld hl, wOptions1
 	set NO_TEXT_SCROLL, [hl]
 	call .InitGFX
 	call DelayFrame
@@ -20,7 +20,7 @@ _SlotMachine:
 	call PlaySFX
 	call WaitSFX
 	call ClearBGPalettes
-	ld hl, Options1
+	ld hl, wOptions1
 	res NO_TEXT_SCROLL, [hl]
 	ld hl, rLCDC ; $ff40
 	res 2, [hl] ; 8x8 sprites
@@ -65,7 +65,7 @@ _SlotMachine:
 	ld hl, SlotsTilemap
 	decoord 0, 0
 	ld bc, SCREEN_WIDTH * 12
-	call CopyBytes
+	rst CopyBytes
 
 	ld hl, rLCDC ; $ff40
 	set 2, [hl] ; 8x16 sprites
@@ -86,10 +86,10 @@ _SlotMachine:
 	ld [wSlotBias], a
 
 ;	ld de, MUSIC_GAME_CORNER
-;	ld a, [MapGroup]
+;	ld a, [wMapGroup]
 ;	cp GROUP_GOLDENROD_GAME_CORNER
 ;	jr nz, .celadon_game_corner
-;	ld a, [MapNumber]
+;	ld a, [wMapNumber]
 ;	cp MAP_GOLDENROD_GAME_CORNER
 ;	jr nz, .celadon_game_corner
 ;	ld de, MUSIC_GAME_CORNER_DPPT
@@ -132,7 +132,7 @@ SlotsLoop: ; 927af (24:67af)
 
 .PrintCoinsAndPayout: ; 927f8 (24:67f8)
 	hlcoord 4, 1
-	ld de, Coins
+	ld de, wCoins
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 5
 	call PrintNum
 	hlcoord 11, 1
@@ -341,7 +341,7 @@ Slots_PayoutAnim: ; 929a4 (24:69a4)
 	ld [hl], e
 	dec hl
 	ld [hl], d
-	ld hl, Coins
+	ld hl, wCoins
 	ld d, [hl]
 	inc hl
 	ld e, [hl]
@@ -507,7 +507,7 @@ InitReelTiles: ; 92a98 (24:6a98)
 	ld bc, wReel1
 	ld hl, wReel1OAMAddr - wReel1
 	add hl, bc
-	ld de, Sprites + 16 * 4
+	ld de, wSprites + 16 * 4
 	ld [hl], e
 	inc hl
 	ld [hl], d
@@ -525,7 +525,7 @@ InitReelTiles: ; 92a98 (24:6a98)
 	ld bc, wReel2
 	ld hl, wReel1OAMAddr - wReel1
 	add hl, bc
-	ld de, Sprites + 24 * 4
+	ld de, wSprites + 24 * 4
 	ld [hl], e
 	inc hl
 	ld [hl], d
@@ -543,7 +543,7 @@ InitReelTiles: ; 92a98 (24:6a98)
 	ld bc, wReel3
 	ld hl, wReel1OAMAddr - wReel1
 	add hl, bc
-	ld de, Sprites + 32 * 4
+	ld de, wSprites + 32 * 4
 	ld [hl], e
 	inc hl
 	ld [hl], d
@@ -1483,7 +1483,7 @@ Slots_InitBias: ; 93002 (24:7002)
 	and a
 	ret z
 	ld hl, .Normal
-	ld a, [ScriptVar]
+	ld a, [wScriptVar]
 	and a
 	jr z, .okay
 	ld hl, .Lucky
@@ -1577,7 +1577,7 @@ Slots_AskBet: ; 9307c (24:707c)
 	ld a, 4
 	sub b
 	ld [wSlotBet], a
-	ld hl, Coins
+	ld hl, wCoins
 	ld c, a
 	ld a, [hli]
 	and a
@@ -1590,7 +1590,7 @@ Slots_AskBet: ; 9307c (24:707c)
 	jr .loop
 
 .Start:
-	ld hl, Coins + 1
+	ld hl, wCoins + 1
 	ld a, [hl]
 	sub c
 	ld [hld], a
@@ -1642,7 +1642,7 @@ Slots_AskBet: ; 9307c (24:707c)
 ; 0x930e9
 
 Slots_AskPlayAgain: ; 930e9 (24:70e9)
-	ld hl, Coins
+	ld hl, wCoins
 	ld a, [hli]
 	or [hl]
 	jr nz, .you_have_coins
@@ -1656,7 +1656,7 @@ Slots_AskPlayAgain: ; 930e9 (24:70e9)
 	ld hl, .Text_PlayAgain
 	call PrintText
 	call LoadMenuTextBox
-	ld a, 12
+	lb bc, 14, 12
 	call PlaceYesNoBox
 	ld a, [wMenuCursorY]
 	dec a
@@ -1727,9 +1727,9 @@ SlotPayoutText: ; 93158 (24:7158)
 	add hl, de
 	add hl, de
 	add hl, de
-	ld de, StringBuffer2
+	ld de, wStringBuffer2
 	ld bc, 4
-	call CopyBytes
+	rst CopyBytes
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -1875,10 +1875,8 @@ SlotMachine_AnimateGolem: ; 9321d (24:721d)
 	cp $20
 	jr c, .play_sound
 	dec [hl]
-	ld e, a
 	ld d, 14 * 8
-	farcall BattleAnim_Sine_e
-	ld a, e
+	farcall Sine
 	ld hl, SPRITEANIMSTRUCT_YOFFSET
 	add hl, bc
 	ld [hl], a

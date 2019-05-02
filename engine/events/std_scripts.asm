@@ -251,7 +251,7 @@ RadioOffAirScript:
 	farjumptext RadioOffAirText
 
 IsKantoRadioOffAir:
-	farcall RegionCheck
+	call RegionCheck
 	ld a, e
 	cp KANTO_REGION
 	jr nz, .no
@@ -263,7 +263,7 @@ IsKantoRadioOffAir:
 .no
 	xor a ; ld a, FALSE
 .ok
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 TrashCanScript: ; 0xbc1a5
@@ -349,7 +349,6 @@ RadioTowerRocketsScript:
 	clearevent EVENT_RADIO_TOWER_ROCKET_TAKEOVER
 	clearevent EVENT_USED_THE_CARD_KEY_IN_THE_RADIO_TOWER
 	setevent EVENT_MAHOGANY_TOWN_POKEFAN_M_BLOCKS_EAST
-	variablesprite SPRITE_NEW_BARK_TEACHER, SPRITE_DRAGON_TAMER
 	specialphonecall SPECIALCALL_WEIRDBROADCAST
 	setmapscene MAHOGANY_TOWN, $1
 	end
@@ -623,13 +622,13 @@ InitializeEventsScript:
 	setevent EVENT_YELLOW_FOREST_ROCKET_TAKEOVER
 	setevent EVENT_ROUTE_48_JESSIE
 	setevent EVENT_ROUTE_48_JAMES
+	setevent EVENT_ROUTE_48_NURSE
 	setevent EVENT_YELLOW_FOREST_SKARMORY
 	setevent EVENT_RADIO_TOWER_PETREL
 	setevent EVENT_FOUND_MACHINE_PART_IN_CERULEAN_GYM
 	setevent EVENT_CERULEAN_GYM_ROCKET
 	setevent EVENT_ROUTE_24_ROCKET
 	setevent EVENT_ROUTE_25_COOLTRAINER_M_AFTER
-	setevent EVENT_CERULEAN_CAPE_MISTY
 	setevent EVENT_CERULEAN_CAPE_BOYFRIEND
 	setevent EVENT_TRAINERS_IN_CERULEAN_GYM
 	setevent EVENT_COPYCATS_HOUSE_2F_DOLL
@@ -682,15 +681,7 @@ InitializeEventsScript:
 	variablesprite SPRITE_FUCHSIA_GYM_2, SPRITE_JANINE
 	variablesprite SPRITE_FUCHSIA_GYM_3, SPRITE_JANINE
 	variablesprite SPRITE_FUCHSIA_GYM_4, SPRITE_JANINE
-	variablesprite SPRITE_GUIDE_GENT, SPRITE_GRAMPS
-	variablesprite SPRITE_NEW_BARK_TEACHER, SPRITE_TEACHER
-	variablesprite SPRITE_NEW_BARK_LYRA, SPRITE_LYRA
-	variablesprite SPRITE_GOLDENROD_LYRA, SPRITE_LYRA
-	variablesprite SPRITE_ROUTE_30_RATTATA, SPRITE_RATTATA
-	variablesprite SPRITE_CHERRYGROVE_RIVAL, SPRITE_SILVER
-	variablesprite SPRITE_OLIVINE_RIVAL, SPRITE_COWGIRL
-	variablesprite SPRITE_LAKE_OF_RAGE_LANCE, SPRITE_LANCE
-	variablesprite SPRITE_VERMILION_LAWRENCE, SPRITE_LAWRENCE
+	variablesprite SPRITE_COPYCAT, SPRITE_LASS
 	setevent EVENT_INITIALIZED_EVENTS
 	return
 
@@ -1975,13 +1966,13 @@ _HiddenGrottoInitScript:
 	end
 
 .StoreCurHiddenGrotto:
-	ld a, [ScriptVar]
-	ld [CurHiddenGrotto], a
+	ld a, [wScriptVar]
+	ld [wCurHiddenGrotto], a
 	ret
 
 _HiddenGrottoBackupMap:
-	ld a, [MapGroup]
-	ld [BackupMapGroup], a
-	ld a, [MapNumber]
-	ld [BackupMapNumber], a
+	ld a, [wMapGroup]
+	ld [wBackupMapGroup], a
+	ld a, [wMapNumber]
+	ld [wBackupMapNumber], a
 	ret

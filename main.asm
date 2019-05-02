@@ -4,8 +4,8 @@ INCLUDE "constants.asm"
 SECTION "Code 1", ROMX
 
 LoadPushOAM:: ; 4031
-	lb bc, (PushOAMEnd - PushOAM), (hPushOAM - $ff00)
-	ld hl, PushOAM
+	lb bc, (PushOAMCodeEnd - PushOAMCode), hPushOAM & $ff
+	ld hl, PushOAMCode
 .loop
 	ld a, [hli]
 	ld [$ff00+c], a
@@ -14,19 +14,17 @@ LoadPushOAM:: ; 4031
 	jr nz, .loop
 	ret
 
-PushOAM: ; 403f
-	ld a, Sprites / $100
+PushOAMCode: ; 403f
+	ld a, wSprites / $100
 	ld [rDMA], a
 	ld a, 40
 .loop
 	dec a
 	jr nz, .loop
 	ret
-PushOAMEnd
+PushOAMCodeEnd
 
 ReanchorBGMap_NoOAMUpdate:: ; 6454
-	call DelayFrame
-
 	ld a, [hOAMUpdate]
 	push af
 
@@ -40,39 +38,34 @@ ReanchorBGMap_NoOAMUpdate:: ; 6454
 	ld [hLCDCPointer], a
 	ld a, $90
 	ld [hWY], a
-	call OverworldTextModeSwitch
+	call LoadMapPart
 
 	ld a, VBGMap1 / $100
 	ld [hBGMapAddress + 1], a
 	xor a
 	ld [hBGMapAddress], a
-	farcall OpenAndCloseMenu_HDMATransferTileMapAndAttrMap
-
+	call BGMapAnchorTopLeft
 	farcall LoadBlindingFlashPalette
 	farcall ApplyPals
-
 	xor a
 	ld [hBGMapMode], a
 	ld [hWY], a
-	inc a
-	ld [hCGBPalUpdate], a
-	call HDMATransfer_FillBGMap0WithBlackTile
-
-	ld a, VBGMap0 / $100
-	ld [hBGMapAddress + 1], a
-	ld [wBGMapAnchor + 1], a
-	xor a
 	ld [hBGMapAddress], a
 	ld [wBGMapAnchor], a
 	ld [hSCX], a
 	ld [hSCY], a
+	inc a
+	ld [hCGBPalUpdate], a
+	ld a, VBGMap0 / $100 ; overworld
+	ld [hBGMapAddress + 1], a
+	ld [wBGMapAnchor + 1], a
 	call ApplyBGMapAnchorToObjects
 
 	pop af
 	ld [hBGMapMode], a
 	pop af
 	ld [hOAMUpdate], a
-	ld hl, VramState
+	ld hl, wVramState
 	set 6, [hl]
 	ret
 
@@ -92,73 +85,46 @@ LoadFonts_NoOAMUpdate:: ; 64bf
 	ld [hOAMUpdate], a
 	ret
 
-HDMATransfer_FillBGMap0WithBlackTile: ; 64db
-	ld a, [rSVBK]
-	push af
-	ld a, $6
-	ld [rSVBK], a
-
-	ld a, "<BLACK>"
-	ld hl, wScratchTileMap
-	ld bc, BG_MAP_WIDTH * BG_MAP_HEIGHT
-	call ByteFill
-	ld a, wScratchTileMap / $100
-	ld [rHDMA1], a
-	ld a, wScratchTileMap % $100
-	ld [rHDMA2], a
-	ld a, (VBGMap0 % $8000) / $100
-	ld [rHDMA3], a
-	ld a, (VBGMap0 % $8000) % $100
-	ld [rHDMA4], a
-	ld a, $3f
-	ld [hDMATransfer], a
-	call DelayFrame
-
-	pop af
-	ld [rSVBK], a
-	ret
-
 ReanchorBGMap_NoOAMUpdate_NoDelay::
 	ld a, [hOAMUpdate]
 	push af
+
 	ld a, $1
 	ld [hOAMUpdate], a
-
 	ld a, [hBGMapMode]
 	push af
+
 	xor a
 	ld [hBGMapMode], a
-
 	ld [hLCDCPointer], a
 	ld a, $90
 	ld [hWY], a
-	call OverworldTextModeSwitch
+	call LoadMapPart
 
 	ld a, VBGMap1 / $100
 	ld [hBGMapAddress + 1], a
 	xor a
 	ld [hBGMapAddress], a
-	farcall BridgeTransition_HDMATransferTileMapAndAttrMap
-
-	ld a, VBGMap0 / $100
-	ld [hBGMapAddress + 1], a
-	ld [wBGMapAnchor + 1], a
+	call CopyTilemapAtOnce
 	xor a
+	ld [hWY], a
 	ld [hBGMapAddress], a
 	ld [wBGMapAnchor], a
 	ld [hSCX], a
 	ld [hSCY], a
-	ld [hWY], a
 	inc a
 	ld [hCGBPalUpdate], a
-	farcall BridgeTransition_HDMATransferTileMapAndAttrMap
-
+	ld a, VBGMap0 / $100 ; overworld
+	ld [hBGMapAddress + 1], a
+	ld [wBGMapAnchor + 1], a
 	pop af
 	ld [hBGMapMode], a
-
 	pop af
 	ld [hOAMUpdate], a
-	ret
+	ld hl, wVramState
+	set 6, [hl]
+	ld b, 0
+	jp SafeCopyTilemapAtOnce
 
 INCLUDE "engine/map_objects.asm"
 INCLUDE "engine/intro_menu.asm"
@@ -187,14 +153,13 @@ INCLUDE "engine/printnum.asm"
 INCLUDE "engine/health.asm"
 INCLUDE "engine/events/overworld.asm"
 INCLUDE "engine/items.asm"
-INCLUDE "engine/player_step.asm"
 INCLUDE "engine/anim_hp_bar.asm"
 INCLUDE "engine/move_mon.asm"
 INCLUDE "engine/billspctop.asm"
 INCLUDE "engine/item_effects.asm"
 
 CheckTime:: ; c000
-	ld a, [TimeOfDay]
+	ld a, [wTimeOfDay]
 	ld hl, TimeOfDayTable
 	ld de, 2
 	call IsInArray
@@ -215,9 +180,9 @@ TimeOfDayTable: ; c012
 
 GetBreedMon1LevelGrowth: ; e698
 	ld hl, wBreedMon1Stats
-	ld de, TempMon
+	ld de, wTempMon
 	ld bc, BOXMON_STRUCT_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	farcall CalcLevel
 	ld a, [wBreedMon1Level]
 	ld b, a
@@ -229,9 +194,9 @@ GetBreedMon1LevelGrowth: ; e698
 
 GetBreedMon2LevelGrowth: ; e6b3
 	ld hl, wBreedMon2Stats
-	ld de, TempMon
+	ld de, wTempMon
 	ld bc, BOXMON_STRUCT_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	farcall CalcLevel
 	ld a, [wBreedMon2Level]
 	ld b, a
@@ -253,23 +218,23 @@ BugContest_SetCaughtContestMon: ; e6ce
 
 .firstcatch
 	call .generatestats
-	ld a, [TempEnemyMonSpecies]
+	ld a, [wTempEnemyMonSpecies]
 	ld [wd265], a
 	call GetPokemonName
 	ld hl, .caughttext
 	jp PrintText
 
 .generatestats ; e6fd
-	ld a, [TempEnemyMonSpecies]
-	ld [CurSpecies], a
-	ld [CurPartySpecies], a
+	ld a, [wTempEnemyMonSpecies]
+	ld [wCurSpecies], a
+	ld [wCurPartySpecies], a
 	call GetBaseData
 	xor a
 	ld bc, PARTYMON_STRUCT_LENGTH
 	ld hl, wContestMon
 	call ByteFill
 	xor a
-	ld [MonType], a
+	ld [wMonType], a
 	ld hl, wContestMon
 	jp GeneratePartyMonStats
 
@@ -294,7 +259,7 @@ DisplayCaughtContestMonStats: ; cc000
 	call ClearSprites
 	call LoadFontsBattleExtra
 
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
@@ -326,24 +291,24 @@ DisplayCaughtContestMonStats: ; cc000
 	ld a, [wContestMon]
 	ld [wd265], a
 	call GetPokemonName
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	hlcoord 1, 2
 	call PlaceString
 
 	ld h, b
 	ld l, c
 	ld a, [wContestMonLevel]
-	ld [TempMonLevel], a
+	ld [wTempMonLevel], a
 	call PrintLevel
 
-	ld de, EnemyMonNick
+	ld de, wEnemyMonNick
 	hlcoord 1, 8
 	call PlaceString
 
 	ld h, b
 	ld l, c
-	ld a, [EnemyMonLevel]
-	ld [TempMonLevel], a
+	ld a, [wEnemyMonLevel]
+	ld [wTempMonLevel], a
 	call PrintLevel
 
 	hlcoord 11, 4
@@ -352,16 +317,16 @@ DisplayCaughtContestMonStats: ; cc000
 	call PrintNum
 
 	hlcoord 11, 10
-	ld de, EnemyMonMaxHP
+	ld de, wEnemyMonMaxHP
 	call PrintNum
 
 	ld hl, SwitchMonText
 	call PrintText
 
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld b, CGB_DIPLOMA
 	call GetCGBLayout
 	jp SetPalettes
@@ -423,7 +388,11 @@ INCLUDE "engine/breeding.asm"
 SECTION "Code 6", ROMX
 
 INCLUDE "engine/clock_reset.asm"
-INCLUDE "engine/events/move_reminder.asm"
+
+
+SECTION "Effect Command Pointers", ROMX
+
+INCLUDE "data/battle/effect_command_pointers.asm"
 
 
 SECTION "Code 7", ROMX
@@ -444,25 +413,25 @@ UpdateItemDescriptionAndBagQuantity:
 	hlcoord 1, 1
 	lb bc, 1, 8
 	call ClearBox
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	cp -1
 	jr z, UpdateItemDescription
 	hlcoord 1, 1
 	ld de, BagXString
 	call PlaceString
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	call GetQuantityInBag
 	hlcoord 6, 1
-	ld de, Buffer1
+	ld de, wBuffer1
 	lb bc, 2, 3
 	call PrintNum
 UpdateItemDescription: ; 0x244c3
-	ld a, [MenuSelection]
-	ld [CurSpecies], a
+	ld a, [wMenuSelection]
+	ld [wCurSpecies], a
 	hlcoord 0, 12
 	lb bc, 4, SCREEN_WIDTH - 2
 	call TextBox
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	cp -1
 	ret z
 	decoord 1, 14
@@ -475,10 +444,10 @@ UpdateTMHMDescriptionAndOwnership:
 	hlcoord 1, 1
 	lb bc, 1, 8
 	call ClearBox
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	cp -1
 	jr z, UpdateTMHMDescription
-	ld a, [CurTMHM]
+	ld a, [wCurTMHM]
 	call CheckTMHM
 	ld de, OwnedTMString
 	jr c, .GotString
@@ -487,12 +456,12 @@ UpdateTMHMDescriptionAndOwnership:
 	hlcoord 1, 1
 	call PlaceString
 UpdateTMHMDescription:
-	ld a, [MenuSelection]
-	ld [CurSpecies], a
+	ld a, [wMenuSelection]
+	ld [wCurSpecies], a
 	hlcoord 0, 12
 	lb bc, 4, SCREEN_WIDTH - 2
 	call TextBox
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	cp -1
 	ret z
 	decoord 1, 14
@@ -504,17 +473,63 @@ UnownedTMString:
 	db "Unowned@"
 
 GetQuantityInBag:
-	ld a, [CurItem]
+	ld a, [wCurItem]
 	push af
-	ld a, [MenuSelection]
-	ld [CurItem], a
+	ld a, [wMenuSelection]
+	ld [wCurItem], a
 	call CountItem
 	pop af
 	ret
 
-PlaceMenuItemName: ; 0x24ab4
+PlaceMenuItemName:
+; places a star near the name if registered
+	push hl
 	push de
-	ld a, [MenuSelection]
+	dec de
+	dec de
+	ld a, " "
+	ld [de], a
+	ld a, [wMenuSelection]
+	push bc
+	and a
+	jr z, .not_registered
+	ld b, a
+	ld hl, wRegisteredItems
+	ld a, [hli]
+	cp b
+	ld c, "▲"
+	jr z, .registered
+	ld a, [hli]
+	cp b
+	ld c, "◀"
+	jr z, .registered
+	ld a, [hli]
+	cp b
+	ld c, "▶"
+	jr z, .registered
+	ld a, [hli]
+	cp b
+	ld c, "▼"
+	jr nz, .not_registered
+.registered
+	push bc
+	push de
+	farcall CheckRegisteredItem
+	pop de
+	pop bc
+	dec a
+	jr nz, .not_unique
+	ld c, "★"
+.not_unique
+	ld a, c
+	ld [de], a
+.not_registered
+	pop bc
+	pop de
+	pop hl
+PlaceMartItemName:
+	push de
+	ld a, [wMenuSelection]
 	ld [wNamedObjectIndexBuffer], a
 	call GetItemName
 	pop hl
@@ -522,15 +537,15 @@ PlaceMenuItemName: ; 0x24ab4
 
 PlaceMenuTMHMName:
 	push de
-	ld a, [MenuSelection]
+	ld a, [wMenuSelection]
 	ld [wNamedObjectIndexBuffer], a
 	call GetTMHMName
 	pop hl
 	jp PlaceString
 
 PlaceMenuApricornQuantity:
-	ld a, [MenuSelection]
-	ld [CurItem], a
+	ld a, [wMenuSelection]
+	ld [wCurItem], a
 	and a
 	ret nz
 	ld l, e
@@ -539,8 +554,8 @@ PlaceMenuApricornQuantity:
 
 PlaceMenuItemQuantity: ; 0x24ac3
 	push de
-	ld a, [MenuSelection]
-	ld [CurItem], a
+	ld a, [wMenuSelection]
+	ld [wCurItem], a
 	farcall _CheckTossableItem
 	ld a, [wItemAttributeParamBuffer]
 	pop hl
@@ -551,7 +566,7 @@ _PlaceMenuQuantity:
 	add hl, de
 	ld [hl], "×"
 	inc hl
-	ld de, MenuSelectionQuantity
+	ld de, wMenuSelectionQuantity
 	lb bc, 1, 2
 	jp PrintNum
 
@@ -575,7 +590,7 @@ PlaceMoneyDataHeader: ; 24b01
 	call MenuBoxCoord2Tile
 	ld de, SCREEN_WIDTH + 1
 	add hl, de
-	ld de, Money
+	ld de, wMoney
 	lb bc, PRINTNUM_MONEY | 3, 7
 	jp PrintNum
 
@@ -612,7 +627,7 @@ PlaceBattlePointsTopRight:
 	lb bc, 1, 6
 	call TextBox
 	hlcoord 13, 1
-	ld de, BattlePoints
+	ld de, wBattlePoints
 	lb bc, 1, 3
 	call PrintNum
 	ld de, .BPString
@@ -629,7 +644,7 @@ Special_DisplayCoinCaseBalance: ; 24b25
 	hlcoord 12, 0
 	ld de, CoinString
 	call PlaceString
-	ld de, Coins
+	ld de, wCoins
 	lb bc, 2, 5
 	hlcoord 13, 1
 	jp PrintNum
@@ -642,14 +657,14 @@ Special_DisplayMoneyAndCoinBalance: ; 24b4e
 	ld de, MoneyString
 	call PlaceString
 	hlcoord 11, 1
-	ld de, Money
+	ld de, wMoney
 	lb bc, PRINTNUM_MONEY | 3, 7
 	call PrintNum
 	hlcoord 6, 3
 	ld de, CoinString
 	call PlaceString
 	hlcoord 14, 3
-	ld de, Coins
+	ld de, wCoins
 	lb bc, 2, 5
 	jp PrintNum
 
@@ -664,7 +679,7 @@ StartMenu_DrawBugContestStatusBox: ; 24bdc
 	jp TextBox
 
 StartMenu_PrintBugContestStatus: ; 24be7
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
@@ -674,7 +689,7 @@ StartMenu_PrintBugContestStatus: ; 24be7
 	call PlaceString
 	hlcoord 8, 5
 	ld de, wParkBallsRemaining
-	lb bc, PRINTNUM_RIGHTALIGN | 1, 2
+	lb bc, PRINTNUM_LEFTALIGN | 1, 2
 	call PrintNum
 	hlcoord 1, 1
 	ld de, .Caught
@@ -704,7 +719,7 @@ StartMenu_PrintBugContestStatus: ; 24be7
 
 .skip_level
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	ret
 
 .Caught: ; 24c4b
@@ -726,15 +741,15 @@ PadCoords_de: ; 27092
 	jp GetBlockLocation
 
 LevelUpHappinessMod: ; 2709e
-	ld a, [CurPartyMon]
-	ld hl, PartyMon1CaughtLocation
+	ld a, [wCurPartyMon]
+	ld hl, wPartyMon1CaughtLocation
 	call GetPartyLocation
 	ld a, [hl]
 	and $7f
 	ld d, a
-	ld a, [MapGroup]
+	ld a, [wMapGroup]
 	ld b, a
-	ld a, [MapNumber]
+	ld a, [wMapNumber]
 	ld c, a
 	call GetWorldMapLocation
 	cp d
@@ -748,7 +763,7 @@ LevelUpHappinessMod: ; 2709e
 _ReturnToBattle_UseBall: ; 2715c
 	call ClearBGPalettes
 	call ClearTileMap
-	ld a, [BattleType]
+	ld a, [wBattleType]
 	cp BATTLETYPE_TUTORIAL
 	jr z, .gettutorialbackpic
 	farcall GetMonBackpic
@@ -762,11 +777,11 @@ _ReturnToBattle_UseBall: ; 2715c
 	call GetMemCGBLayout
 	call CloseWindow
 	call LoadStandardMenuDataHeader
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call SetPalettes
 	farcall LoadPlayerStatusIcon
 	farcall LoadEnemyStatusIcon
-	farjp InstantReloadPaletteHack
+	farjp FinishBattleAnim
 
 INCLUDE "data/moves/effects_pointers.asm"
 
@@ -807,7 +822,7 @@ FindFirstAliveMonAndStartBattle: ; 2ee2f
 	ld [hMapAnims], a
 	call DelayFrame
 	ld b, 6
-	ld hl, PartyMon1HP
+	ld hl, wPartyMon1HP
 	ld de, PARTYMON_STRUCT_LENGTH - 1
 
 .loop
@@ -822,7 +837,7 @@ FindFirstAliveMonAndStartBattle: ; 2ee2f
 	ld de, MON_LEVEL - MON_HP
 	add hl, de
 	ld a, [hl]
-	ld [BattleMonLevel], a
+	ld [wBattleMonLevel], a
 	predef Predef_StartBattle
 	farcall _LoadBattleFontsHPBar
 	ld a, 1
@@ -838,7 +853,7 @@ FindFirstAliveMonAndStartBattle: ; 2ee2f
 
 ClearBattleRAM: ; 2ef18
 	xor a
-	ld [wPlayerAction], a
+	ld [wBattlePlayerAction], a
 	ld [wBattleResult], a
 
 	ld hl, wPartyMenuCursor
@@ -848,35 +863,34 @@ ClearBattleRAM: ; 2ef18
 	ld [hl], a
 
 	ld [wMenuScrollPosition], a
-	ld [CriticalHit], a
-	ld [BattleMonSpecies], a
+	ld [wCriticalHit], a
+	ld [wBattleMonSpecies], a
 	ld [wBattleParticipantsNotFainted], a
-	ld [CurBattleMon], a
-	ld [wForcedSwitch], a
-	ld [TimeOfDayPal], a
-	ld [PlayerTurnsTaken], a
-	ld [EnemyTurnsTaken], a
-	ld [EvolvableFlags], a
+	ld [wCurBattleMon], a
+	ld [wTimeOfDayPal], a
+	ld [wPlayerTurnsTaken], a
+	ld [wEnemyTurnsTaken], a
+	ld [wEvolvableFlags], a
 
-	ld hl, PlayerHPPal
+	ld hl, wPlayerHPPal
 	ld [hli], a
 	ld [hl], a
 
-	ld hl, BattleMonDVs
-	ld [hli], a
-	ld [hli], a
-	ld [hl], a
-
-	ld hl, BattleMonPersonality
-	ld [hli], a
-	ld [hl], a
-
-	ld hl, EnemyMonDVs
+	ld hl, wBattleMonDVs
 	ld [hli], a
 	ld [hli], a
 	ld [hl], a
 
-	ld hl, EnemyMonPersonality
+	ld hl, wBattleMonPersonality
+	ld [hli], a
+	ld [hl], a
+
+	ld hl, wEnemyMonDVs
+	ld [hli], a
+	ld [hli], a
+	ld [hl], a
+
+	ld hl, wEnemyMonPersonality
 	ld [hli], a
 	ld [hl], a
 
@@ -887,11 +901,11 @@ ClearBattleRAM: ; 2ef18
 	call ByteFill
 
 	; Clear UsedItems
-	ld hl, PartyUsedItems
+	ld hl, wPartyUsedItems
 	ld bc, 6
 	xor a
 	call ByteFill
-	ld hl, OTPartyUsedItems
+	ld hl, wOTPartyUsedItems
 	ld bc, 6
 	xor a
 	call ByteFill
@@ -1013,7 +1027,7 @@ AnimateDexSearchSlowpoke: ; 441cf
 DoDexSearchSlowpokeFrame: ; 44207
 	ld a, [wDexSearchSlowpokeFrame]
 	ld hl, .SpriteData
-	ld de, Sprites
+	ld de, wSprites
 .loop
 	ld a, [hli]
 	cp -1
@@ -1079,8 +1093,8 @@ DisplayDexEntry: ; 4424d
 	pop bc
 	ret z
 ; Get the height of the Pokemon.
-	ld a, [CurPartySpecies]
-	ld [CurSpecies], a
+	ld a, [wCurPartySpecies]
+	ld [wCurSpecies], a
 	inc hl
 	ld a, b
 	push af
@@ -1094,7 +1108,7 @@ DisplayDexEntry: ; 4424d
 	ld a, d
 	or e
 	jr z, .skip_height
-	ld a, [Options2]
+	ld a, [wOptions2]
 	bit POKEDEX_UNITS, a
 	jr z, .imperial_height
 
@@ -1120,7 +1134,7 @@ DisplayDexEntry: ; 4424d
 	ld d, 0
 	ld hl, 0
 	ld bc, 12
-	call AddNTimes
+	rst AddNTimes
 	add hl, de
 	ld b, h
 	ld c, l
@@ -1128,7 +1142,7 @@ DisplayDexEntry: ; 4424d
 	call Mul16
 	ld de, hTmpd
 	hlcoord 11, 7
-	lb bc, 2, PRINTNUM_RIGHTALIGN | 5
+	lb bc, 2, PRINTNUM_LEFTALIGN | 5
 	call PrintNum
 	pop hl
 	jr .skip_height
@@ -1159,7 +1173,7 @@ DisplayDexEntry: ; 4424d
 	ld a, e
 	or d
 	jr z, .skip_weight
-	ld a, [Options2]
+	ld a, [wOptions2]
 	bit POKEDEX_UNITS, a
 	jr z, .imperial_weight
 
@@ -1169,7 +1183,7 @@ DisplayDexEntry: ; 4424d
 	call Mul16
 	ld de, hTmpd
 	hlcoord 11, 9
-	lb bc, 2, PRINTNUM_RIGHTALIGN | 5
+	lb bc, 2, PRINTNUM_LEFTALIGN | 5
 	call PrintNum
 	jr .skip_weight
 
@@ -1179,7 +1193,7 @@ DisplayDexEntry: ; 4424d
 	ld d, h
 	ld e, l
 	hlcoord 11, 9
-	lb bc, 2, PRINTNUM_RIGHTALIGN | 5
+	lb bc, 2, PRINTNUM_LEFTALIGN | 5
 	call PrintNum
 	pop de
 
@@ -1363,11 +1377,14 @@ Special_MoveTutor: ; 4925b
 	call GetCGBLayout
 	xor a
 	ld [wItemAttributeParamBuffer], a
-	ld a, [ScriptVar]
-	ld [wd265], a
+	ld a, [wScriptVar]
+	and a
 	ld [wPutativeTMHMMove], a
+	jr z, .relearner
+	ld [wNamedObjectIndexBuffer], a
 	call GetMoveName
 	call CopyName1
+.relearner
 	farcall ChooseMonToLearnTMHM
 	jr c, .cancel
 	jr .enter_loop
@@ -1384,7 +1401,7 @@ Special_MoveTutor: ; 4925b
 .cancel
 	ld a, -1
 .quit
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	jp CloseSubmenu
 
 CheckCanLearnMoveTutorMove: ; 492b9
@@ -1394,8 +1411,8 @@ CheckCanLearnMoveTutorMove: ; 492b9
 	predef CanLearnTMHMMove
 
 	push bc
-	ld a, [CurPartyMon]
-	ld hl, PartyMonNicknames
+	ld a, [wCurPartyMon]
+	ld hl, wPartyMonNicknames
 	call GetNick
 	pop bc
 
@@ -1412,10 +1429,14 @@ CheckCanLearnMoveTutorMove: ; 492b9
 	jr .didnt_learn
 
 .can_learn
+	ld a, [wPutativeTMHMMove]
+	and a
+	jr z, .reminder
 	farcall KnowsMove
 	jr c, .didnt_learn
 
 	predef LearnMove
+.perform_move_learn
 	ld a, b
 	and a
 	jr z, .didnt_learn
@@ -1423,6 +1444,30 @@ CheckCanLearnMoveTutorMove: ; 492b9
 	ld c, HAPPINESS_LEARNMOVE
 	farcall ChangeHappiness
 	jr .learned
+
+.reminder
+	farcall ChooseMoveToRelearn
+	jr nc, .can_remind
+	push de
+	ld de, SFX_WRONG
+	call PlaySFX
+	pop de
+	ld a, BANK(MoveReminderNoMovesText)
+	ld hl, MoveReminderNoMovesText
+	call FarPrintText
+	jr .didnt_learn
+
+.can_remind
+	jr z, .didnt_learn
+	ld a, [wMoveScreenSelectedMove]
+	ld [wPutativeTMHMMove], a
+	ld [wNamedObjectIndexBuffer], a
+	call GetMoveName
+	call CopyName1
+	predef LearnMove
+	xor a
+	ld [wPutativeTMHMMove], a
+	jr .perform_move_learn
 
 .didnt_learn
 	call ExitMenu
@@ -1446,7 +1491,7 @@ AskRememberPassword: ; 4ae12
 	ld a, $1
 
 .okay
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 .DoMenu: ; 4ae1f
@@ -1524,79 +1569,6 @@ EmptyAllSRAMBanks: ; 4cf1f
 	call ByteFill
 	jp CloseSRAM
 
-SaveMenu_LoadEDTile: ; 4cf45 (13:4f45)
-; The following is a modified version of Function3246.
-	ld a, [hBGMapMode]
-	push af
-	xor a
-	ld [hBGMapMode], a
-	ld a, [hMapAnims]
-	push af
-	xor a
-	ld [hMapAnims], a
-.WaitLY:
-	ld a, [rLY]
-	cp $60
-	jr c, .WaitLY
-
-	di
-	ld a, BANK(VBGMap2)
-	ld [rVBK], a
-	hlcoord 0, 0, AttrMap
-	call .LoadEDTile
-	xor a ; ld a, BANK(VBGMap0)
-	ld [rVBK], a
-	hlcoord 0, 0
-	call .LoadEDTile
-.WaitLY2:
-	ld a, [rLY]
-	cp $60
-	jr c, .WaitLY2
-	ei
-
-	pop af
-	ld [hMapAnims], a
-	pop af
-	ld [hBGMapMode], a
-	ret
-
-.LoadEDTile: ; 4cf80 (13:4f80)
-	ld [hSPBuffer], sp ; $ffd9
-	ld sp, hl
-	ld a, [hBGMapAddress + 1]
-	ld h, a
-	ld l, 0
-	ld a, SCREEN_HEIGHT
-	ld [hTilesPerCycle], a
-	lb bc, (1 << 1), (rSTAT % $100)
-
-.loop
-rept SCREEN_WIDTH / 2
-	pop de
-.loop\@
-	ld a, [$ff00+c]
-	and b
-	jr nz, .loop\@
-	ld [hl], e
-	inc l
-	ld [hl], d
-	inc l
-endr
-
-	ld de, $20 - SCREEN_WIDTH
-	add hl, de
-	ld a, [hTilesPerCycle]
-	dec a
-	ld [hTilesPerCycle], a
-	jr nz, .loop
-
-	ld a, [hSPBuffer]
-	ld l, a
-	ld a, [hSPBuffer + 1]
-	ld h, a
-	ld sp, hl
-	ret
-
 CheckSave:: ; 4cffe
 	ld a, BANK(sCheckValue1)
 	call GetSRAMBank
@@ -1619,123 +1591,6 @@ CheckSave:: ; 4cffe
 	ret
 
 INCLUDE "data/maps/scenes.asm"
-
-_LoadMapPart:: ; 4d15b
-	ld hl, wMisc
-	ld a, [wMetatileStandingY]
-	and a
-	jr z, .top_row
-	ld bc, WMISC_WIDTH * 2
-	add hl, bc
-
-.top_row
-	ld a, [wMetatileStandingX]
-	and a
-	jr z, .left_column
-	inc hl
-	inc hl
-
-.left_column
-	decoord 0, 0
-	ld b, SCREEN_HEIGHT
-.loop
-	ld c, SCREEN_WIDTH
-.loop2
-	ld a, [hli]
-	ld [de], a
-	inc de
-	dec c
-	jr nz, .loop2
-	ld a, l
-	add 4
-	ld l, a
-	jr nc, .carry
-	inc h
-
-.carry
-	dec b
-	jr nz, .loop
-	ret
-
-PhoneRing_LoadEDTile: ; 4d188
-	ld a, [wSpriteUpdatesEnabled]
-	cp $0
-	jp z, WaitBGMap
-
-; What follows is a modified version of LoadEDTile.
-	ld a, [hBGMapMode]
-	push af
-	xor a
-	ld [hBGMapMode], a
-	ld a, [hMapAnims]
-	push af
-	xor a
-	ld [hMapAnims], a
-.wait
-	ld a, [rLY]
-	cp $8f
-	jr c, .wait
-
-	di
-	ld a, BANK(VBGMap2)
-	ld [rVBK], a
-	hlcoord 0, 0, AttrMap
-	call .StackPointerMagic
-	xor a ; ld a, BANK(VBGMap0)
-	ld [rVBK], a
-	hlcoord 0, 0
-	call .StackPointerMagic
-.wait2
-	ld a, [rLY]
-	cp $8f
-	jr c, .wait2
-	ei
-
-	pop af
-	ld [hMapAnims], a
-	pop af
-	ld [hBGMapMode], a
-	ret
-
-.StackPointerMagic: ; 4d1cb
-; Copy all tiles to VBGMap
-	ld [hSPBuffer], sp
-	ld sp, hl
-	ld a, [hBGMapAddress + 1]
-	ld h, a
-	ld l, 0
-	ld a, SCREEN_HEIGHT
-	ld [hTilesPerCycle], a
-	lb bc, (1 << 1), (rSTAT % $100) ; b: not in v/hblank
-
-.loop
-rept SCREEN_WIDTH / 2
-	pop de
-; if in v/hblank, wait until not in v/hblank
-.loop\@
-	ld a, [$ff00+c]
-	and b
-	jr nz, .loop\@
-; load BGMap0
-	ld [hl], e
-	inc l
-	ld [hl], d
-	inc l
-endr
-
-	ld de, $20 - SCREEN_WIDTH
-	add hl, de
-	ld a, [hTilesPerCycle]
-	dec a
-	ld [hTilesPerCycle], a
-	jr nz, .loop
-
-	ld a, [hSPBuffer]
-	ld l, a
-	ld a, [hSPBuffer + 1]
-	ld h, a
-	ld sp, hl
-	ret
 
 Shrink1Pic: ; 4d249
 INCBIN "gfx/new_game/shrink1.2bpp.lz"
@@ -1832,12 +1687,12 @@ _ResetInitialOptions:
 	ld a, [wMenuCursorY]
 	cp $1
 	ret z
-	ld a, [InitialOptions]
+	ld a, [wInitialOptions]
 	set RESET_INIT_OPTS, a
-	ld [InitialOptions], a
+	ld [wInitialOptions], a
 	ld a, BANK(sOptions)
 	call GetSRAMBank
-	ld a, [InitialOptions]
+	ld a, [wInitialOptions]
 	ld [sOptions + 6], a ; sInitialOptions
 	jp CloseSRAM
 
@@ -1858,8 +1713,6 @@ TitleScreenNoYesMenuDataHeader: ; 0x4d585
 	db 2 ; items
 	db "No@"
 	db "Yes@"
-
-INCLUDE "data/tilesets.asm"
 
 FlagPredef: ; 4d7c1
 ; Perform action b on flag c in flag array hl.
@@ -1940,8 +1793,8 @@ GetTrademonFrontpic: ; 4d7fd
 	push af
 	predef GetVariant
 	pop af
-	ld [CurPartySpecies], a
-	ld [CurSpecies], a
+	ld [wCurPartySpecies], a
+	ld [wCurSpecies], a
 	call GetBaseData
 	pop de
 	predef FrontpicPredef
@@ -1953,18 +1806,18 @@ AnimateTrademonFrontpic: ; 4d81e
 	ret c
 	farcall ShowOTTrademonStats
 	ld a, [wOTTrademonSpecies]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	ld a, [wOTTrademonPersonality]
-	ld [TempMonPersonality], a
+	ld [wTempMonPersonality], a
 	ld a, [wOTTrademonPersonality + 1]
-	ld [TempMonPersonality + 1], a
+	ld [wTempMonPersonality + 1], a
 	ld b, CGB_PLAYER_OR_MON_FRONTPIC_PALS
 	call GetCGBLayout
 	ld a, %11100100 ; 3,2,1,0
 	call DmgToCgbBGPals
 	farcall TradeAnim_ShowGetmonFrontpic
 	ld a, [wOTTrademonSpecies]
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	hlcoord 7, 2
 	lb de, $0, ANIM_MON_TRADE
 	predef AnimateFrontpic
@@ -1974,12 +1827,12 @@ CheckPokerus: ; 4d860
 ; Return carry if a monster in your party has Pokerus
 
 ; Get number of monsters to iterate over
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	jr z, .NoPokerus
 	ld b, a
 ; Check each monster in the party for Pokerus
-	ld hl, PartyMon1PokerusStatus
+	ld hl, wPartyMon1PokerusStatus
 	ld de, PARTYMON_STRUCT_LENGTH
 .Check:
 	ld a, [hl]
@@ -1998,14 +1851,14 @@ CheckPokerus: ; 4d860
 
 Special_CheckForLuckyNumberWinners: ; 4d87a
 	xor a
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ld [wFoundMatchingIDInParty], a
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	and a
 	ret z
 	ld d, a
-	ld hl, PartyMon1ID
-	ld bc, PartySpecies
+	ld hl, wPartyMon1ID
+	ld bc, wPartySpecies
 .PartyLoop:
 	ld a, [bc]
 	inc bc
@@ -2077,7 +1930,7 @@ Special_CheckForLuckyNumberWinners: ; 4d87a
 	cp EGG
 	jr z, .SkipBoxMon
 
-	call .CompareLuckyNumberToMonID ; sets ScriptVar and CurPartySpecies appropriately
+	call .CompareLuckyNumberToMonID ; sets wScriptVar and wCurPartySpecies appropriately
 	jr nc, .SkipBoxMon
 	ld a, 1
 	ld [wFoundMatchingIDInParty], a
@@ -2098,13 +1951,13 @@ Special_CheckForLuckyNumberWinners: ; 4d87a
 	jr c, .BoxesLoop
 
 	call CloseSRAM
-	ld a, [ScriptVar]
+	ld a, [wScriptVar]
 	and a
 	ret z ; found nothing
 	ld a, [wFoundMatchingIDInParty]
 	and a
 	push af
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	ld [wNamedObjectIndexBuffer], a
 	call GetPokemonName
 	ld hl, .FoundPartymonText
@@ -2121,16 +1974,16 @@ Special_CheckForLuckyNumberWinners: ; 4d87a
 	push hl
 	ld d, h
 	ld e, l
-	ld hl, Buffer1
+	ld hl, wBuffer1
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 5
 	call PrintNum
-	ld hl, LuckyNumberDigitsBuffer
+	ld hl, wLuckyNumberDigitsBuffer
 	ld de, wLuckyIDNumber
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 5
 	call PrintNum
 	lb bc, 5, 0
-	ld hl, LuckyNumberDigitsBuffer + 4
-	ld de, Buffer1 + 4
+	ld hl, wLuckyNumberDigitsBuffer + 4
+	ld de, wBuffer1 + 4
 .loop
 	ld a, [de]
 	cp [hl]
@@ -2166,7 +2019,7 @@ Special_CheckForLuckyNumberWinners: ; 4d87a
 
 .okay
 	inc b
-	ld a, [ScriptVar]
+	ld a, [wScriptVar]
 	and a
 	jr z, .bettermatch
 	cp b
@@ -2175,10 +2028,10 @@ Special_CheckForLuckyNumberWinners: ; 4d87a
 .bettermatch
 	dec b
 	ld a, b
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	pop bc
 	ld a, b
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	pop bc
 	scf
 	ret
@@ -2216,22 +2069,22 @@ Special_CheckForLuckyNumberWinners: ; 4d87a
 	db "@"
 
 Special_PrintTodaysLuckyNumber: ; 4d9d3
-	ld hl, StringBuffer3
+	ld hl, wStringBuffer3
 	ld de, wLuckyIDNumber
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 5
 	call PrintNum
 	ld a, "@"
-	ld [StringBuffer3 + 5], a
+	ld [wStringBuffer3 + 5], a
 	ret
 
 CheckPartyFullAfterContest: ; 4d9e5
 	ld a, [wContestMon]
 	and a
 	jp z, .DidntCatchAnything
-	ld [CurPartySpecies], a
-	ld [CurSpecies], a
+	ld [wCurPartySpecies], a
+	ld [wCurSpecies], a
 	call GetBaseData
-	ld hl, PartyCount
+	ld hl, wPartyCount
 	ld a, [hl]
 	cp 6
 	jp nc, .TryAddToBox
@@ -2242,72 +2095,72 @@ CheckPartyFullAfterContest: ; 4d9e5
 	add hl, bc
 	ld a, [wContestMon]
 	ld [hli], a
-	ld [CurSpecies], a
+	ld [wCurSpecies], a
 	ld a, $ff
 	ld [hl], a
-	ld hl, PartyMon1Species
-	ld a, [PartyCount]
+	ld hl, wPartyMon1Species
+	ld a, [wPartyCount]
 	dec a
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	ld d, h
 	ld e, l
 	ld hl, wContestMon
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call CopyBytes
-	ld a, [PartyCount]
+	rst CopyBytes
+	ld a, [wPartyCount]
 	dec a
-	ld hl, PartyMonOT
+	ld hl, wPartyMonOT
 	call SkipNames
 	ld d, h
 	ld e, l
-	ld hl, PlayerName
-	call CopyBytes
-	ld a, [CurPartySpecies]
+	ld hl, wPlayerName
+	rst CopyBytes
+	ld a, [wCurPartySpecies]
 	ld [wd265], a
 	call GetPokemonName
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	ld de, wMonOrItemNameBuffer
 	ld bc, PKMN_NAME_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	call GiveANickname_YesNo
 	jr c, .Party_SkipNickname
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	dec a
-	ld [CurPartyMon], a
+	ld [wCurPartyMon], a
 	xor a
-	ld [MonType], a
+	ld [wMonType], a
 	ld de, wMonOrItemNameBuffer
 	farcall InitNickname
 
 .Party_SkipNickname:
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	dec a
-	ld hl, PartyMonNicknames
+	ld hl, wPartyMonNicknames
 	call SkipNames
 	ld d, h
 	ld e, l
 	ld hl, wMonOrItemNameBuffer
-	call CopyBytes
-	ld a, [PartyCount]
+	rst CopyBytes
+	ld a, [wPartyCount]
 	dec a
-	ld hl, PartyMon1Level
+	ld hl, wPartyMon1Level
 	call GetPartyLocation
 	ld a, [hl]
-	ld [CurPartyLevel], a
+	ld [wCurPartyLevel], a
 	ld a, PARK_BALL
-	ld [CurItem], a
+	ld [wCurItem], a
 	call SetCaughtData
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	dec a
-	ld hl, PartyMon1CaughtLocation
+	ld hl, wPartyMon1CaughtLocation
 	call GetPartyLocation
 	ld a, NATIONAL_PARK
 	ld [hl], a
 	xor a
 	ld [wContestMon], a
 	and a
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 .TryAddToBox: ; 4daa3
@@ -2319,24 +2172,24 @@ CheckPartyFullAfterContest: ; 4d9e5
 	call CloseSRAM
 	jr nc, .BoxFull
 	xor a
-	ld [CurPartyMon], a
+	ld [wCurPartyMon], a
 	ld hl, wContestMon
 	ld de, wBufferMon
 	ld bc, BOXMON_STRUCT_LENGTH
-	call CopyBytes
-	ld hl, PlayerName
+	rst CopyBytes
+	ld hl, wPlayerName
 	ld de, wBufferMonOT
 	ld bc, NAME_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	farcall InsertPokemonIntoBox
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	ld [wd265], a
 	call GetPokemonName
 	call GiveANickname_YesNo
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 	jr c, .Box_SkipNickname
 	ld a, BOXMON
-	ld [MonType], a
+	ld [wMonType], a
 	ld de, wMonOrItemNameBuffer
 	farcall InitNickname
 	ld hl, wMonOrItemNameBuffer
@@ -2346,38 +2199,35 @@ CheckPartyFullAfterContest: ; 4d9e5
 	call GetSRAMBank
 	ld de, sBoxMonNicknames
 	ld bc, PKMN_NAME_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	call CloseSRAM
 
 .BoxFull:
 	ld a, BANK(sBoxMon1Level)
 	call GetSRAMBank
 	ld a, [sBoxMon1Level]
-	ld [CurPartyLevel], a
+	ld [wCurPartyLevel], a
 	call CloseSRAM
 	call SetBoxMonCaughtData
 	ld a, BANK(sBoxMon1CaughtLocation)
 	call GetSRAMBank
 	ld hl, sBoxMon1CaughtLocation
-	ld a, [hl]
-	and $80
-	ld b, $13
-	or b
+	ld a, NATIONAL_PARK
 	ld [hl], a
 	call CloseSRAM
 	xor a
 	ld [wContestMon], a
 	ld a, $1
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 .DidntCatchAnything: ; 4db35
 	ld a, $2
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 GiveANickname_YesNo: ; 4db3b
-	ld a, [InitialOptions]
+	ld a, [wInitialOptions]
 	bit NUZLOCKE_MODE, a
 	jr nz, .AlwaysNickname
 	ld hl, TextJump_GiveANickname
@@ -2395,13 +2245,13 @@ TextJump_GiveANickname: ; 0x4db44
 	db "@"
 
 SetCaughtData: ; 4db49
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	dec a
-	ld hl, PartyMon1CaughtData
+	ld hl, wPartyMon1CaughtData
 	call GetPartyLocation
 SetBoxmonOrEggmonCaughtData: ; 4db53
 	; CaughtGender
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	and a
 	jr z, .male
 	ld a, FEMALE
@@ -2411,7 +2261,7 @@ SetBoxmonOrEggmonCaughtData: ; 4db53
 .ok
 	ld b, a
 	; CaughtTime
-	ld a, [TimeOfDay]
+	ld a, [wTimeOfDay]
 	inc a
 	rrca
 	rrca
@@ -2419,12 +2269,12 @@ SetBoxmonOrEggmonCaughtData: ; 4db53
 	or b
 	ld b, a
 	; CaughtBall
-	ld a, [CurItem]
+	ld a, [wCurItem]
 	and CAUGHTBALL_MASK
 	or b
 	ld [hli], a
 	; CaughtLevel
-	ld a, [CurPartyLevel]
+	ld a, [wCurPartyLevel]
 	ld [hli], a
 	; CaughtLocation
 	call GetCurrentLandmark
@@ -2448,15 +2298,15 @@ SetGiftBoxMonCaughtData: ; 4db92
 	jp CloseSRAM
 
 SetGiftPartyMonCaughtData: ; 4dba3
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	dec a
-	ld hl, PartyMon1CaughtData
+	ld hl, wPartyMon1CaughtData
 	call GetPartyLocation
 SetGiftMonCaughtData: ; 4dbaf
 	; CaughtGender
 	; b contains it
 	; CaughtTime
-	ld a, [TimeOfDay]
+	ld a, [wTimeOfDay]
 	inc a
 	rrca
 	rrca
@@ -2479,45 +2329,45 @@ SetGiftMonCaughtData: ; 4dbaf
 	ret
 
 SetEggMonCaughtData: ; 4dbb8 (13:5bb8)
-	ld a, [CurPartyMon]
-	ld hl, PartyMon1CaughtData
+	ld a, [wCurPartyMon]
+	ld hl, wPartyMon1CaughtData
 	call GetPartyLocation
-	ld a, [CurPartyLevel]
+	ld a, [wCurPartyLevel]
 	push af
 	ld a, EGG_LEVEL
-	ld [CurPartyLevel], a
+	ld [wCurPartyLevel], a
 	ld a, POKE_BALL
-	ld [CurItem], a
+	ld [wCurItem], a
 	call SetBoxmonOrEggmonCaughtData
 	pop af
-	ld [CurPartyLevel], a
+	ld [wCurPartyLevel], a
 	ret
 
 _FindGreaterThanThatLevel: ; 4dbd2
-	ld hl, PartyMon1Level
+	ld hl, wPartyMon1Level
 	jp FindGreaterThanThatLevel
 
 _FindAtLeastThatHappy: ; 4dbd9
-	ld hl, PartyMon1Happiness
+	ld hl, wPartyMon1Happiness
 	jp FindAtLeastThatHappy
 
 _FindThatSpecies: ; 4dbe0
-	ld hl, PartyMon1Species
+	ld hl, wPartyMon1Species
 	jp FindThatSpecies
 
 _FindThatSpeciesYourTrainerID: ; 4dbe6
-	ld hl, PartyMon1Species
+	ld hl, wPartyMon1Species
 	call FindThatSpecies
 	ret z
 	ld a, c
-	ld hl, PartyMon1ID
+	ld hl, wPartyMon1ID
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
-	ld a, [PlayerID]
+	rst AddNTimes
+	ld a, [wPlayerID]
 	cp [hl]
 	jr nz, .nope
 	inc hl
-	ld a, [PlayerID + 1]
+	ld a, [wPlayerID + 1]
 	cp [hl]
 	jr nz, .nope
 	ld a, $1
@@ -2532,16 +2382,13 @@ FindAtLeastThatHappy: ; 4dc0a
 ; Sets the bits for the Pokemon that have a happiness greater than or equal to b.
 ; The lowest bits are used.  Sets z if no Pokemon in your party is at least that happy.
 	ld c, $0
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	ld d, a
 .loop
 	ld a, d
 	dec a
 	push hl
-	push bc
-	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
-	pop bc
+	call GetPartyLocation
 	ld a, b
 	cp [hl]
 	pop hl
@@ -2564,16 +2411,13 @@ FindAtLeastThatHappy: ; 4dc0a
 
 FindGreaterThanThatLevel: ; 4dc31
 	ld c, $0
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	ld d, a
 .loop
 	ld a, d
 	dec a
 	push hl
-	push bc
-	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
-	pop bc
+	call GetPartyLocation
 	ld a, b
 	cp [hl]
 	pop hl
@@ -2597,7 +2441,7 @@ FindThatSpecies: ; 4dc56
 ; If that species is in your party, returns its location in c, and nz.
 ; Otherwise, returns z.
 	ld c, -1
-	ld hl, PartySpecies
+	ld hl, wPartySpecies
 .loop
 	ld a, [hli]
 	cp -1
@@ -2611,7 +2455,7 @@ FindThatSpecies: ; 4dc56
 
 RetroactivelyIgnoreEggs: ; 4dc67
 	ld e, -2
-	ld hl, PartySpecies
+	ld hl, wPartySpecies
 .loop
 	ld a, [hli]
 	cp -1
@@ -2629,7 +2473,7 @@ RetroactivelyIgnoreEggs: ; 4dc67
 INCLUDE "engine/stats_screen.asm"
 
 CatchTutorial:: ; 4e554
-	ld a, [BattleType]
+	ld a, [wBattleType]
 	dec a
 	ld c, a
 	ld hl, .dw
@@ -2648,15 +2492,15 @@ CatchTutorial:: ; 4e554
 
 .DudeTutorial: ; 4e56a (13:656a)
 ; Back up your name
-	ld hl, PlayerName
-	ld de, BackupName
+	ld hl, wPlayerName
+	ld de, wBackupName
 	ld bc, NAME_LENGTH
-	call CopyBytes
+	rst CopyBytes
 ; Copy Dude's name to your name
 	ld hl, .Dude
-	ld de, PlayerName
+	ld de, wPlayerName
 	ld bc, NAME_LENGTH
-	call CopyBytes
+	rst CopyBytes
 
 	call .LoadDudeData
 
@@ -2670,40 +2514,37 @@ CatchTutorial:: ; 4e554
 	farcall StartBattle
 	call StopAutoInput
 
-	ld hl, BackupName
-	ld de, PlayerName
+	ld hl, wBackupName
+	ld de, wPlayerName
 	ld bc, NAME_LENGTH
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 .LoadDudeData: ; 4e5b7 (13:65b7)
 	ld hl, wDudeNumItems
-	ld [hl], 1
-	inc hl
-	ld [hl], REPEL
-	inc hl
-	ld [hl], 1
-	inc hl
-	ld [hl], -1
+	ld de, .DudeItems
+	call .CopyDudeData
 	ld hl, wDudeNumMedicine
-	ld [hl], 1
-	inc hl
-	ld [hl], POTION
-	inc hl
-	ld [hl], 1
-	inc hl
-	ld [hl], -1
+	ld de, .DudeMedicine
+	call .CopyDudeData
 	ld hl, wDudeNumBalls
-	ld [hl], 1
-	inc hl
-	ld [hl], POKE_BALL
-	inc hl
-	ld [hl], 10
-	inc hl
-	ld [hl], -1
+	ld de, .DudeBalls
+.CopyDudeData:
+	ld a, [de]
+	inc de
+	ld [hli], a
+	cp -1
+	jr nz, .CopyDudeData
 	ret
 
 .Dude: ; 4e5da
 	db "Lyra@"
+.DudeItems:
+	db 2, REPEL, 1, GOLD_LEAF, 1, -1
+.DudeMedicine:
+	db 3, POTION, 2, ANTIDOTE, 1, FRESH_WATER, 1, -1
+.DudeBalls:
+	db 2, POKE_BALL, 10, PREMIER_BALL, 1, -1
 
 .AutoInput: ; 4e5df
 	db NO_INPUT, $ff ; end
@@ -2721,7 +2562,7 @@ InitDisplayForHallOfFame: ; 4e881
 	ld bc, VBGMap1 - VBGMap0
 	ld a, " "
 	call ByteFill
-	hlcoord 0, 0, AttrMap
+	hlcoord 0, 0, wAttrMap
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 	xor a
 	call ByteFill
@@ -2731,7 +2572,7 @@ InitDisplayForHallOfFame: ; 4e881
 	call EnableLCD
 	ld hl, .SavingRecordDontTurnOff
 	call PrintText
-	call WaitBGMap2
+	call ApplyAttrAndTilemapInVBlank
 	jp SetPalettes
 
 .SavingRecordDontTurnOff: ; 0x4e8bd
@@ -2750,11 +2591,11 @@ InitDisplayForLeafCredits: ; 4e8c2
 	ld bc, VBGMap1 - VBGMap0
 	ld a, " "
 	call ByteFill
-	hlcoord 0, 0, AttrMap
+	hlcoord 0, 0, wAttrMap
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 	xor a
 	call ByteFill
-	ld hl, UnknBGPals
+	ld hl, wUnknBGPals
 	ld c, 4 tiles
 .load_white_palettes
 if !DEF(MONOCHROME)
@@ -2774,7 +2615,7 @@ endc
 	ld [hSCY], a
 	ld [hSCX], a
 	call EnableLCD
-	call WaitBGMap2
+	call ApplyAttrAndTilemapInVBlank
 	jp SetPalettes
 
 ResetDisplayBetweenHallOfFameMons: ; 4e906
@@ -2798,7 +2639,7 @@ INCLUDE "engine/battle/sliding_intro.asm"
 
 CheckBattleEffects: ; 4ea44
 ; Return carry if battle scene is turned off.
-	ld a, [Options1]
+	ld a, [wOptions1]
 	bit BATTLE_EFFECTS, a
 	jr z, .off
 	and a
@@ -2824,21 +2665,21 @@ INCLUDE "engine/party_menu.asm"
 
 CopyPkmnToTempMon: ; 5084a
 ; gets the BaseData of a Pkmn
-; and copys the PkmnStructure to TempMon
+; and copys the PkmnStructure to wTempMon
 
-	ld a, [CurPartyMon]
+	ld a, [wCurPartyMon]
 	ld e, a
 	call GetPkmnSpecies
-	ld a, [CurPartySpecies]
-	ld [CurSpecies], a
+	ld a, [wCurPartySpecies]
+	ld [wCurSpecies], a
 	call GetBaseData
 
-	ld a, [MonType]
-	ld hl, PartyMon1Species
+	ld a, [wMonType]
+	ld hl, wPartyMon1Species
 	ld bc, PARTYMON_STRUCT_LENGTH
 	and a
 	jr z, .copywholestruct
-	ld hl, OTPartyMon1Species
+	ld hl, wOTPartyMon1Species
 	ld bc, PARTYMON_STRUCT_LENGTH
 	cp OTPARTYMON
 	jr z, .copywholestruct
@@ -2846,23 +2687,24 @@ CopyPkmnToTempMon: ; 5084a
 	farjp CopyBoxmonToTempMon
 
 .copywholestruct
-	ld a, [CurPartyMon]
-	call AddNTimes
-	ld de, TempMon
+	ld a, [wCurPartyMon]
+	rst AddNTimes
+	ld de, wTempMon
 	ld bc, PARTYMON_STRUCT_LENGTH
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 CalcwBufferMonStats: ; 5088b
 	ld bc, wBufferMon
 	jr _TempMonStatsCalculation
 
 CalcTempmonStats: ; 50890
-	ld bc, TempMon
+	ld bc, wTempMon
 _TempMonStatsCalculation: ; 50893
 	ld hl, MON_LEVEL
 	add hl, bc
 	ld a, [hl]
-	ld [CurPartyLevel], a
+	ld [wCurPartyLevel], a
 	ld hl, MON_MAXHP
 	add hl, bc
 	ld d, h
@@ -2877,7 +2719,7 @@ _TempMonStatsCalculation: ; 50893
 	add hl, bc
 	ld d, h
 	ld e, l
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	cp EGG
 	jr nz, .not_egg
 	xor a
@@ -2891,7 +2733,7 @@ _TempMonStatsCalculation: ; 50893
 	ld hl, MON_MAXHP
 	add hl, bc
 	ld bc, 2
-	call CopyBytes
+	rst CopyBytes
 	pop bc
 
 .zero_status
@@ -2903,10 +2745,10 @@ _TempMonStatsCalculation: ; 50893
 	ret
 
 GetPkmnSpecies: ; 508d5
-; [MonType] has the type of the Pkmn
-; e = Nr. of Pkmn (i.e. [CurPartyMon])
+; [wMonType] has the type of the Pkmn
+; e = Nr. of Pkmn (i.e. [wCurPartyMon])
 
-	ld a, [MonType]
+	ld a, [wMonType]
 	and a ; PARTYMON
 	jr z, .partymon
 	cp OTPARTYMON
@@ -2918,11 +2760,11 @@ GetPkmnSpecies: ; 508d5
 	; WILDMON
 
 .partymon
-	ld hl, PartySpecies
+	ld hl, wPartySpecies
 	jr .done
 
 .otpartymon
-	ld hl, OTPartySpecies
+	ld hl, wOTPartySpecies
 	jr .done
 
 .boxmon
@@ -2942,24 +2784,23 @@ GetPkmnSpecies: ; 508d5
 	ld a, [hl]
 
 .done2
-	ld [CurPartySpecies], a
+	ld [wCurPartySpecies], a
 	ret
 
 INCLUDE "data/types/names.asm"
 
 PrintNature:
 ; Print nature b at hl.
-	ld a, b
 	push hl
 	ld hl, NatureNames
 	jr _PrintNatureProperty
 
 PrintNatureIndicators:
 ; Print indicators for nature b at hl.
-	ld a, b
 	push hl
 	ld hl, NatureIndicators
 _PrintNatureProperty:
+	ld a, b
 	add a
 	ld e, a
 	ld d, 0
@@ -2977,13 +2818,13 @@ DrawPlayerHP: ; 50b0a
 	ld [wWhichHPBar], a
 	push hl
 	push bc
-	ld a, [MonType]
+	ld a, [wMonType]
 	cp BOXMON
 	jr z, .at_least_1_hp
 
-	ld a, [TempMonHP]
+	ld a, [wTempMonHP]
 	ld b, a
-	ld a, [TempMonHP + 1]
+	ld a, [wTempMonHP + 1]
 	ld c, a
 
 ; Any HP?
@@ -2998,11 +2839,11 @@ DrawPlayerHP: ; 50b0a
 	jp .fainted
 
 .at_least_1_hp
-	ld a, [TempMonMaxHP]
+	ld a, [wTempMonMaxHP]
 	ld d, a
-	ld a, [TempMonMaxHP + 1]
+	ld a, [wTempMonMaxHP + 1]
 	ld e, a
-	ld a, [MonType]
+	ld a, [wMonType]
 	cp BOXMON
 	jr nz, .not_boxmon
 
@@ -3029,11 +2870,11 @@ DrawPlayerHP: ; 50b0a
 ; Print HP
 	ld bc, $15 ; move (1,1)
 	add hl, bc
-	ld de, TempMonHP
-	ld a, [MonType]
+	ld de, wTempMonHP
+	ld a, [wMonType]
 	cp BOXMON
 	jr nz, .not_boxmon_2
-	ld de, TempMonMaxHP
+	ld de, wTempMonMaxHP
 .not_boxmon_2
 	lb bc, 2, 3
 	call PrintNum
@@ -3042,7 +2883,7 @@ DrawPlayerHP: ; 50b0a
 	ld [hli], a
 
 ; Print max HP
-	ld de, TempMonMaxHP
+	ld de, wTempMonMaxHP
 	lb bc, 2, 3
 	call PrintNum
 	pop hl
@@ -3050,10 +2891,10 @@ DrawPlayerHP: ; 50b0a
 	ret
 
 PrintTempMonStats: ; 50b7b
-; Print TempMon's stats at hl, with spacing bc.
+; Print wTempMon's stats at hl, with spacing bc.
 	push bc
 	push hl
-	ld de, .StatNames
+	ld de, MostStatNames
 	call PlaceString
 	pop hl
 	pop bc
@@ -3061,7 +2902,7 @@ PrintTempMonStats: ; 50b7b
 	push bc
 	push hl
 	push hl
-	ld a, [TempMonNature]
+	ld a, [wTempMonNature]
 	ld b, a
 	farcall GetNature
 	pop hl
@@ -3075,16 +2916,16 @@ endr
 	add hl, bc
 	ld bc, SCREEN_WIDTH
 	add hl, bc
-	ld de, TempMonAttack
+	ld de, wTempMonAttack
 	lb bc, 2, 3
 	call .PrintStat
-	ld de, TempMonDefense
+	ld de, wTempMonDefense
 	call .PrintStat
-	ld de, TempMonSpclAtk
+	ld de, wTempMonSpclAtk
 	call .PrintStat
-	ld de, TempMonSpclDef
+	ld de, wTempMonSpclDef
 	call .PrintStat
-	ld de, TempMonSpeed
+	ld de, wTempMonSpeed
 	jp PrintNum
 
 .PrintStat: ; 50bab
@@ -3095,7 +2936,9 @@ endr
 	add hl, de
 	ret
 
-.StatNames: ; 50bb5
+AllStatNames:
+	db   "Health<NL>"
+MostStatNames:
 	db   "Attack"
 	next "Defense"
 	next "Spcl.Atk"
@@ -3103,9 +2946,254 @@ endr
 	next "Speed"
 	next "@"
 
+PrintStatDifferences: ; 50b7b
+	ld a, [wTextBoxFlags]
+	push af
+	set NO_LINE_SPACING, a
+	ld [wTextBoxFlags], a
+
+	; Figure out length of largest modifier (+x, +xx or +xxx)
+	ld hl, wStringBuffer3
+	ld c, 6
+	ld b, 1
+.loop
+	call .ComputeStatDifference
+	inc hl
+	inc hl
+	ld a, [wStringBuffer3 + 12]
+	and a
+	ld a, [wStringBuffer3 + 13]
+	ld d, 4
+	jr nz, .got_digit_length
+	cp 100
+	jr nc, .got_digit_length
+	dec d
+	cp 10
+	jr nc, .got_digit_length
+	dec d
+.got_digit_length
+	ld a, b
+	cp d
+	jr nc, .digit_length_not_larger
+	ld b, d
+.digit_length_not_larger
+	dec c
+	jr nz, .loop
+
+	ld a, b
+	ld [wStringBuffer3 + 14], a
+	ld de, wStringBuffer3
+	ld b, 1 ; show stat+difference
+	call .PrintStatDisplay
+	ld de, wTempMonMaxHP
+	ld b, 0 ; just show stat
+	call .PrintStatDisplay
+	pop af
+	ld [wTextBoxFlags], a
+	ret
+
+.ComputeStatDifference:
+	push de
+	push bc
+	ld a, [hli]
+	cpl
+	ld d, a
+	ld a, [hld]
+	cpl
+	add 1
+	jr nc, .dont_inc_b
+	inc d
+.dont_inc_b
+	ld e, a
+	ld bc, wTempMonMaxHP - wStringBuffer3
+	add hl, bc
+	ld a, [hli]
+	ld b, a
+	ld a, [hld]
+	ld c, a
+	push bc
+	ld bc, wStringBuffer3 - wTempMonMaxHP
+	add hl, bc
+	pop bc
+	push hl
+	ld h, b
+	ld l, c
+	add hl, de
+	ld a, h
+	ld [wStringBuffer3 + 12], a
+	ld a, l
+	ld [wStringBuffer3 + 13], a
+	pop hl
+	pop bc
+	pop de
+	ret
+
+.PrintStatDisplay:
+	push de
+	push bc
+	call .PrintStatNames
+	ld bc, 9
+	add hl, bc
+	pop bc
+	pop de
+	call .PrintStats
+	jp WaitPressAorB_BlinkCursor
+
+.PrintStatNames:
+	ld a, [wStringBuffer3 + 14]
+	push af
+	hlcoord 6, 4
+.coord_loop
+	dec hl
+	dec a
+	jr nz, .coord_loop
+	pop af
+	push af
+	ld b, 6
+	ld c, 12
+	add c
+	ld c, a
+	call TextBox
+	pop af
+	push af
+	hlcoord 7, 5
+.coord_loop2
+	dec hl
+	dec a
+	jr nz, .coord_loop2
+	pop af
+	push hl
+	ld de, AllStatNames
+	call PlaceString
+	pop hl
+	ret
+
+.PrintStats:
+	; Some screen movement is done because internal stat order is different
+	; from the order we want to display.
+	; Printing: HP, Atk, Def, SAtk, SDef, Speed
+	; Internal: HP, Atk, Def, Speed, SAtk, SDef
+	call .PrintStat ; HP
+	call .PrintStat ; Attack
+	call .PrintStat ; Defense
+
+	push bc
+	ld bc, SCREEN_WIDTH * 2
+	add hl, bc
+	pop bc
+	call .PrintStat ; Speed
+
+	push bc
+	ld bc, -SCREEN_WIDTH * 3
+	add hl, bc
+	pop bc
+	call .PrintStat
+.PrintStat:
+	push bc
+	push hl
+	push de
+	ld a, b
+	lb bc, 2, 3
+	push af
+	call PrintNum
+	pop af
+	and a
+	jr z, .mod_done
+	pop hl
+	call .ComputeStatDifference
+	ld d, h
+	ld e, l
+	pop hl
+	push hl
+	inc hl
+	inc hl
+	inc hl
+	ld a, "+"
+	ld [hli], a
+
+	ld b, 2
+	ld a, [wStringBuffer3 + 14]
+	ld c, a
+	dec c
+	push de
+	ld de, wStringBuffer3 + 12
+	call PrintNum
+.mod_done
+	pop de
+	pop hl
+	ld bc, SCREEN_WIDTH
+	add hl, bc
+	inc de
+	inc de
+	pop bc
+	ret
+
+GetShininess:
+; Return the shininess of a given monster (wCurPartyMon/wCurOTMon/CurWildMon)
+; based on wMonType.
+
+; Figure out what type of monster struct we're looking at.
+
+; 0: PartyMon
+	ld hl, wPartyMon1Shiny
+	ld bc, PARTYMON_STRUCT_LENGTH
+	ld a, [wMonType]
+	and a
+	jr z, .PartyMon
+
+; 1: OTPartyMon
+	ld hl, wOTPartyMon1Shiny
+	dec a
+	jr z, .PartyMon
+
+; 2: sBoxMon
+	ld hl, sBoxMon1Shiny
+	ld bc, BOXMON_STRUCT_LENGTH
+	dec a
+	jr z, .sBoxMon
+
+; 3: Other
+	ld hl, wTempMonShiny
+	dec a
+	jr z, .Shininess
+
+; else: WildMon
+	ld hl, wEnemyMonShiny
+	jr .Shininess
+
+; Get our place in the party/box.
+
+.PartyMon:
+.sBoxMon
+	ld a, [wCurPartyMon]
+	rst AddNTimes
+
+.Shininess:
+
+; sBoxMon data is read directly from SRAM.
+	ld a, [wMonType]
+	cp BOXMON
+	ld a, 1
+	call z, GetSRAMBank
+
+; Shininess
+	ld a, [hl]
+	and SHINY_MASK
+	ld b, a
+
+; Close SRAM if we were dealing with a sBoxMon.
+	ld a, [wMonType]
+	cp BOXMON
+	call z, CloseSRAM
+
+; Check the shininess value
+	ld a, b
+	and a
+	ret
+
 GetGender: ; 50bdd
-; Return the gender of a given monster (CurPartyMon/CurOTMon/CurWildMon).
-; When calling this function, a should be set to an appropriate MonType value.
+; Return the gender of a given monster (wCurPartyMon/wCurOTMon/CurWildMon)
+; based on wMonType.
 
 ; return values:
 ; a = 1: f = nc|nz; male
@@ -3118,14 +3206,14 @@ GetGender: ; 50bdd
 ; Figure out what type of monster struct we're looking at.
 
 ; 0: PartyMon
-	ld hl, PartyMon1Gender
+	ld hl, wPartyMon1Gender
 	ld bc, PARTYMON_STRUCT_LENGTH
-	ld a, [MonType]
+	ld a, [wMonType]
 	and a
 	jr z, .PartyMon
 
 ; 1: OTPartyMon
-	ld hl, OTPartyMon1Gender
+	ld hl, wOTPartyMon1Gender
 	dec a
 	jr z, .PartyMon
 
@@ -3136,25 +3224,25 @@ GetGender: ; 50bdd
 	jr z, .sBoxMon
 
 ; 3: Other (used for breeding, possibly elsewhere)
-	ld hl, TempMonGender
+	ld hl, wTempMonGender
 	dec a
 	jr z, .Gender
 
 ; else: WildMon
-	ld hl, EnemyMonGender
+	ld hl, wEnemyMonGender
 	jr .Gender
 
 ; Get our place in the party/box.
 
 .PartyMon:
 .sBoxMon
-	ld a, [CurPartyMon]
-	call AddNTimes
+	ld a, [wCurPartyMon]
+	rst AddNTimes
 
 .Gender:
 
 ; sBoxMon data is read directly from SRAM.
-	ld a, [MonType]
+	ld a, [wMonType]
 	cp BOXMON
 	ld a, 1
 	call z, GetSRAMBank
@@ -3165,17 +3253,17 @@ GetGender: ; 50bdd
 	ld b, a
 
 ; Close SRAM if we were dealing with a sBoxMon.
-	ld a, [MonType]
+	ld a, [wMonType]
 	cp BOXMON
 	call z, CloseSRAM
 
 ; We need the gender ratio to do anything with this.
 	push bc
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	dec a
 	ld hl, BASEMON_GENDER
 	ld bc, BASEMON_STRUCT_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	pop bc
 
 	ld a, BANK(BaseData)
@@ -3217,7 +3305,7 @@ ListMovePP: ; 50c50
 	sub c
 	ld b, a
 	push hl
-	ld a, [Buffer1]
+	ld a, [wBuffer1]
 	ld e, a
 	ld d, $0
 	ld a, "<BOLDP>"
@@ -3236,7 +3324,7 @@ ListMovePP: ; 50c50
 	inc hl
 	ld d, h
 	ld e, l
-	ld hl, TempMonMoves
+	ld hl, wTempMonMoves
 	ld b, 0
 .loop
 	ld a, [hli]
@@ -3250,22 +3338,28 @@ ListMovePP: ; 50c50
 	push af
 	ld [hl], b
 	push hl
+	ld a, [wMonType]
+	push af
+	ld a, BOXMON
+	ld [wMonType], a
 	farcall GetMaxPPOfMove
+	pop af
+	ld [wMonType], a
 	pop hl
 	pop af
 	ld [hl], a
 	pop de
 	pop hl
 	push hl
-	ld bc, TempMonPP - (TempMonMoves + 1)
+	ld bc, wTempMonPP - (wTempMonMoves + 1)
 	add hl, bc
 	ld a, [hl]
 	and $3f
-	ld [StringBuffer1 + 4], a
+	ld [wStringBuffer1 + 4], a
 	ld h, d
 	ld l, e
 	push hl
-	ld de, StringBuffer1 + 4
+	ld de, wStringBuffer1 + 4
 	lb bc, 1, 2
 	call PrintNum
 	ld a, "/"
@@ -3274,7 +3368,7 @@ ListMovePP: ; 50c50
 	lb bc, 1, 2
 	call PrintNum
 	pop hl
-	ld a, [Buffer1]
+	ld a, [wBuffer1]
 	ld e, a
 	ld d, 0
 	add hl, de
@@ -3384,6 +3478,7 @@ StatusStringPointers:
 	dw BrnString
 	dw FrzString
 	dw FntString
+	dw ToxString
 
 OKString:  db "OK @"
 PsnString: db "Psn@"
@@ -3392,9 +3487,10 @@ SlpString: db "Slp@"
 BrnString: db "Brn@"
 FrzString: db "Frz@"
 FntString: db "Fnt@"
+ToxString: db "Tox@"
 
 ListMoves: ; 50d6f
-; List moves at hl, spaced every [Buffer1] tiles.
+; List moves at hl, spaced every [wBuffer1] tiles.
 	ld de, wListMoves_MoveIndicesBuffer
 	ld b, $0
 .moves_loop
@@ -3405,11 +3501,11 @@ ListMoves: ; 50d6f
 	push de
 	push hl
 	push hl
-	ld [CurSpecies], a
+	ld [wCurSpecies], a
 	ld a, MOVE_NAME
 	ld [wNamedObjectTypeBuffer], a
 	call GetName
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	pop hl
 	push bc
 	call PlaceString
@@ -3419,7 +3515,7 @@ ListMoves: ; 50d6f
 	inc b
 	pop hl
 	push bc
-	ld a, [Buffer1]
+	ld a, [wBuffer1]
 	ld c, a
 	ld b, 0
 	add hl, bc
@@ -3435,7 +3531,7 @@ ListMoves: ; 50d6f
 .nonmove_loop
 	push af
 	ld [hl], "-"
-	ld a, [Buffer1]
+	ld a, [wBuffer1]
 	ld c, a
 	ld b, 0
 	add hl, bc
@@ -3446,8 +3542,8 @@ ListMoves: ; 50d6f
 	ret
 
 CalcLevel: ; 50e1b
-	ld a, [TempMonSpecies]
-	ld [CurSpecies], a
+	ld a, [wTempMonSpecies]
+	ld [wCurSpecies], a
 	call GetBaseData
 	ld d, 1
 .next_level
@@ -3457,7 +3553,7 @@ CalcLevel: ; 50e1b
 	jr z, .got_level
 	call CalcExpAtLevel
 	push hl
-	ld hl, TempMonExp + 2
+	ld hl, wTempMonExp + 2
 	ld a, [hProduct + 3]
 	ld c, a
 	ld a, [hld]
@@ -3490,7 +3586,7 @@ CalcExpAtLevel: ; 50e47
 	ld [hProduct + 3], a
 	ret
 .UseExpFormula
-	ld a, [BaseGrowthRate]
+	ld a, [wBaseGrowthRate]
 	add a
 	add a
 	ld c, a
@@ -3622,31 +3718,31 @@ INCLUDE "data/growth_rates.asm"
 _SwitchPartyMons:
 	ld a, [wSwitchMon]
 	dec a
-	ld [Buffer3], a
+	ld [wBuffer3], a
 	ld b, a
 	ld a, [wMenuCursorY]
 	dec a
-	ld [Buffer2], a
+	ld [wBuffer2], a
 	cp b
 	ret z
 	call .SwapMonAndMail
-	ld a, [Buffer3]
+	ld a, [wBuffer3]
 	call .ClearSprite
-	ld a, [Buffer2]
+	ld a, [wBuffer2]
 	; fallthrough
 
 .ClearSprite: ; 50f34 (14:4f34)
 	push af
 	hlcoord 0, 1
 	ld bc, 2 * SCREEN_WIDTH
-	call AddNTimes
+	rst AddNTimes
 	ld bc, 2 * SCREEN_WIDTH
 	ld a, " "
 	call ByteFill
 	pop af
-	ld hl, Sprites
+	ld hl, wSprites
 	ld bc, $10
-	call AddNTimes
+	rst AddNTimes
 	ld de, $4
 	ld c, $4
 .gfx_loop
@@ -3661,14 +3757,14 @@ _SwitchPartyMons:
 	push hl
 	push de
 	push bc
-	ld bc, PartySpecies
-	ld a, [Buffer2]
+	ld bc, wPartySpecies
+	ld a, [wBuffer2]
 	ld l, a
 	ld h, $0
 	add hl, bc
 	ld d, h
 	ld e, l
-	ld a, [Buffer3]
+	ld a, [wBuffer3]
 	ld l, a
 	ld h, $0
 	add hl, bc
@@ -3678,33 +3774,33 @@ _SwitchPartyMons:
 	ld [hl], a
 	pop af
 	ld [de], a
-	ld a, [Buffer2]
-	ld hl, PartyMons
+	ld a, [wBuffer2]
+	ld hl, wPartyMons
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	push hl
 	ld de, wd002
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call CopyBytes
-	ld a, [Buffer3]
-	ld hl, PartyMons
+	rst CopyBytes
+	ld a, [wBuffer3]
+	ld hl, wPartyMons
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	pop de
 	push hl
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	pop de
 	ld hl, wd002
 	ld bc, PARTYMON_STRUCT_LENGTH
-	call CopyBytes
-	ld a, [Buffer2]
-	ld hl, PartyMonOT
+	rst CopyBytes
+	ld a, [wBuffer2]
+	ld hl, wPartyMonOT
 	call SkipNames
 	push hl
 	call .CopyNameTowd002
-	ld a, [Buffer3]
-	ld hl, PartyMonOT
+	ld a, [wBuffer3]
+	ld hl, wPartyMonOT
 	call SkipNames
 	pop de
 	push hl
@@ -3712,13 +3808,13 @@ _SwitchPartyMons:
 	pop de
 	ld hl, wd002
 	call .CopyName
-	ld hl, PartyMonNicknames
-	ld a, [Buffer2]
+	ld hl, wPartyMonNicknames
+	ld a, [wBuffer2]
 	call SkipNames
 	push hl
 	call .CopyNameTowd002
-	ld hl, PartyMonNicknames
-	ld a, [Buffer3]
+	ld hl, wPartyMonNicknames
+	ld a, [wBuffer3]
 	call SkipNames
 	pop de
 	push hl
@@ -3727,27 +3823,27 @@ _SwitchPartyMons:
 	ld hl, wd002
 	call .CopyName
 	ld hl, sPartyMail
-	ld a, [Buffer2]
+	ld a, [wBuffer2]
 	ld bc, MAIL_STRUCT_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	push hl
 	ld de, wd002
 	ld bc, MAIL_STRUCT_LENGTH
 	ld a, BANK(sPartyMail)
 	call GetSRAMBank
-	call CopyBytes
+	rst CopyBytes
 	ld hl, sPartyMail
-	ld a, [Buffer3]
+	ld a, [wBuffer3]
 	ld bc, MAIL_STRUCT_LENGTH
-	call AddNTimes
+	rst AddNTimes
 	pop de
 	push hl
 	ld bc, MAIL_STRUCT_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	pop de
 	ld hl, wd002
 	ld bc, MAIL_STRUCT_LENGTH
-	call CopyBytes
+	rst CopyBytes
 	call CloseSRAM
 	pop bc
 	pop de
@@ -3759,7 +3855,8 @@ _SwitchPartyMons:
 
 .CopyName: ; 51039 (14:5039)
 	ld bc, NAME_LENGTH
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 INCLUDE "gfx/load_pics.asm"
 
@@ -3790,39 +3887,39 @@ InsertPokemonIntoBox: ; 51322
 	ld de, wBufferMon
 	call InsertDataIntoBoxOrParty
 	ld hl, wBufferMonMoves
-	ld de, TempMonMoves
+	ld de, wTempMonMoves
 	ld bc, NUM_MOVES
-	call CopyBytes
+	rst CopyBytes
 	ld hl, wBufferMonPP
-	ld de, TempMonPP
+	ld de, wTempMonPP
 	ld bc, NUM_MOVES
-	call CopyBytes
-	ld a, [CurPartyMon]
+	rst CopyBytes
+	ld a, [wCurPartyMon]
 	ld b, a
 	farcall RestorePPofDepositedPokemon
 	jp CloseSRAM
 
 InsertPokemonIntoParty: ; 5138b
-	ld hl, PartyCount
+	ld hl, wPartyCount
 	call InsertSpeciesIntoBoxOrParty
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	dec a
 	ld [wd265], a
-	ld hl, PartyMonNicknames
+	ld hl, wPartyMonNicknames
 	ld bc, PKMN_NAME_LENGTH
 	ld de, wBufferMonNick
 	call InsertDataIntoBoxOrParty
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	dec a
 	ld [wd265], a
-	ld hl, PartyMonOT
+	ld hl, wPartyMonOT
 	ld bc, NAME_LENGTH
 	ld de, wBufferMonOT
 	call InsertDataIntoBoxOrParty
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	dec a
 	ld [wd265], a
-	ld hl, PartyMons
+	ld hl, wPartyMons
 	ld bc, PARTYMON_STRUCT_LENGTH
 	ld de, wBufferMon
 	jp InsertDataIntoBoxOrParty
@@ -3830,11 +3927,11 @@ InsertPokemonIntoParty: ; 5138b
 InsertSpeciesIntoBoxOrParty: ; 513cb
 	inc [hl]
 	inc hl
-	ld a, [CurPartyMon]
+	ld a, [wCurPartyMon]
 	ld c, a
 	ld b, 0
 	add hl, bc
-	ld a, [CurPartySpecies]
+	ld a, [wCurPartySpecies]
 	ld c, a
 .loop
 	ld a, [hl]
@@ -3851,7 +3948,7 @@ InsertDataIntoBoxOrParty: ; 513e0
 	push bc
 	ld a, [wd265]
 	dec a
-	call AddNTimes
+	rst AddNTimes
 	push hl
 	add hl, bc
 	ld d, h
@@ -3861,14 +3958,14 @@ InsertDataIntoBoxOrParty: ; 513e0
 	push bc
 	ld a, [wd265]
 	ld b, a
-	ld a, [CurPartyMon]
+	ld a, [wCurPartyMon]
 	cp b
 	pop bc
 	jr z, .insert
 	push hl
 	push de
 	push bc
-	call CopyBytes
+	rst CopyBytes
 	pop bc
 	pop de
 	pop hl
@@ -3888,12 +3985,13 @@ InsertDataIntoBoxOrParty: ; 513e0
 .insert
 	pop bc
 	pop hl
-	ld a, [CurPartyMon]
-	call AddNTimes
+	ld a, [wCurPartyMon]
+	rst AddNTimes
 	ld d, h
 	ld e, l
 	pop hl
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 INCLUDE "data/pokemon/base_stats.asm"
 INCLUDE "data/pokemon/names.asm"
@@ -3913,6 +4011,7 @@ SECTION "Code 15", ROMX
 
 INCLUDE "gfx/battle_anims.asm"
 INCLUDE "engine/events/halloffame.asm"
+INCLUDE "engine/copy_tilemap_at_once.asm"
 
 PrintAbility:
 ; Print ability b at hl.
@@ -3928,7 +4027,7 @@ PrintAbility:
 	jp PlaceString
 
 BufferAbility:
-; Buffer name for b into StringBuffer1
+; Buffer name for b into wStringBuffer1
 	ld l, b
 	ld h, 0
 	ld bc, AbilityNames
@@ -3937,7 +4036,7 @@ BufferAbility:
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 .loop
 	ld a, [hli]
 	ld [de], a
@@ -3955,34 +4054,10 @@ PrintAbilityDescription:
 	add hl, hl
 	add hl, bc
 	ld a, [hli]
-	ld h, [hl]
-	ld l, a
-	decoord 1, 15
-	push de
-.loop
-	ld a, [hli]
-	cp "@"
-	jr z, .done
-	cp $4e
-	jr z, .line
-	ld [de], a
-	inc de
-	jr .loop
-
-.line
-	pop de
-	push hl
-	ld hl, $0014
-	add hl, de
-	ld d, h
-	ld e, l
-	pop hl
-	push de
-	jr .loop
-
-.done
-	pop de
-	ret
+	ld d, [hl]
+	ld e, a
+	hlcoord 1, 15
+	jp PlaceString
 
 INCLUDE "data/abilities.asm"
 
@@ -4045,6 +4120,7 @@ INCLUDE "engine/card_flip.asm"
 INCLUDE "engine/unown_puzzle.asm"
 ;INCLUDE "engine/dummy_game.asm"
 INCLUDE "engine/billspc.asm"
+INCLUDE "engine/fade.asm"
 
 
 SECTION "Code 23", ROMX
@@ -4072,6 +4148,12 @@ INCLUDE "engine/warp_connection.asm"
 INCLUDE "engine/battle/used_move_text.asm"
 INCLUDE "gfx/items.asm"
 
+SECTION "Load Map Part", ROMX
+; linked, do not separate
+INCLUDE "engine/player_step.asm"
+INCLUDE "engine/load_map_part.asm"
+; end linked section
+
 
 SECTION "Introduction", ROMX
 
@@ -4092,15 +4174,14 @@ SECTION "Diploma", ROMX
 INCLUDE "engine/diploma.asm"
 
 
-SECTION "Palette Maps", ROMX
+SECTION "Collision Permissions", ROMX
 
-INCLUDE "engine/map_palettes.asm"
+INCLUDE "data/collision_permissions.asm"
 
 
 SECTION "Typefaces", ROMX
 
 INCLUDE "gfx/font.asm"
-
 
 SECTION "Battle Core", ROMX
 
@@ -4110,11 +4191,6 @@ INCLUDE "engine/battle/core.asm"
 SECTION "Effect Commands", ROMX
 
 INCLUDE "engine/battle/effect_commands.asm"
-
-
-SECTION "Effect Command Pointers", ROMX
-
-INCLUDE "data/battle/effect_command_pointers.asm"
 
 
 SECTION "Battle Animations", ROMX
@@ -4151,43 +4227,43 @@ INCLUDE "engine/battle/ai/scoring.asm"
 
 GetTrainerClassName: ; 3952d
 	ld a, c
-	ld [CurSpecies], a
+	ld [wCurSpecies], a
 	ld a, TRAINER_NAME
 	ld [wNamedObjectTypeBuffer], a
 	call GetName
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	ret
 
 GetOTName: ; 39550
-	ld hl, OTPlayerName
+	ld hl, wOTPlayerName
 	ld a, [wLinkMode]
 	and a
 	jr nz, .ok
 
 	ld a, c
-	ld [CurSpecies], a
+	ld [wCurSpecies], a
 	ld a, TRAINER_NAME
 	ld [wNamedObjectTypeBuffer], a
 	call GetName
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 
 .ok
 	ld bc, TRAINER_CLASS_NAME_LENGTH
-	ld de, OTClassName
+	ld de, wOTClassName
 	push de
-	call CopyBytes
+	rst CopyBytes
 	pop de
 	ret
 
 GetTrainerAttributes: ; 3957b
-	ld a, [TrainerClass]
+	ld a, [wTrainerClass]
 	ld c, a
 	call GetOTName
-	ld a, [TrainerClass]
+	ld a, [wTrainerClass]
 	dec a
 	ld hl, TrainerClassAttributes + TRNATTR_ITEM1
 	ld bc, NUM_TRAINER_ATTRIBUTES
-	call AddNTimes
+	rst AddNTimes
 	ld de, wEnemyTrainerItem1
 	ld a, [hli]
 	ld [de], a
@@ -4206,7 +4282,7 @@ ComputeTrainerReward: ; 3991b (e:591b)
 	ld [hli], a
 	ld a, [wEnemyTrainerBaseReward]
 	ld [hli], a
-	ld a, [CurPartyLevel]
+	ld a, [wCurPartyLevel]
 	ld [hl], a
 	call Multiply
 	ld hl, wBattleReward
@@ -4371,10 +4447,10 @@ SECTION "Item Text", ROMX
 INCLUDE "data/items/names.asm"
 
 PrintItemDescription: ; 0x1c8955
-; Print the description for item [CurSpecies] at de.
+; Print the description for item [wCurSpecies] at de.
 
 	ld hl, ItemDescriptions
-	ld a, [CurSpecies]
+	ld a, [wCurSpecies]
 	dec a
 	ld c, a
 	ld b, 0
@@ -4389,17 +4465,17 @@ PrintItemDescription: ; 0x1c8955
 ; 0x1c8987
 
 PrintTMHMDescription:
-; Print the description for TM/HM [CurSpecies] at de.
+; Print the description for TM/HM [wCurSpecies] at de.
 
-	ld a, [CurSpecies]
+	ld a, [wCurSpecies]
 	inc a
-	ld [CurTMHM], a
 	ld [wCurTMHM], a
+	ld [wCurTMHMBuffer], a
 	push de
 	predef GetTMHMMove
 	pop hl
 	ld a, [wd265]
-	ld [CurSpecies], a
+	ld [wCurSpecies], a
 	predef PrintMoveDesc
 	ret
 

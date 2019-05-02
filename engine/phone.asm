@@ -64,7 +64,7 @@ Phone_FindOpenSlot: ; 9002d
 
 GetRemainingSpaceInPhoneList: ; 90040
 	xor a
-	ld [Buffer1], a
+	ld [wBuffer1], a
 	ld hl, PermanentNumbers
 .loop
 	ld a, [hli]
@@ -77,7 +77,7 @@ GetRemainingSpaceInPhoneList: ; 90040
 	ld c, a
 	call CheckCellNum
 	jr c, .elm_or_mom_in_list
-	ld hl, Buffer1
+	ld hl, wBuffer1
 	inc [hl]
 
 .elm_or_mom_in_list
@@ -89,7 +89,7 @@ GetRemainingSpaceInPhoneList: ; 90040
 
 .done
 	ld a, CONTACT_LIST_SIZE
-	ld hl, Buffer1
+	ld hl, wBuffer1
 	sub [hl]
 	ret
 ; 90066
@@ -167,7 +167,7 @@ CheckPhoneContactTimeOfDay: ; 900ad (24:40ad)
 
 ChooseRandomCaller: ; 900bf (24:40bf)
 ; If no one is available to call, don't return anything.
-	ld a, [EngineBuffer3]
+	ld a, [wEngineBuffer3]
 	and a
 	jr z, .NothingToSample
 
@@ -182,7 +182,7 @@ ChooseRandomCaller: ; 900bf (24:40bf)
 ; Return the caller ID you just sampled.
 	ld c, a
 	ld b, 0
-	ld hl, EngineBuffer4
+	ld hl, wEngineBuffer4
 	add hl, bc
 	ld a, [hl]
 	scf
@@ -195,8 +195,8 @@ ChooseRandomCaller: ; 900bf (24:40bf)
 GetAvailableCallers: ; 900de (24:40de)
 	farcall CheckTime
 	ld a, c
-	ld [EngineBuffer1], a
-	ld hl, EngineBuffer3
+	ld [wEngineBuffer1], a
+	ld hl, wEngineBuffer3
 	ld bc, 11
 	xor a
 	call ByteFill
@@ -204,38 +204,38 @@ GetAvailableCallers: ; 900de (24:40de)
 	ld a, CONTACT_LIST_SIZE
 
 .loop
-	ld [EngineBuffer2], a
+	ld [wEngineBuffer2], a
 	ld a, [de]
 	and a
 	jr z, .not_good_for_call
 	ld hl, PhoneContacts + PHONE_CONTACT_SCRIPT2_TIME
 	ld bc, PHONE_TABLE_WIDTH
-	call AddNTimes
-	ld a, [EngineBuffer1]
+	rst AddNTimes
+	ld a, [wEngineBuffer1]
 	and [hl]
 	jr z, .not_good_for_call
 	ld bc, PHONE_CONTACT_MAP_GROUP - PHONE_CONTACT_SCRIPT2_TIME
 	add hl, bc
-	ld a, [MapGroup]
+	ld a, [wMapGroup]
 	cp [hl]
 	jr nz, .different_map
 	inc hl
-	ld a, [MapNumber]
+	ld a, [wMapNumber]
 	cp [hl]
 	jr z, .not_good_for_call
 .different_map
-	ld a, [EngineBuffer3]
+	ld a, [wEngineBuffer3]
 	ld c, a
 	ld b, $0
 	inc a
-	ld [EngineBuffer3], a
-	ld hl, EngineBuffer4
+	ld [wEngineBuffer3], a
+	ld hl, wEngineBuffer4
 	add hl, bc
 	ld a, [de]
 	ld [hl], a
 .not_good_for_call
 	inc de
-	ld a, [EngineBuffer2]
+	ld a, [wEngineBuffer2]
 	dec a
 	jr nz, .loop
 	ret
@@ -250,7 +250,7 @@ CheckSpecialPhoneCall:: ; 90136 (24:4136)
 	ld b, 0
 	ld hl, SpecialPhoneCallList
 	ld a, 6
-	call AddNTimes
+	rst AddNTimes
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -296,7 +296,8 @@ CheckSpecialPhoneCall:: ; 90136 (24:4136)
 	ld b, 0
 	ld hl, SpecialPhoneCallList
 	ld a, 6
-	jp AddNTimes
+	rst AddNTimes
+	ret
 
 SpecialCallOnlyWhenOutside: ; 90188
 	ld a, [wPermission]
@@ -329,7 +330,7 @@ Function90199: ; 90199 (24:4199)
 	ld [wCurrentCaller], a
 	ld hl, PhoneContacts
 	ld bc, PHONE_TABLE_WIDTH
-	call AddNTimes
+	rst AddNTimes
 	ld d, h
 	ld e, l
 	ld hl, PHONE_CONTACT_SCRIPT1_TIME
@@ -341,12 +342,12 @@ Function90199: ; 90199 (24:4199)
 	; use the "Just talk to that person" script.
 	ld hl, PHONE_CONTACT_MAP_GROUP
 	add hl, de
-	ld a, [MapGroup]
+	ld a, [wMapGroup]
 	cp [hl]
 	jr nz, .GetPhoneScript
 	ld hl, PHONE_CONTACT_MAP_NUMBER
 	add hl, de
-	ld a, [MapNumber]
+	ld a, [wMapNumber]
 	cp [hl]
 	jr nz, .GetPhoneScript
 	ld b, BANK(PhoneScript_JustTalkToThem)
@@ -404,10 +405,10 @@ LoadCallerScript: ; 9020d (24:420d)
 	ld hl, PhoneContacts
 	ld bc, 12
 	ld a, e
-	call AddNTimes
+	rst AddNTimes
 	ld a, BANK(PhoneContacts)
 .proceed
-	ld de, EngineBuffer2
+	ld de, wEngineBuffer2
 	ld bc, 12
 	jp FarCopyBytes
 ; 90233 (24:4233)
@@ -460,11 +461,11 @@ Phone_CallerTextboxWithName: ; 90292 (24:4292)
 
 PhoneCall:: ; 9029a
 	ld a, b
-	ld [PhoneScriptBank], a
+	ld [wPhoneScriptBank], a
 	ld a, e
-	ld [PhoneCallerLo], a
+	ld [wPhoneCallerLo], a
 	ld a, d
-	ld [PhoneCallerHi], a
+	ld [wPhoneCallerHi], a
 	call Phone_FirstOfTwoRings
 Phone_FirstOfTwoRings: ; 902b3
 	call Phone_StartRinging
@@ -479,11 +480,11 @@ Phone_CallerTextboxWithName2: ; 902c9
 	ld [hl], "<PHONE>"
 	inc hl
 	inc hl
-	ld a, [PhoneScriptBank]
+	ld a, [wPhoneScriptBank]
 	ld b, a
-	ld a, [PhoneCallerLo]
+	ld a, [wPhoneCallerLo]
 	ld e, a
-	ld a, [PhoneCallerHi]
+	ld a, [wPhoneCallerHi]
 	ld d, a
 	jp FarPlaceString
 ; 902e3
@@ -542,16 +543,13 @@ Phone_StartRinging: ; 9033f
 	call PlaySFX
 	call Phone_CallerTextbox
 	call UpdateSprites
-	farjp PhoneRing_LoadEDTile
-; 90355
+	jp ApplyTilemap
 
 HangUp_Wait20Frames: ; 90355
 Phone_Wait20Frames:
 	ld c, 20
 	call DelayFrames
-	farjp PhoneRing_LoadEDTile
-; 90363
-
+	jp ApplyTilemap
 
 Function90363: ; 90363 (24:4363)
 	push bc
@@ -600,7 +598,7 @@ GetCallerTrainerClass: ; 9039a
 	push hl
 	ld hl, PhoneContacts + PHONE_CONTACT_TRAINER_CLASS
 	ld bc, PHONE_TABLE_WIDTH
-	call AddNTimes
+	rst AddNTimes
 	ld a, [hli]
 	ld b, [hl]
 	ld c, a
@@ -653,7 +651,7 @@ GetCallerName: ; 903a9 (24:43a9)
 	inc a
 	ld de, wPokegearNumberBuffer
 	ld [de], a
-	lb bc, PRINTNUM_RIGHTALIGN | 1, 2
+	lb bc, PRINTNUM_LEFTALIGN | 1, 2
 	call PrintNum
 	ld de, .filler
 	jp PlaceString
@@ -705,7 +703,7 @@ GetCallerLocation: ; 90439
 	ld a, [wCurrentCaller]
 	ld hl, PhoneContacts + PHONE_CONTACT_MAP_GROUP
 	ld bc, PHONE_TABLE_WIDTH
-	call AddNTimes
+	rst AddNTimes
 	ld b, [hl]
 	inc hl
 	ld c, [hl]

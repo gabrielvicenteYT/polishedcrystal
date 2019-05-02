@@ -20,7 +20,7 @@ UnownPuzzle: ; e1190
 	ld hl, UnownPuzzleCursorGFX
 	ld de, VTiles1 tile $60
 	ld bc, 4 tiles
-	call CopyBytes
+	rst CopyBytes
 	ld hl, UnownPuzzleStartCancelLZ
 	ld de, VTiles1 tile $6d
 	call Decompress
@@ -46,7 +46,7 @@ UnownPuzzle: ; e1190
 	ld [wUnownPuzzleHeldPiece], a
 	ld a, %10010011
 	ld [rLCDC], a
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld b, CGB_UNOWN_PUZZLE
 	call GetCGBLayout
 	ld a, $e4
@@ -312,7 +312,7 @@ UnownPuzzle_A: ; e1376
 	ld [wUnownPuzzleHeldPiece], a
 	call RedrawUnownPuzzlePieces
 	call FillUnoccupiedPuzzleSpace
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call WaitSFX
 	ld a, TRUE
 	ld [wHoldingUnownPuzzlePiece], a
@@ -327,7 +327,7 @@ UnownPuzzle_A: ; e1376
 	ld a, [wUnownPuzzleHeldPiece]
 	ld [hl], a
 	call PlaceUnownPuzzlePieceGFX
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	xor a
 	ld [wUnownPuzzleHeldPiece], a
 	call RedrawUnownPuzzlePieces
@@ -546,7 +546,7 @@ RedrawUnownPuzzlePieces: ; e14d9
 	ld hl, .OAM_NotHoldingPiece
 
 .load
-	ld de, Sprites
+	ld de, wSprites
 .loop
 	ld a, [hli]
 	cp -1
@@ -830,7 +830,7 @@ GFXHeaders: ; e1703
 INCBIN "gfx/unown_puzzle/tile_borders.2bpp"
 
 LoadUnownPuzzlePiecesGFX: ; e17a3
-	ld a, [ScriptVar]
+	ld a, [wScriptVar]
 	and 3
 	ld e, a
 	ld d, 0

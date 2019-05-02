@@ -5,7 +5,7 @@
 	const RADIO_CARD
 
 PokeGear: ; 90b8d (24:4b8d)
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
@@ -14,10 +14,10 @@ PokeGear: ; 90b8d (24:4b8d)
 	ld a, $1
 	ld [hInMenu], a
 	ld [wInPokegear], a
-	ld a, [VramState]
+	ld a, [wVramState]
 	push af
 	xor a
-	ld [VramState], a
+	ld [wVramState], a
 	call .InitTilemap
 	call DelayFrame
 .loop
@@ -36,11 +36,11 @@ PokeGear: ; 90b8d (24:4b8d)
 	call PlaySFX
 	call WaitSFX
 	pop af
-	ld [VramState], a
+	ld [wVramState], a
 	pop af
 	ld [hInMenu], a
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	call ClearBGPalettes
 	xor a
 	ld [hBGMapAddress], a
@@ -102,9 +102,9 @@ Pokegear_LoadGFX: ; 90c4e
 	ld de, VTiles0
 	ld a, BANK(PokegearSpritesGFX)
 	call Decompress
-	ld a, [MapGroup]
+	ld a, [wMapGroup]
 	ld b, a
-	ld a, [MapNumber]
+	ld a, [wMapNumber]
 	ld c, a
 	call GetWorldMapLocation
 	cp FAST_SHIP
@@ -137,7 +137,8 @@ Pokegear_LoadGFX: ; 90c4e
 .loadaltsprite
 	ld de, VTiles0 tile $10
 	ld bc, 8 tiles
-	jp CopyBytes
+	rst CopyBytes
+	ret
 
 .sinjoh
 	ld hl, SinjohRuinsArrowGFX
@@ -195,7 +196,7 @@ InitPokegearTilemap: ; 90da8 (24:4da8)
 	xor a
 	ld [hBGMapMode], a
 	hlcoord 0, 0
-	ld bc, TileMapEnd - TileMap
+	ld bc, wTileMapEnd - wTileMap
 	ld a, $4f
 	call ByteFill
 	ld a, [wcf64]
@@ -259,7 +260,7 @@ InitPokegearTilemap: ; 90da8 (24:4da8)
 	ld [hBGMapMode], a
 	ld c, 3
 	call DelayFrames
-	jp WaitBGMap
+	jp ApplyTilemapInVBlank
 
 ; 90e12 (24:4e12)
 
@@ -475,7 +476,7 @@ Pokegear_UpdateClock: ; 90f86 (24:4f86)
 	ld b, a
 	ld a, [hMinutes]
 	ld c, a
-	ld a, [Options2]
+	ld a, [wOptions2]
 	bit CLOCK_FORMAT, a
 	decoord 6, 8
 	jr z, .h12
@@ -662,7 +663,7 @@ PokegearMap_InitPlayerIcon: ; 9106a
 	push af
 	depixel 0, 0
 	ld b, SPRITE_ANIM_INDEX_RED_WALK
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	bit 0, a
 	jr z, .got_gender
 	ld b, SPRITE_ANIM_INDEX_BLUE_WALK
@@ -738,7 +739,7 @@ PokegearMap_UpdateCursorPosition: ; 910d4
 ; 910e8
 
 TownMap_ConvertLineBreakCharacters: ; 1de2c5
-	ld hl, StringBuffer1
+	ld hl, wStringBuffer1
 .loop
 	ld a, [hl]
 	cp "@"
@@ -754,7 +755,7 @@ TownMap_ConvertLineBreakCharacters: ; 1de2c5
 	ld [hl], "<LNBRK>"
 
 .end
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	hlcoord 9, 0
 	jp PlaceString
 
@@ -764,7 +765,7 @@ TownMap_GetJohtoLandmarkLimits:
 
 TownMap_GetKantoLandmarkLimits: ; 910e8
 	lb de, ROUTE_28, ROUTE_27
-	ld a, [StatusFlags]
+	ld a, [wStatusFlags]
 	bit 6, a
 	ret z
 	ld e, PALLET_TOWN
@@ -905,7 +906,7 @@ PokegearPhone_Joypad: ; 91171 (24:5171)
 	hlcoord 1, 4
 	ld a, [wPokegearPhoneCursorPosition]
 	ld bc, 20 * 2
-	call AddNTimes
+	rst AddNTimes
 	ld [hl], "▷"
 	call PokegearPhoneContactSubmenu
 	jr c, .quit_submenu
@@ -922,7 +923,7 @@ PokegearPhone_MakePhoneCall: ; 911eb (24:51eb)
 	call GetMapHeaderPhoneServiceNybble
 	and a
 	jr nz, .no_service
-	ld hl, Options1
+	ld hl, wOptions1
 	res NO_TEXT_SCROLL, [hl]
 	xor a
 	ld [hInMenu], a
@@ -941,7 +942,7 @@ PokegearPhone_MakePhoneCall: ; 911eb (24:51eb)
 	call Function90199
 	ld c, 10
 	call DelayFrames
-	ld hl, Options1
+	ld hl, wOptions1
 	set NO_TEXT_SCROLL, [hl]
 	ld a, $1
 	ld [hInMenu], a
@@ -1031,13 +1032,13 @@ PokegearPhone_GetDPad: ; 9126d (24:526d)
 	xor a
 	ld [hBGMapMode], a
 	call PokegearPhone_UpdateCursor
-	jp WaitBGMap
+	jp ApplyTilemapInVBlank
 
 .done_joypad_update_page
 	xor a
 	ld [hBGMapMode], a
 	call PokegearPhone_UpdateDisplayList
-	jp WaitBGMap
+	jp ApplyTilemapInVBlank
 
 PokegearPhone_UpdateCursor: ; 912b7 (24:52b7)
 	ld a, " "
@@ -1052,7 +1053,7 @@ PokegearPhone_UpdateCursor: ; 912b7 (24:52b7)
 	hlcoord 1, 4
 	ld a, [wPokegearPhoneCursorPosition]
 	ld bc, 2 * SCREEN_WIDTH
-	call AddNTimes
+	rst AddNTimes
 	ld [hl], "▶"
 	ret
 
@@ -1084,7 +1085,7 @@ PokegearPhone_UpdateDisplayList: ; 912d8 (24:52d8)
 	hlcoord 2, 4
 	ld a, [wPokegearPhoneLoadNameBuffer]
 	ld bc, 2 * SCREEN_WIDTH
-	call AddNTimes
+	rst AddNTimes
 	ld d, h
 	ld e, l
 	pop af
@@ -1178,7 +1179,7 @@ PokegearPhoneContactSubmenu: ; 91342 (24:5342)
 	xor a
 	ld [wPokegearPhoneSubmenuCursor], a
 	call .UpdateCursor
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 .loop
 	push de
 	call JoyTextDelay
@@ -1256,7 +1257,7 @@ PokegearPhoneContactSubmenu: ; 91342 (24:5342)
 	call PokegearPhone_UpdateDisplayList
 	ld hl, PokegearText_WhomToCall
 	call PrintText
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 .CancelDelete:
 	scf
 	ret
@@ -1290,7 +1291,7 @@ PokegearPhoneContactSubmenu: ; 91342 (24:5342)
 	pop hl
 	ld a, [wPokegearPhoneSubmenuCursor]
 	ld bc, SCREEN_WIDTH  * 2
-	call AddNTimes
+	rst AddNTimes
 	ld [hl], "▶"
 	pop de
 	ret
@@ -1355,8 +1356,8 @@ ExitPokegearRadio_HandleMusic: ; 91492
 ; 914ab
 
 DeleteSpriteAnimStruct2ToEnd: ; 914ab (24:54ab)
-	ld hl, SpriteAnim2
-	ld bc, wSpriteAnimationStructsEnd - SpriteAnim2
+	ld hl, wSpriteAnim2
+	ld bc, wSpriteAnimationStructsEnd - wSpriteAnim2
 	xor a
 	call ByteFill
 	ld a, 2
@@ -1520,7 +1521,7 @@ RadioChannels:
 ; Oak's Pokémon Talk in the afternoon and evening
 	call .InJohto
 	jr nc, .NoSignal
-	ld a, [TimeOfDay]
+	ld a, [wTimeOfDay]
 	and a
 	jp z, LoadStation_PokedexShow
 	jp LoadStation_OaksPokemonTalk
@@ -1572,7 +1573,7 @@ RadioChannels:
 
 .EvolutionRadio:
 ; This station airs in the Lake of Rage area when Rocket are still in Mahogany.
-	ld a, [StatusFlags]
+	ld a, [wStatusFlags]
 	bit 4, a
 	jr z, .NoSignal
 	ld a, [wPokegearMapPlayerIconLandmark]
@@ -1634,7 +1635,7 @@ LoadStation_LuckyChannel: ; 91790 (24:5790)
 
 LoadStation_BuenasPassword: ; 917a5 (24:57a5)
 	ld de, NotBuenasPasswordName
-	ld a, [StatusFlags2]
+	ld a, [wStatusFlags2]
 	bit 0, a ; ENGINE_ROCKETS_IN_RADIO_TOWER
 	jr z, .ok
 	ld de, BuenasPasswordName
@@ -1740,7 +1741,7 @@ PokeFluteStationName: db "# Flute@"
 ; 9191c
 
 _TownMap: ; 9191c
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
@@ -1750,10 +1751,10 @@ _TownMap: ; 9191c
 	ld a, $1
 	ld [hInMenu], a
 
-	ld a, [VramState]
+	ld a, [wVramState]
 	push af
 	xor a
-	ld [VramState], a
+	ld [wVramState], a
 
 	call ClearBGPalettes
 	call ClearTileMap
@@ -1771,7 +1772,7 @@ _TownMap: ; 9191c
 	xor a
 	ld [hBGMapMode], a
 	call .InitTilemap
-	call WaitBGMap2
+	call ApplyAttrAndTilemapInVBlank
 	ld a, [wTownMapPlayerIconLandmark]
 	call PokegearMap_InitPlayerIcon
 	ld a, [wTownMapCursorLandmark]
@@ -1803,11 +1804,11 @@ _TownMap: ; 9191c
 .resume
 	call .loop
 	pop af
-	ld [VramState], a
+	ld [wVramState], a
 	pop af
 	ld [hInMenu], a
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	jp ClearBGPalettes
 
 .loop
@@ -1907,7 +1908,7 @@ _TownMap: ; 9191c
 ; 91a53
 
 PlayRadio: ; 91a53
-	ld hl, Options1
+	ld hl, wOptions1
 	ld a, [hl]
 	push af
 	set NO_TEXT_SCROLL, [hl]
@@ -1933,14 +1934,14 @@ PlayRadio: ; 91a53
 
 .stop
 	pop af
-	ld [Options1], a
+	ld [wOptions1], a
 	jp ExitPokegearRadio_HandleMusic
 
 ; 91a87
 
 .PlayStation: ; 91a87
 	ld a, -1
-	ld [EnemyTurnsTaken], a
+	ld [wEnemyTurnsTaken], a
 	ld hl, .StationPointers
 	ld d, $0
 	add hl, de
@@ -1965,7 +1966,7 @@ PlayRadio: ; 91a53
 	ld h, b
 	ld l, c
 	ld [hl], "”"
-	jp WaitBGMap
+	jp ApplyTilemapInVBlank
 
 ; 91ab9
 
@@ -1986,7 +1987,7 @@ PlayRadio: ; 91a53
 	call IsInJohto
 	jr nz, .kanto_or_orange
 	call UpdateTime
-	ld a, [TimeOfDay]
+	ld a, [wTimeOfDay]
 	and a
 	jp z, LoadStation_PokedexShow
 	jp LoadStation_OaksPokemonTalk
@@ -2067,9 +2068,9 @@ _FlyMap: ; 91af3
 ; 91b73
 
 FlyMapScroll: ; 91b73
-	ld a, [StartFlypoint]
+	ld a, [wStartFlypoint]
 	ld e, a
-	ld a, [EndFlypoint]
+	ld a, [wEndFlypoint]
 	ld d, a
 	ld hl, hJoyLast
 	ld a, [hl]
@@ -2108,7 +2109,7 @@ FlyMapScroll: ; 91b73
 	jr z, .ScrollPrev
 .Finally:
 	call TownMapBubble
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	xor a
 	ld [hBGMapMode], a
 	ret
@@ -2173,7 +2174,7 @@ TownMapBubble: ; 91bb5
 	ld e, [hl]
 	farcall GetLandmarkName
 	hlcoord 2, 1
-	ld de, StringBuffer1
+	ld de, wStringBuffer1
 	jp PlaceString
 
 ; 91c17
@@ -2223,7 +2224,7 @@ CheckIfVisitedFlypoint: ; 91c3c
 
 HasVisitedSpawn: ; 91c50
 ; Check if spawn point c has been visited.
-	ld hl, VisitedSpawns
+	ld hl, wVisitedSpawns
 	ld b, CHECK_FLAG
 	ld d, 0
 	predef FlagPredef
@@ -2246,10 +2247,10 @@ FlyMap: ; 91c90
 	ld a, FLY_NEW_BARK
 	ld [wTownMapPlayerIconLandmark], a
 ; Flypoints begin at New Bark Town...
-	ld [StartFlypoint], a
+	ld [wStartFlypoint], a
 ; ..and end at Silver Cave
 	ld a, FLY_MT_SILVER
-	ld [EndFlypoint], a
+	ld [wEndFlypoint], a
 ; Fill out the map
 	call FillJohtoMap
 	call TownMapBubble
@@ -2281,10 +2282,10 @@ FlyMap: ; 91c90
 
 ; Flypoints begin at Pallet Town...
 	ld a, FLY_PALLET
-	ld [StartFlypoint], a
+	ld [wStartFlypoint], a
 ; ...and end at Indigo Plateau
 	ld a, FLY_INDIGO
-	ld [EndFlypoint], a
+	ld [wEndFlypoint], a
 ; Because Indigo Plateau is the first flypoint the player
 
 ; visits, it's made the default flypoint
@@ -2305,10 +2306,10 @@ FlyMap: ; 91c90
 	ld a, FLY_NEW_BARK
 	ld [wTownMapPlayerIconLandmark], a
 ; Flypoints begin at New Bark Town...
-	ld [StartFlypoint], a
+	ld [wStartFlypoint], a
 ; ..and end at Silver Cave
 	ld a, FLY_MT_SILVER
-	ld [EndFlypoint], a
+	ld [wEndFlypoint], a
 	call FillJohtoMap
 	pop af
 	call TownMapBubble
@@ -2419,12 +2420,12 @@ _Area: ; 91d11
 	ret z
 	cp KANTO_REGION
 	jr z, .check_seen_orange_island
-	ld a, [StatusFlags]
+	ld a, [wStatusFlags]
 	bit 6, a ; ENGINE_CREDITS_SKIP
 	ret z
 	jr .go_right
 .check_seen_orange_island
-	ld a, [StatusFlags2]
+	ld a, [wStatusFlags2]
 	bit 3, a ; ENGINE_SEEN_SHAMOUTI_ISLAND
 	ret z
 .go_right
@@ -2487,9 +2488,10 @@ _Area: ; 91d11
 
 .copy_sprites
 	hlcoord 0, 0
-	ld de, Sprites
-	ld bc, SpritesEnd - Sprites
-	jp CopyBytes
+	ld de, wSprites
+	ld bc, wSpritesEnd - wSprites
+	rst CopyBytes
+	ret
 
 ; 91de9
 
@@ -2522,9 +2524,9 @@ _Area: ; 91d11
 .GetAndPlaceNest: ; 91e1e
 	ld a, [wTownMapCursorLandmark]
 	ld e, a
-	farcall FindNest ; load nest landmarks into TileMap[0,0]
+	farcall FindNest ; load nest landmarks into wTileMap[0,0]
 	decoord 0, 0
-	ld hl, Sprites
+	ld hl, wSprites
 .nestloop
 	ld a, [de]
 	and a
@@ -2551,10 +2553,11 @@ _Area: ; 91d11
 	jr .nestloop
 
 .done_nest
-	ld hl, Sprites
+	ld hl, wSprites
 	decoord 0, 0
-	ld bc, SpritesEnd - Sprites
-	jp CopyBytes
+	ld bc, wSpritesEnd - wSprites
+	rst CopyBytes
+	ret
 
 ; 91e5a
 
@@ -2567,7 +2570,7 @@ _Area: ; 91d11
 	ld c, e
 	ld b, d
 	ld de, .PlayerOAM
-	ld hl, Sprites
+	ld hl, wSprites
 .ShowPlayerLoop:
 	ld a, [de]
 	cp $80
@@ -2585,7 +2588,7 @@ _Area: ; 91d11
 	inc de
 	push bc
 	ld c, 0 ; RED
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	bit 0, a
 	jr z, .got_gender
 	inc c   ; BLUE
@@ -2596,8 +2599,8 @@ _Area: ; 91d11
 	jr .ShowPlayerLoop
 
 .clear_oam
-	ld hl, Sprites + 4 * 4
-	ld bc, SpritesEnd - (Sprites + 4 * 4)
+	ld hl, wSprites + 4 * 4
+	ld bc, wSpritesEnd - (wSprites + 4 * 4)
 	xor a
 	jp ByteFill
 
@@ -2640,8 +2643,8 @@ _Area: ; 91d11
 	jr .ok
 
 .clear
-	ld hl, Sprites
-	ld bc, SpritesEnd - Sprites
+	ld hl, wSprites
+	ld bc, wSpritesEnd - wSprites
 	xor a
 	call ByteFill
 	scf
@@ -2687,7 +2690,7 @@ TownMapBGUpdate: ; 91ee4
 	ld c, 3
 	call DelayFrames
 ; Update BG Map tiles
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 ; Turn off BG Map update
 	xor a
 	ld [hBGMapMode], a
@@ -2748,7 +2751,7 @@ FillTownMap: ; 91f07
 TownMapPals: ; 91f13
 ; Assign palettes based on tile ids
 	hlcoord 0, 0
-	decoord 0, 0, AttrMap
+	decoord 0, 0, wAttrMap
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 .loop
 	ld a, [hli]
@@ -2821,7 +2824,7 @@ TownMapKantoFlips:
 TownMapOrangeFlips:
 	decoord 0, 0, OrangeMap
 TownMapFlips:
-	hlcoord 0, 0, AttrMap
+	hlcoord 0, 0, wAttrMap
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
 .loop
 	; [de] == YXtttttt
@@ -2841,9 +2844,10 @@ TownMapFlips:
 TownMapMon: ; 91f7b
 ; Draw the FlyMon icon at town map location in
 
+	farcall LoadFlyMonColor
 ; Get FlyMon species
-	ld a, [CurPartyMon]
-	ld hl, PartySpecies
+	ld a, [wCurPartyMon]
+	ld hl, wPartySpecies
 	ld e, a
 	ld d, $0
 	add hl, de
@@ -2873,19 +2877,22 @@ TownMapPlayerIcon: ; 91fa6
 ; Standing icon
 	ld hl, VTiles0 tile $10
 	ld c, 4 ; # tiles
+	push bc
+	push de
 	call Request2bpp
+	pop de
+	pop bc
 ; Walking icon
 	ld hl, $c0
 	add hl, de
 	ld d, h
 	ld e, l
 	ld hl, VTiles0 tile $14
-	ld c, 4 ; # tiles
 	call Request2bpp
 ; Animation/palette
 	depixel 0, 0
 	ld b, SPRITE_ANIM_INDEX_RED_WALK ; Male
-	ld a, [PlayerGender]
+	ld a, [wPlayerGender]
 	bit 0, a
 	jr z, .got_gender
 	ld b, SPRITE_ANIM_INDEX_BLUE_WALK ; Female

@@ -1,4 +1,4 @@
-BSOD: ; 4ea82
+BSOD:
 	ld a, [hCGB]
 	and a
 	ret nz
@@ -13,9 +13,9 @@ BSOD: ; 4ea82
 	ld a, 5
 	ld [rSVBK], a
 	ld hl, .Palette
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 1 palettes
-	call CopyBytes
+	rst CopyBytes
 	pop af
 	ld [rSVBK], a
 
@@ -23,7 +23,7 @@ BSOD: ; 4ea82
 	ld [hCGBPalUpdate], a
 
 	xor a
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	call DelayFrame
 
 	ld de, FontNormal
@@ -35,7 +35,7 @@ BSOD: ; 4ea82
 	hlcoord 1, 1
 	call PlaceString
 
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 
 .infiniteloop
 	call DelayFrame

@@ -14,16 +14,18 @@ Route48_MapScriptHeader:
 	db 1 ; bg events
 	bg_event 27, 11, SIGNPOST_JUMPTEXT, Route48YellowForestSignText
 
-	db 4 ; object events
-	object_event 11,  6, SPRITE_ARCHER, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_TRAINER, 1, TrainerArcher2, EVENT_CLEARED_YELLOW_FOREST
-	object_event 15, 12, SPRITE_JESSIE, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_ROUTE_48_JESSIE
-	object_event 26, 12, SPRITE_JAMES, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_BLUE, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_ROUTE_48_JAMES
+	db 5 ; object events
+	object_event 11,  6, SPRITE_ARCHER, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_TRAINER, 1, TrainerArcher2, EVENT_CLEARED_YELLOW_FOREST
+	object_event 15, 12, SPRITE_JESSIE, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_ROUTE_48_JESSIE
+	object_event 26, 12, SPRITE_JAMES, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_ROUTE_48_JAMES
+	object_event 11,  5, SPRITE_NURSE, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_ROUTE_48_NURSE
 	itemball_event  4, 13, NUGGET, 1, EVENT_ROUTE_48_NUGGET
 
 	const_def 1 ; object constants
 	const ROUTE48_ARCHER
 	const ROUTE48_JESSIE
 	const ROUTE48_JAMES
+	const ROUTE48_NURSE
 
 Route48JessieJamesCallback:
 	disappear ROUTE48_JESSIE
@@ -34,17 +36,19 @@ Route48JessieJamesScript2:
 	moveobject ROUTE48_JESSIE, 15, 13
 	moveobject ROUTE48_JAMES, 26, 13
 Route48JessieJamesScript1:
-	appear ROUTE48_JESSIE
-	appear ROUTE48_JAMES
 	showemote EMOTE_SHOCK, PLAYER, 15
 	special Special_FadeOutMusic
 	pause 15
+	appear ROUTE48_JESSIE
+	appear ROUTE48_JAMES
 	playmusic MUSIC_JESSIE_JAMES_ENCOUNTER
 	applymovement ROUTE48_JESSIE, JessieEnterMovementData
 	applymovement ROUTE48_JAMES, JamesEnterMovementData
 	showtext Route48JessieJamesSeenText
 	setscene $1
 	setevent EVENT_BEAT_JESSIE_AND_JAMES
+	setevent EVENT_ROUTE_48_JESSIE
+	setevent EVENT_ROUTE_48_JAMES
 	winlosstext Route48JessieJamesBeatenText, 0
 	setlasttalked ROUTE48_JESSIE
 	loadtrainer JESSIE_JAMES, 1
@@ -78,18 +82,18 @@ JamesEnterMovementData:
 	step_end
 
 JessieLeaveMovementData:
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_left
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_left
 	step_end
 
 JamesLeaveMovementData:
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
 	step_end
 
 TrainerArcher2:
@@ -104,6 +108,24 @@ Archer2Script:
 	special Special_FadeInQuickly
 	setevent EVENT_CLEARED_YELLOW_FOREST
 	clearevent EVENT_YELLOW_FOREST_ROCKET_TAKEOVER
+	playsound SFX_ENTER_DOOR
+	appear ROUTE48_NURSE
+	waitsfx
+	applyonemovement ROUTE48_NURSE, step_down
+	setlasttalked ROUTE48_NURSE
+	faceplayer
+	showtext Route48NurseText1
+	special Special_FadeBlackQuickly
+	special Special_ReloadSpritesNoPalettes
+	playmusic MUSIC_HEAL
+	special HealParty
+	pause 60
+	special Special_FadeInQuickly
+	special RestartMapMusic
+	showtext Route48NurseText2
+	applyonemovement ROUTE48_NURSE, step_up
+	playsound SFX_EXIT_BUILDING
+	disappear ROUTE48_NURSE
 	end
 
 Route48JessieJamesSeenText:
@@ -169,6 +191,35 @@ Archer2AfterText:
 	para "Our other plan is"
 	line "going smoothly"
 	cont "anyway…"
+	done
+
+Route48NurseText1:
+	text "I saw your battle"
+	line "from the window!"
+
+	para "You drove away"
+	line "Team Rocket"
+	cont "and saved the"
+	cont "Pikachu!"
+
+	para "Thank you so"
+	line "much!"
+
+	para "Your #mon de-"
+	line "serve a rest"
+	cont "after all that."
+	done
+
+Route48NurseText2:
+	text "I like to relax"
+	line "here by the forest"
+	cont "and watch the"
+	cont "#mon play."
+
+	para "I'll heal your"
+	line "#mon any time!"
+
+	para "Thanks again!"
 	done
 
 Route48YellowForestSignText:

@@ -142,10 +142,14 @@ MAP_NONE   EQU 0
 	map_const ECRUTEAK_GYM,                                5,  9 ;  7
 	map_const ECRUTEAK_ITEMFINDER_HOUSE,                   4,  4 ;  8
 	map_const ECRUTEAK_CITY,                              20, 18 ;  9
-	map_const ROUTE_37,                                   10, 10 ; 10
-	map_const VALERIES_HOUSE,                              4,  4 ; 11
-	map_const ECRUTEAK_CHERISH_BALL_HOUSE,                 4,  4 ; 12
-	map_const ECRUTEAK_DESTINY_KNOT_HOUSE,                 4,  4 ; 13
+	map_const ROUTE_36,                                   32,  9 ; 10
+	map_const ROUTE_36_RUINS_OF_ALPH_GATE,                 5,  4 ; 11
+	map_const ROUTE_36_NATIONAL_PARK_GATE,                 5,  4 ; 12
+	map_const ROUTE_36_VIOLET_GATE,                        5,  4 ; 13
+	map_const ROUTE_37,                                   10, 10 ; 14
+	map_const VALERIES_HOUSE,                              4,  4 ; 15
+	map_const ECRUTEAK_CHERISH_BALL_HOUSE,                 4,  4 ; 16
+	map_const ECRUTEAK_DESTINY_KNOT_HOUSE,                 4,  4 ; 17
 
 	newgroup                                                     ;  5
 
@@ -170,9 +174,9 @@ MAP_NONE   EQU 0
 	map_const SEAFOAM_ISLANDS_B3F,                        20, 10 ;  6
 	map_const SEAFOAM_ISLANDS_B4F,                        20, 10 ;  7
 	map_const ROUTE_19,                                   10, 29 ;  8
-	map_const ROUTE_20,                                   51,  9 ;  9
+	map_const ROUTE_20,                                   55,  9 ;  9
 	map_const ROUTE_21,                                   10, 48 ; 10
-	map_const URAGA_CHANNEL_WEST,                          6, 15 ; 11
+	map_const URAGA_CHANNEL_WEST,                         10, 15 ; 11
 	map_const CINNABAR_ISLAND,                            12, 11 ; 12
 	map_const CINNABAR_VOLCANO_1F,                        14, 14 ; 13
 	map_const CINNABAR_VOLCANO_B1F,                       18, 18 ; 14
@@ -249,38 +253,41 @@ MAP_NONE   EQU 0
 
 	map_const ROUTE_34,                                   10, 27 ;  1
 	map_const ROUTE_34_COAST,                              9, 34 ;  2
-	map_const STORMY_BEACH,                               22, 11 ;  3
-	map_const MURKY_SWAMP,                                23, 19 ;  4
-	map_const GOLDENROD_CITY,                             22, 18 ;  5
-	map_const GOLDENROD_GYM,                              10,  9 ;  6
-	map_const GOLDENROD_BIKE_SHOP,                         4,  4 ;  7
-	map_const GOLDENROD_HAPPINESS_RATER,                   4,  4 ;  8
-	map_const GOLDENROD_BILLS_HOUSE,                       4,  4 ;  9
-	map_const GOLDENROD_MAGNET_TRAIN_STATION,             10,  9 ; 10
-	map_const GOLDENROD_FLOWER_SHOP,                       4,  4 ; 11
-	map_const GOLDENROD_PP_SPEECH_HOUSE,                   4,  4 ; 12
-	map_const GOLDENROD_NAME_RATER,                        4,  4 ; 13
-	map_const GOLDENROD_DEPT_STORE_1F,                     8,  4 ; 14
-	map_const GOLDENROD_DEPT_STORE_2F,                     8,  4 ; 15
-	map_const GOLDENROD_DEPT_STORE_3F,                     8,  4 ; 16
-	map_const GOLDENROD_DEPT_STORE_4F,                     8,  4 ; 17
-	map_const GOLDENROD_DEPT_STORE_5F,                     8,  4 ; 18
-	map_const GOLDENROD_DEPT_STORE_6F,                     8,  4 ; 19
-	map_const GOLDENROD_DEPT_STORE_ELEVATOR,               2,  2 ; 20
-	map_const GOLDENROD_DEPT_STORE_ROOF,                   8,  6 ; 21
-	map_const GOLDENROD_GAME_CORNER,                      10,  7 ; 22
-	map_const GOLDENROD_POKECOM_CENTER_1F,                16,  8 ; 23
-	map_const GOLDENROD_POKECOM_CENTER_OFFICE,             4,  4 ; 24
-	map_const ILEX_FOREST_AZALEA_GATE,                     5,  4 ; 25
-	map_const ROUTE_34_ILEX_FOREST_GATE,                   5,  4 ; 26
-	map_const DAYCARE,                                     4,  4 ; 27
-	map_const GOLDENROD_HP_UP_HOUSE,                       4,  4 ; 28
-	map_const GOLDENROD_NET_BALL_HOUSE,                    4,  4 ; 29
-	map_const GOLDENROD_BAND_HOUSE,                        4,  4 ; 30
-	map_const GOLDENROD_MUSEUM_1F,                         7,  4 ; 31
-	map_const GOLDENROD_MUSEUM_2F,                         7,  4 ; 32
-	map_const MAGNET_TUNNEL_WEST,                         10, 11 ; 33
-	map_const MAGNET_TUNNEL_INSIDE,                       23, 13 ; 34
+	map_const ROUTE_35,                                   12, 18 ;  3
+	map_const STORMY_BEACH,                               22, 11 ;  4
+	map_const MURKY_SWAMP,                                23, 19 ;  5
+	map_const GOLDENROD_CITY,                             22, 18 ;  6
+	map_const GOLDENROD_GYM,                              10,  9 ;  7
+	map_const GOLDENROD_BIKE_SHOP,                         4,  4 ;  8
+	map_const GOLDENROD_HAPPINESS_RATER,                   4,  4 ;  9
+	map_const GOLDENROD_BILLS_HOUSE,                       4,  4 ; 10
+	map_const GOLDENROD_MAGNET_TRAIN_STATION,             10,  9 ; 11
+	map_const GOLDENROD_FLOWER_SHOP,                       4,  4 ; 12
+	map_const GOLDENROD_PP_SPEECH_HOUSE,                   4,  4 ; 13
+	map_const GOLDENROD_NAME_RATER,                        4,  4 ; 14
+	map_const GOLDENROD_DEPT_STORE_1F,                     8,  4 ; 15
+	map_const GOLDENROD_DEPT_STORE_2F,                     8,  4 ; 16
+	map_const GOLDENROD_DEPT_STORE_3F,                     8,  4 ; 17
+	map_const GOLDENROD_DEPT_STORE_4F,                     8,  4 ; 18
+	map_const GOLDENROD_DEPT_STORE_5F,                     8,  4 ; 19
+	map_const GOLDENROD_DEPT_STORE_6F,                     8,  4 ; 20
+	map_const GOLDENROD_DEPT_STORE_ELEVATOR,               2,  2 ; 21
+	map_const GOLDENROD_DEPT_STORE_ROOF,                   8,  6 ; 22
+	map_const GOLDENROD_GAME_CORNER,                      10,  7 ; 23
+	map_const GOLDENROD_POKECOM_CENTER_1F,                16,  8 ; 24
+	map_const GOLDENROD_POKECOM_CENTER_OFFICE,             4,  4 ; 25
+	map_const ILEX_FOREST_AZALEA_GATE,                     5,  4 ; 26
+	map_const ROUTE_34_ILEX_FOREST_GATE,                   5,  4 ; 27
+	map_const ROUTE_35_GOLDENROD_GATE,                     5,  4 ; 28
+	map_const ROUTE_35_NATIONAL_PARK_GATE,                10,  4 ; 29
+	map_const DAYCARE,                                     4,  4 ; 30
+	map_const GOLDENROD_HP_UP_HOUSE,                       4,  4 ; 31
+	map_const GOLDENROD_NET_BALL_HOUSE,                    4,  4 ; 32
+	map_const GOLDENROD_BAND_HOUSE,                        4,  4 ; 33
+	map_const GOLDENROD_MUSEUM_1F,                         7,  4 ; 34
+	map_const GOLDENROD_MUSEUM_2F,                         7,  4 ; 35
+	map_const MAGNET_TUNNEL_WEST,                         10, 11 ; 36
+	map_const MAGNET_TUNNEL_INSIDE,                       23, 13 ; 37
 
 	newgroup                                                     ; 12
 
@@ -349,7 +356,7 @@ MAP_NONE   EQU 0
 	map_const KOGAS_ROOM,                                  5,  9 ;  5
 	map_const BRUNOS_ROOM,                                 5,  9 ;  6
 	map_const KARENS_ROOM,                                 5,  9 ;  7
-	map_const LANCES_ROOM,                                 5, 12 ;  8
+	map_const LANCES_ROOM,                                 7, 12 ;  8
 	map_const HALL_OF_FAME,                                5,  7 ;  9
 	map_const BELLCHIME_TRAIL,                            12,  7 ; 10
 
@@ -545,10 +552,10 @@ MAP_NONE   EQU 0
 	map_const ROUTE_29,                                   30,  9 ;  3
 	map_const NEW_BARK_TOWN,                              10,  9 ;  4
 	map_const ELMS_LAB,                                    5,  6 ;  5
-	map_const KRISS_HOUSE_1F,                              5,  4 ;  6
+	map_const KRISS_HOUSE_1F,                              6,  4 ;  6
 	map_const KRISS_HOUSE_2F,                              4,  3 ;  7
 	map_const KRISS_NEIGHBORS_HOUSE,                       4,  4 ;  8
-	map_const LYRAS_HOUSE_1F,                              5,  4 ;  9
+	map_const LYRAS_HOUSE_1F,                              6,  4 ;  9
 	map_const LYRAS_HOUSE_2F,                              4,  3 ; 10
 	map_const ELMS_HOUSE,                                  4,  4 ; 11
 	map_const ROUTE_26_HEAL_SPEECH_HOUSE,                  4,  4 ; 12
@@ -705,13 +712,3 @@ MAP_NONE   EQU 0
 
 	map_const SAFFRON_CITY,                               20, 19 ;  1
 	map_const SHAMOUTI_SHRINE_RUINS,                      12, 17 ;  2
-
-	newgroup                                                     ; 36
-
-	map_const ROUTE_35,                                   12, 18 ;  1
-	map_const ROUTE_36,                                   32,  9 ;  2
-	map_const ROUTE_35_GOLDENROD_GATE,                     5,  4 ;  3
-	map_const ROUTE_35_NATIONAL_PARK_GATE,                10,  4 ;  4
-	map_const ROUTE_36_RUINS_OF_ALPH_GATE,                 5,  4 ;  5
-	map_const ROUTE_36_NATIONAL_PARK_GATE,                 5,  4 ;  6
-	map_const ROUTE_36_VIOLET_GATE,                        5,  4 ;  7

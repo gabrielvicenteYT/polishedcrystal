@@ -5,24 +5,24 @@ PlayBattleMusic: ; 2ee6c
 
 	call SaveMusic
 	xor a
-	ld [MusicFade], a
+	ld [wMusicFade], a
 	ld de, MUSIC_NONE
 	call PlayMusic
 	call DelayFrame
 	call MaxVolume
 
 	; Are we fighting a trainer?
-	ld a, [OtherTrainerClass]
+	ld a, [wOtherTrainerClass]
 	and a
 	jr nz, .trainermusic
 
-	ld a, [TempEnemyMonSpecies]
+	ld a, [wTempEnemyMonSpecies]
 	ld hl, .legendaries
 	call .loadfromarray
 	jr c, .done
 
 	; Are we in the Safari Game?
-	ld a, [BattleType]
+	ld a, [wBattleType]
 	cp BATTLETYPE_SAFARI
 	ld de, MUSIC_WILD_BATTLE_GO
 	jr z, .done
@@ -32,33 +32,33 @@ PlayBattleMusic: ; 2ee6c
 	jr .done
 
 .trainermusic
-	ld a, [OtherTrainerClass]
+	ld a, [wOtherTrainerClass]
 	cp RIVAL2
 	jr nz, .not_rival2_4
-	ld a, [OtherTrainerID]
+	ld a, [wOtherTrainerID]
 	cp 4 ; Rival in Indigo Plateau
 	jr c, .not_rival2_4
 	ld de, MUSIC_CHAMPION_BATTLE
 	jr .done
 
 .not_rival2_4
-	ld a, [OtherTrainerClass]
+	ld a, [wOtherTrainerClass]
 	cp GIOVANNI
 	jr nz, .othertrainer
-	ld a, [OtherTrainerID]
+	ld a, [wOtherTrainerID]
 	cp 1 ; Armored Mewtwo
 	jr nz, .othertrainer
 	ld de, MUSIC_MOTHER_BEAST_BATTLE_SM
 	jr .done
 
 .othertrainer
-	ld a, [OtherTrainerClass]
+	ld a, [wOtherTrainerClass]
 	ld hl, .trainers
 	call .loadfromarray
 	jr c, .done
 
 	ld de, MUSIC_TRAINER_BATTLE_BW
-	ld a, [InBattleTowerBattle]
+	ld a, [wInBattleTowerBattle]
 	bit 0, a
 	jr nz, .done
 
@@ -95,12 +95,12 @@ PlayBattleMusic: ; 2ee6c
 
 .getregionmusicfromarray
 	push hl
-	farcall RegionCheck
+	call RegionCheck
 	pop hl
 	ld a, e
 	and a ; Johto
 	jr nz, .ok
-	ld a, [TimeOfDay]
+	ld a, [wTimeOfDay]
 	cp NITE
 	jr nz, .ok
 	ld e, 3 ; Johto at night

@@ -3,7 +3,7 @@ CARDFLIP_LIGHT_ON  EQU $f4
 CARDFLIP_DECK_SIZE EQU 4 * 6
 
 _CardFlip: ; e00ee (38:40ee)
-	ld hl, Options1
+	ld hl, wOptions1
 	set NO_TEXT_SCROLL, [hl]
 	call ClearBGPalettes
 	call ClearTileMap
@@ -27,17 +27,16 @@ _CardFlip: ; e00ee (38:40ee)
 	ld hl, CardFlipOffButtonGFX
 	ld de, VTiles1 tile (CARDFLIP_LIGHT_OFF - $80)
 	ld bc, 1 tiles
-	call CopyBytes
+	rst CopyBytes
 	ld hl, CardFlipOnButtonGFX
 	ld de, VTiles1 tile (CARDFLIP_LIGHT_ON - $80)
 	ld bc, 1 tiles
-	call CopyBytes
+	rst CopyBytes
 
-	call CardFlip_ShiftDigitsLeftTwoPixels
 	call CardFlip_InitTilemap
 	call CardFlip_InitAttrPals
 	call EnableLCD
-	call WaitBGMap2
+	call ApplyAttrAndTilemapInVBlank
 	ld a, $e4
 	call DmgToCgbBGPals
 	ld de, $e4e4
@@ -50,10 +49,10 @@ _CardFlip: ; e00ee (38:40ee)
 	ld [wCardFlipCursorX], a
 
 ;	ld de, MUSIC_GAME_CORNER
-;	ld a, [MapGroup]
+;	ld a, [wMapGroup]
 ;	cp GROUP_GOLDENROD_GAME_CORNER
 ;	jr nz, .celadon_game_corner
-;	ld a, [MapNumber]
+;	ld a, [wMapNumber]
 ;	cp MAP_GOLDENROD_GAME_CORNER
 ;	jr nz, .celadon_game_corner
 ;	ld de, MUSIC_GAME_CORNER_DPPT
@@ -72,7 +71,7 @@ _CardFlip: ; e00ee (38:40ee)
 	call PlaySFX
 	call WaitSFX
 	call ClearBGPalettes
-	ld hl, Options1
+	ld hl, wOptions1
 	res NO_TEXT_SCROLL, [hl]
 	ret
 
@@ -128,9 +127,9 @@ _CardFlip: ; e00ee (38:40ee)
 ; 0xe01d2
 
 .DeductCoins: ; e01d2
-	ld a, [Coins]
+	ld a, [wCoins]
 	ld h, a
-	ld a, [Coins + 1]
+	ld a, [wCoins + 1]
 	ld l, a
 	ld a, h
 	and a
@@ -148,9 +147,9 @@ _CardFlip: ; e00ee (38:40ee)
 	ld de, -3
 	add hl, de
 	ld a, h
-	ld [Coins], a
+	ld [wCoins], a
 	ld a, l
-	ld [Coins + 1], a
+	ld [wCoins + 1], a
 	ld de, SFX_TRANSACTION
 	call PlaySFX
 	xor a
@@ -177,7 +176,7 @@ _CardFlip: ; e00ee (38:40ee)
 	hlcoord 9, 0
 	ld bc, SCREEN_WIDTH
 	ld a, [wCardFlipNumCardsPlayed]
-	call AddNTimes
+	rst AddNTimes
 	ld [hl], CARDFLIP_LIGHT_ON
 	ld a, $1
 	ld [hBGMapMode], a
@@ -191,7 +190,7 @@ _CardFlip: ; e00ee (38:40ee)
 	call DelayFrames
 	hlcoord 2, 6
 	call PlaceCardFaceDown
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld hl, .ChooseACardText
 	call CardFlip_UpdateCoinBalanceDisplay
 	xor a
@@ -294,7 +293,7 @@ _CardFlip: ; e00ee (38:40ee)
 	ld [hl], TRUE
 	call GetCoordsOfChosenCard
 	call CardFlip_DisplayCardFaceUp
-	call WaitBGMap2
+	call ApplyAttrAndTilemapInVBlank
 	jp .Increment
 ; e0314
 
@@ -385,7 +384,7 @@ CollapseCursorPosition: ; e0398
 	ld hl, 0
 	ld bc, 6
 	ld a, [wCardFlipCursorY]
-	call AddNTimes
+	rst AddNTimes
 	ld b, $0
 	ld a, [wCardFlipCursorX]
 	ld c, a
@@ -472,7 +471,7 @@ CardFlip_DisplayCardFaceUp: ; e03ec
 	pop hl
 
 	; Set the attributes
-	ld de, AttrMap - TileMap
+	ld de, wAttrMap - wTileMap
 	add hl, de
 	ld a, [wCardFlipFaceUpCard]
 	and 3
@@ -518,7 +517,7 @@ CardFlip_PrintCoinBalance: ; e049c
 	ld de, .CoinStr
 	call PlaceString
 	hlcoord 14, 16
-	ld de, Coins
+	ld de, wCoins
 	lb bc, PRINTNUM_LEADINGZEROS | 2, 5
 	jp PrintNum
 ; e04bc
@@ -582,7 +581,7 @@ CardFlip_CopyToBox: ; e04f7 (38:44f7)
 ; e0509 (38:4509)
 
 CardFlip_CopyOAM: ; e0509
-	ld de, Sprites
+	ld de, wSprites
 	ld a, [hli]
 .loop
 	push af
@@ -605,18 +604,6 @@ CardFlip_CopyOAM: ; e0509
 	jr nz, .loop
 	ret
 ; e0521
-
-CardFlip_ShiftDigitsLeftTwoPixels: ; e0521 (38:4521)
-	ld de, VTiles1 tile ("0" & $7f)
-	ld hl, VTiles1 tile ("0" & $7f) + 2
-	ld bc, 10 tiles - 2
-	call CopyBytes
-	ld hl, VTiles1 tile $7f + 1 tiles - 2
-	xor a
-	ld [hli], a
-	ld [hl], a
-	ret
-; e0534 (38:4534)
 
 CardFlip_BlankDiscardedCardSlot: ; e0534
 	xor a
@@ -1156,28 +1143,28 @@ CardFlip_CheckWinCondition: ; e0637
 ; 0xe081b
 
 .AddCoinPlaySFX: ; e081b
-	ld a, [Coins]
+	ld a, [wCoins]
 	ld h, a
-	ld a, [Coins + 1]
+	ld a, [wCoins + 1]
 	ld l, a
 	inc hl
 	ld a, h
-	ld [Coins], a
+	ld [wCoins], a
 	ld a, l
-	ld [Coins + 1], a
+	ld [wCoins + 1], a
 	ld de, SFX_PAY_DAY
 	jp PlaySFX
 ; e0833
 
 .IsCoinCaseFull: ; e0833
-	ld a, [Coins]
+	ld a, [wCoins]
 	cp 50000 / $100
 	jr c, .less
 	jr z, .check_low
 	jr .more
 
 .check_low
-	ld a, [Coins + 1]
+	ld a, [wCoins + 1]
 	cp 50000 % $100
 	jr c, .less
 
@@ -1592,32 +1579,32 @@ endm
 ; e0c37
 
 CardFlip_InitAttrPals: ; e0c37 (38:4c37)
-	hlcoord 0, 0, AttrMap
+	hlcoord 0, 0, wAttrMap
 	ld bc, SCREEN_HEIGHT * SCREEN_WIDTH
 	xor a
 	call ByteFill
 
-	hlcoord 12, 1, AttrMap
+	hlcoord 12, 1, wAttrMap
 	lb bc, 2, 2
 	ld a, $1
 	call CardFlip_FillBox
 
-	hlcoord 14, 1, AttrMap
+	hlcoord 14, 1, wAttrMap
 	lb bc, 2, 2
 	ld a, $2
 	call CardFlip_FillBox
 
-	hlcoord 16, 1, AttrMap
+	hlcoord 16, 1, wAttrMap
 	lb bc, 2, 2
 	ld a, $3
 	call CardFlip_FillBox
 
-	hlcoord 18, 1, AttrMap
+	hlcoord 18, 1, wAttrMap
 	lb bc, 2, 2
 	ld a, $4
 	call CardFlip_FillBox
 
-	hlcoord 9, 0, AttrMap
+	hlcoord 9, 0, wAttrMap
 	lb bc, 12, 1
 	ld a, $1
 	call CardFlip_FillBox
@@ -1627,9 +1614,9 @@ CardFlip_InitAttrPals: ; e0c37 (38:4c37)
 	ld a, $5
 	ld [rSVBK], a
 	ld hl, .palettes
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 9 palettes
-	call CopyBytes
+	rst CopyBytes
 	pop af
 	ld [rSVBK], a
 	ret

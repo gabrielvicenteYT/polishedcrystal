@@ -1,11 +1,3 @@
-JoypadInt:: ; 92e
-; Replaced by Joypad, called from VBlank instead of the useless
-; joypad interrupt.
-
-; This is a placeholder in case the interrupt is somehow enabled.
-	reti
-; 92f
-
 ClearJoypad:: ; 92f
 	xor a
 ; Pressed this frame (delta)
@@ -28,7 +20,7 @@ Joypad:: ; 935
 ; hJoypadSum: pressed so far
 
 ; Any of these three bits can be used to disable input.
-	ld a, [InputFlags]
+	ld a, [wInputFlags]
 	and %11010000
 	ret nz
 
@@ -129,7 +121,7 @@ GetJoypad:: ; 984
 
 ; The player input can be automated using an input stream.
 ; See more below.
-	ld a, [InputType]
+	ld a, [wInputType]
 	cp AUTO_INPUT
 	jr z, .auto
 
@@ -173,22 +165,22 @@ GetJoypad:: ; 984
 ; Read from the input stream.
 	ld a, [hROMBank]
 	push af
-	ld a, [AutoInputBank]
+	ld a, [wAutoInputBank]
 	rst Bankswitch
 
-	ld hl, AutoInputAddress
+	ld hl, wAutoInputAddress
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 
 ; We only update when the input duration has expired.
-	ld a, [AutoInputLength]
+	ld a, [wAutoInputLength]
 	and a
 	jr z, .updateauto
 
 ; Until then, don't change anything.
 	dec a
-	ld [AutoInputLength], a
+	ld [wAutoInputLength], a
 	pop af
 	rst Bankswitch
 	jr .quit
@@ -203,7 +195,7 @@ GetJoypad:: ; 984
 
 ; A duration of $ff will end the stream indefinitely.
 	ld a, [hli]
-	ld [AutoInputLength], a
+	ld [wAutoInputLength], a
 	cp -1
 	jr nz, .next
 
@@ -216,9 +208,9 @@ GetJoypad:: ; 984
 .next
 ; On to the next input...
 	ld a, l
-	ld [AutoInputAddress], a
+	ld [wAutoInputAddress], a
 	ld a, h
-	ld [AutoInputAddress+1], a
+	ld [wAutoInputAddress+1], a
 	jr .finishauto
 
 .stopauto
@@ -238,14 +230,14 @@ GetJoypad:: ; 984
 StartAutoInput:: ; 9ee
 ; Start reading automated input stream at a:hl.
 
-	ld [AutoInputBank], a
+	ld [wAutoInputBank], a
 	ld a, l
-	ld [AutoInputAddress], a
+	ld [wAutoInputAddress], a
 	ld a, h
-	ld [AutoInputAddress+1], a
+	ld [wAutoInputAddress+1], a
 ; Start reading the stream immediately.
 	xor a
-	ld [AutoInputLength], a
+	ld [wAutoInputLength], a
 ; Reset input mirrors.
 	xor a
 	ld [hJoyPressed], a ; pressed this frame
@@ -253,7 +245,7 @@ StartAutoInput:: ; 9ee
 	ld [hJoyDown], a ; currently pressed
 
 	ld a, AUTO_INPUT
-	ld [InputType], a
+	ld [wInputType], a
 	ret
 ; a0a
 
@@ -261,33 +253,66 @@ StartAutoInput:: ; 9ee
 StopAutoInput:: ; a0a
 ; Clear variables related to automated input.
 	xor a
-	ld [AutoInputBank], a
-	ld [AutoInputAddress], a
-	ld [AutoInputAddress+1], a
-	ld [AutoInputLength], a
+	ld [wAutoInputBank], a
+	ld [wAutoInputAddress], a
+	ld [wAutoInputAddress+1], a
+	ld [wAutoInputLength], a
 ; Back to normal input.
-	ld [InputType], a
+	ld [wInputType], a
 	ret
 ; a1b
 
 
-JoyWaitAorB:: ; a36
+JoyWaitAorB::
 .loop
 	call DelayFrame
 	call GetJoypad
 	ld a, [hJoyPressed]
 	and A_BUTTON | B_BUTTON
 	ret nz
+	call CheckAutoscroll
+	ret nz
 	call RTC
 	jr .loop
-; a46
+
+CheckIfAOrBPressed:
+	call JoyTextDelay
+	ld a, [hJoyLast]
+_Autoscroll:
+	and A_BUTTON | B_BUTTON
+	ret nz
+	; fallthrough
+CheckAutoscroll:
+; Returns nz if we should autoscroll
+	ld a, [wOptions1]
+	and AUTOSCROLL_MASK
+	ret z
+
+	cp AUTOSCROLL_START
+	ld a, [hJoyDown]
+	jr z, .start
+
+	; Check A+B. If both are held, autoscroll for both A&B and A|B.
+	; Otherwise, autoscroll if the option is set to A or B, not A and B
+	and A_BUTTON | B_BUTTON
+	ret z
+	cp A_BUTTON | B_BUTTON
+	jr z, _Autoscroll
+	ld a, [wOptions1]
+	; nz if AORB, z if AANDB
+	and %100
+	ret
+
+.start
+	and START
+	ret
 
 WaitButton:: ; a46
 	ld a, [hOAMUpdate]
 	push af
 	ld a, 1
 	ld [hOAMUpdate], a
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	call JoyWaitAorB
 	pop af
 	ld [hOAMUpdate], a
@@ -307,11 +332,11 @@ JoyTextDelay:: ; a57
 	and a
 	jr z, .checkframedelay
 	ld a, 15
-	ld [TextDelayFrames], a
+	ld [wTextDelayFrames], a
 	ret
 
 .checkframedelay
-	ld a, [TextDelayFrames]
+	ld a, [wTextDelayFrames]
 	and a
 	jr z, .restartframedelay
 	xor a
@@ -320,7 +345,7 @@ JoyTextDelay:: ; a57
 
 .restartframedelay
 	ld a, 5
-	ld [TextDelayFrames], a
+	ld [wTextDelayFrames], a
 	ret
 ; a80
 
@@ -340,9 +365,7 @@ WaitPressAorB_BlinkCursor:: ; a80
 	call BlinkCursor
 	pop hl
 
-	call JoyTextDelay
-	ld a, [hJoyLast]
-	and A_BUTTON | B_BUTTON
+	call CheckIfAOrBPressed
 	jr z, .loop
 
 	pop af
@@ -352,14 +375,12 @@ WaitPressAorB_BlinkCursor:: ; a80
 	ret
 ; aa5
 
-SimpleWaitPressAorB:: ; aa5
+SimpleWaitPressAorB::
 .loop
-	call JoyTextDelay
-	ld a, [hJoyLast]
-	and A_BUTTON | B_BUTTON
-	jr z, .loop
-	ret
-; aaf
+	call CheckIfAOrBPressed
+	ret nz
+	call DelayFrame
+	jr .loop
 
 ButtonSound:: ; aaf
 	ld a, [wLinkMode]
@@ -382,7 +403,7 @@ ButtonSound:: ; aaf
 	push af
 	ld a, $1
 	ld [hOAMUpdate], a
-	ld a, [InputType]
+	ld a, [wInputType]
 	or a
 	jr z, .input_wait_loop
 	ld hl, .autoinput_a
@@ -391,9 +412,7 @@ ButtonSound:: ; aaf
 
 .input_wait_loop
 	call .blink_cursor
-	call JoyTextDelay
-	ld a, [hJoyPressed]
-	and A_BUTTON | B_BUTTON
+	call CheckIfAOrBPressed
 	jr nz, .received_input
 	call RTC
 	ld a, $1
@@ -420,10 +439,10 @@ ButtonSound:: ; aaf
 	jr .load_cursor_state
 
 .cursor_off
-	ld a, [TileMap + 17 + 17 * SCREEN_WIDTH]
+	ld a, [wTileMap + 17 + 17 * SCREEN_WIDTH]
 
 .load_cursor_state
-	ld [TileMap + 18 + 17 * SCREEN_WIDTH], a
+	ld [wTileMap + 18 + 17 * SCREEN_WIDTH], a
 	ret
 ; b06
 

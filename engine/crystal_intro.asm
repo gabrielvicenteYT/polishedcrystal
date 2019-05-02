@@ -12,18 +12,22 @@ Copyright_GFPresents: ; e4579
 	ld [hSCY], a
 	ld a, $90
 	ld [hWY], a
-	call WaitBGMap
+	ld b, CGB_GAMEFREAK_LOGO
+	call GetCGBLayout
+	farcall Copyright
+	farcall BSOD
+	call ApplyTilemapInVBlank
+	ld c, 15
+	call FadePalettes
+	ld c, 80
+	call DelayFrames
+	call SetBlackPals
+	ld c, 15
+	call FadePalettes
+	call ClearTileMap
 	ld b, CGB_GAMEFREAK_LOGO
 	call GetCGBLayout
 	call SetPalettes
-	ld c, 10
-	call DelayFrames
-	farcall Copyright
-	call WaitBGMap
-	ld c, 100
-	call DelayFrames
-	call ClearTileMap
-	farcall BSOD
 	call .GetGFLogoGFX
 .joy_loop
 	call JoyTextDelay
@@ -156,7 +160,7 @@ PlaceGameFreakPresents_1: ; e468d
 	ld hl, .GAME_FREAK
 	decoord 5, 10
 	ld bc, .end - .GAME_FREAK
-	call CopyBytes
+	rst CopyBytes
 	call PlaceGameFreakPresents_AdvanceIndex
 	ld de, SFX_GAME_FREAK_PRESENTS
 	jp PlaySFX
@@ -182,7 +186,7 @@ PlaceGameFreakPresents_2: ; e46ba
 	ld hl, .presents
 	decoord 7, 11
 	ld bc, .end - .presents
-	call CopyBytes
+	rst CopyBytes
 	jp PlaceGameFreakPresents_AdvanceIndex
 ; e46d6
 
@@ -248,11 +252,10 @@ GameFreakLogoScene2: ; e470d (39:470d)
 	jr nc, .asm_e4723
 	add $20
 .asm_e4723
-	ld e, a
-	farcall BattleAnim_Sine_e
+	call Sine
 	ld hl, SPRITEANIMSTRUCT_YOFFSET
 	add hl, bc
-	ld [hl], e
+	ld [hl], a
 	ld hl, SPRITEANIMSTRUCT_0D
 	add hl, bc
 	ld a, [hl]
@@ -315,9 +318,9 @@ GameFreakLogoScene4: ; e4776 (39:4776)
 	ld a, $5
 	ld [rSVBK], a
 	ld a, [hli]
-	ld [OBPals palette 1 + 4], a
+	ld [wOBPals palette 1 + 4], a
 	ld a, [hli]
-	ld [OBPals palette 1 + 5], a
+	ld [wOBPals palette 1 + 5], a
 	pop af
 	ld [rSVBK], a
 	ld a, $1
@@ -372,6 +375,8 @@ INCBIN "gfx/splash/logo.1bpp"
 ; e48ac
 
 CrystalIntro: ; e48ac
+	ld hl, rIE
+	set LCD_STAT, [hl]
 	ld a, [rSVBK]
 	push af
 	ld a, 5
@@ -415,6 +420,8 @@ CrystalIntro: ; e48ac
 	ld [hInMenu], a
 	pop af
 	ld [rSVBK], a
+	ld hl, rIE
+	res LCD_STAT, [hl]
 	ret
 ; e4901
 
@@ -505,13 +512,13 @@ IntroScene1: ; e495b (39:495b)
 	ld a, $5
 	ld [rSVBK], a
 	ld hl, Palette_365ad
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	ld hl, Palette_365ad
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	pop af
 	ld [rSVBK], a
 	xor a
@@ -613,13 +620,13 @@ IntroScene5: ; e4a7a (39:4a7a)
 	ld a, $5
 	ld [rSVBK], a
 	ld hl, Palette_365ad
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	ld hl, Palette_365ad
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	pop af
 	ld [rSVBK], a
 	xor a
@@ -749,7 +756,7 @@ IntroScene9: ; e4c04 (39:4c04)
 	xor a
 	ld [hLCDCPointer], a
 	call ClearSprites
-	hlcoord 0, 0, AttrMap
+	hlcoord 0, 0, wAttrMap
 	; first 12 rows have palette 1
 	ld bc, 12 * SCREEN_WIDTH
 	ld a, $1
@@ -836,13 +843,13 @@ IntroScene11: ; e4c86 (39:4c86)
 	ld a, $5
 	ld [rSVBK], a
 	ld hl, Palette_365ad
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	ld hl, Palette_365ad
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	pop af
 	ld [rSVBK], a
 	xor a
@@ -1038,13 +1045,13 @@ IntroScene15: ; e4e40 (39:4e40)
 	ld a, $5
 	ld [rSVBK], a
 	ld hl, Palette_e77dd
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	ld hl, Palette_e77dd
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	pop af
 	ld [rSVBK], a
 	xor a
@@ -1110,13 +1117,13 @@ IntroScene17: ; e4ef5 (39:4ef5)
 	ld a, $5
 	ld [rSVBK], a
 	ld hl, Palette_e6d6d
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	ld hl, Palette_e6d6d
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	pop af
 	ld [rSVBK], a
 	xor a
@@ -1182,13 +1189,13 @@ IntroScene19: ; e4f7e (39:4f7e)
 	ld a, $5
 	ld [rSVBK], a
 	ld hl, Palette_e77dd
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	ld hl, Palette_e77dd
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	pop af
 	ld [rSVBK], a
 	xor a
@@ -1334,13 +1341,13 @@ IntroScene26: ; e50bb (39:50bb)
 	ld a, $5
 	ld [rSVBK], a
 	ld hl, Palette_e679d
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	ld hl, Palette_e679d
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 	pop af
 	ld [rSVBK], a
 	xor a
@@ -1377,7 +1384,7 @@ IntroScene27: ; e512d (39:512d)
 
 .done
 	call NextIntroScene
-	ld a, $80
+	ld a, $ff
 	ld [wIntroSceneFrameCounter], a
 	ret
 
@@ -1388,9 +1395,9 @@ IntroScene28: ; e5152 (39:5152)
 	and a
 	jr z, .done
 	dec [hl]
-	cp $18
+	cp $30
 	jr z, .clear
-	cp $8
+	cp $10
 	ret nz
 
 	ld de, SFX_TITLE_SCREEN_INTRO
@@ -1405,7 +1412,7 @@ IntroScene28: ; e5152 (39:5152)
 	ret
 
 Intro_Scene24_ApplyPaletteFade: ; e5172 (39:5172)
-; load the (a)th palette from .FadePals to all BGPals
+; load the (a)th palette from .FadePals to all wBGPals
 	ld hl, .FadePals
 	add l
 	ld l, a
@@ -1417,7 +1424,7 @@ Intro_Scene24_ApplyPaletteFade: ; e5172 (39:5172)
 	push af
 	ld a, $5
 	ld [rSVBK], a
-	ld de, BGPals
+	ld de, wBGPals
 	ld b, 8 ; number of BG pals
 .loop1
 	push hl
@@ -1568,7 +1575,7 @@ CrystalIntro_UnownFade: ; e5223 (39:5223)
 	add a
 	ld e, a
 	ld d, $0
-	ld hl, BGPals
+	ld hl, wBGPals
 	add hl, de
 	inc hl
 	inc hl
@@ -1591,7 +1598,7 @@ CrystalIntro_UnownFade: ; e5223 (39:5223)
 
 	push hl
 	push bc
-	ld hl, BGPals
+	ld hl, wBGPals
 if !DEF(MONOCHROME)
 	ld bc, 8 palettes
 	xor a
@@ -1751,7 +1758,7 @@ Intro_Scene20_AppearUnown: ; e5348 (39:5348)
 	ld [rSVBK], a
 
 	push bc
-	ld de, BGPals
+	ld de, wBGPals
 
 	ld a, c
 	add e
@@ -1761,10 +1768,10 @@ Intro_Scene20_AppearUnown: ; e5348 (39:5348)
 	ld d, a
 
 	ld bc, 8
-	call CopyBytes
+	rst CopyBytes
 	pop bc
 
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld a, c
 	add e
 	ld e, a
@@ -1773,7 +1780,7 @@ Intro_Scene20_AppearUnown: ; e5348 (39:5348)
 	ld d, a
 
 	ld bc, 8
-	call CopyBytes
+	rst CopyBytes
 
 	pop af
 	ld [rSVBK], a
@@ -1816,7 +1823,7 @@ Intro_FadeUnownWordPals: ; e539d (39:539d)
 	add a
 	ld e, a
 	ld d, $0
-	ld hl, BGPals
+	ld hl, wBGPals
 	add hl, de
 rept 4
 	inc hl
@@ -1980,15 +1987,15 @@ Intro_RustleGrass: ; e546d (39:546d)
 	ld hl, .RustlingGrassPointers
 	add hl, de
 	ld a, [hli]
-	ld [Requested2bppSource], a
+	ld [hRequestedVTileSource], a
 	ld a, [hli]
-	ld [Requested2bppSource + 1], a
+	ld [hRequestedVTileSource + 1], a
 	ld a, (VTiles2 tile $09) % $100
-	ld [Requested2bppDest], a
+	ld [hRequestedVTileDest], a
 	ld a, (VTiles2 tile $09) / $100
-	ld [Requested2bppDest + 1], a
+	ld [hRequestedVTileDest + 1], a
 	ld a, 4
-	ld [Requested2bppSize], a
+	ld [hRequested2bpp], a
 	ret
 ; e5496 (39:5496)
 
@@ -2010,8 +2017,8 @@ Intro_ClearBGPals: ; e54a3 (39:54a3)
 	ld a, $5
 	ld [rSVBK], a
 
-; Fill BGPals and OBPals with $0000 (black)
-	ld hl, BGPals
+; Fill wBGPals and wOBPals with $0000 (black)
+	ld hl, wBGPals
 if !DEF(MONOCHROME)
 	ld bc, 16 palettes
 	xor a
@@ -2031,8 +2038,8 @@ endc
 	ld [rSVBK], a
 	ld a, $1
 	ld [hCGBPalUpdate], a
-	call DelayFrame
-	jp DelayFrame
+	ld c, 64
+	jp DelayFrames
 
 Intro_DecompressRequest2bpp_64Tiles: ; e54fa (39:54fa)
 	lb bc, 1, 64
@@ -2070,8 +2077,8 @@ Intro_ResetLYOverrides: ; e5516 (39:5516)
 	ld a, $5
 	ld [rSVBK], a
 
-	ld hl, LYOverrides
-	ld bc, LYOverridesEnd - LYOverrides
+	ld hl, wLYOverrides
+	ld bc, wLYOverridesEnd - wLYOverrides
 	xor a
 	call ByteFill
 
@@ -2093,20 +2100,20 @@ Intro_PerspectiveScrollBG: ; e552f (39:552f)
 	and $1
 	jr z, .skip
 	; trees in the back
-	ld hl, LYOverrides
+	ld hl, wLYOverrides
 	ld a, [hl]
 	inc a
 	ld bc, $5f
 	call ByteFill
 .skip
 	; grass in the front
-	ld hl, LYOverrides + $5f
+	ld hl, wLYOverrides + $5f
 	ld a, [hl]
 	inc a
 	inc a
 	ld bc, $31
 	call ByteFill
-	ld a, [LYOverrides + 0]
+	ld a, [wLYOverrides + 0]
 	ld [hSCX], a
 	pop af
 	ld [rSVBK], a
@@ -2139,14 +2146,14 @@ Intro_SetupCommonScenery:
 	ld [rSVBK], a
 
 	ld hl, Palette_e5edd
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 
 	ld hl, Palette_e5edd
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 
 	pop af
 	ld [rSVBK], a

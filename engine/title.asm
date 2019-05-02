@@ -149,14 +149,14 @@ endc
 
 ; Update palette colors
 	ld hl, TitleScreenPalettes
-	ld de, UnknBGPals
+	ld de, wUnknBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 
 	ld hl, TitleScreenPalettes
-	ld de, BGPals
+	ld de, wBGPals
 	ld bc, 16 palettes
-	call CopyBytes
+	rst CopyBytes
 
 ; Restore WRAM bank
 	pop af
@@ -167,13 +167,13 @@ endc
 
 	ld a, [rSVBK]
 	push af
-	ld a, BANK(LYOverrides)
+	ld a, BANK(wLYOverrides)
 	ld [rSVBK], a
 
 ; Make sure the LYOverrides buffer is empty
-	ld hl, LYOverrides
+	ld hl, wLYOverrides
 	xor a
-	ld bc, LYOverridesEnd - LYOverrides
+	ld bc, wLYOverridesEnd - wLYOverrides
 	call ByteFill
 
 ; Let LCD Stat know we're messing around with SCX
@@ -208,7 +208,7 @@ endc
 	ld [hBGMapMode], a
 
 	xor a
-	ld [UnknBGPals palette 0 + 2], a
+	ld [wUnknBGPals palette 0 + 2], a
 
 ; Play starting sound effect
 	call SFXChannelsOff
@@ -219,7 +219,7 @@ endc
 ; 10eea7
 
 SuicuneFrameIterator: ; 10eea7
-	ld hl, UnknBGPals palette 0 + 2
+	ld hl, wUnknBGPals palette 0 + 2
 	ld a, [hl]
 	ld c, a
 	inc [hl]
@@ -242,8 +242,7 @@ SuicuneFrameIterator: ; 10eea7
 	call LoadSuicuneFrame
 	ld a, $1
 	ld [hBGMapMode], a
-	ld a, $3
-	ld [hBGMapThird], a
+	ld [hBGMapHalf], a
 	ret
 ; 10eece
 
@@ -311,7 +310,7 @@ DrawTitleGraphic: ; 10eeef
 ; 10ef06
 
 InitializeBackground: ; 10ef06
-	ld hl, Sprites
+	ld hl, wSprites
 	lb de, -$22, $0
 	ld c, 5
 .loop
@@ -352,7 +351,7 @@ AnimateTitleCrystal: ; 10ef32
 
 ; Stop at y=6
 ; y is really from the bottom of the sprite, which is two tiles high
-	ld hl, Sprites
+	ld hl, wSprites
 	ld a, [hl]
 	cp 6 + $10
 	ret z

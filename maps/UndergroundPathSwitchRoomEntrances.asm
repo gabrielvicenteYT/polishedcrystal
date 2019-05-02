@@ -29,15 +29,15 @@ UndergroundPathSwitchRoomEntrances_MapScriptHeader:
 
 	db 12 ; object events
 	object_event 23,  3, SPRITE_SILVER, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_RIVAL_UNDERGROUND_PATH
-	object_event  9, 12, SPRITE_PHARMACIST, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_GENERICTRAINER, 2, GenericTrainerBurglarDuncan, EVENT_RADIO_TOWER_ROCKET_TAKEOVER
-	object_event  4,  8, SPRITE_PHARMACIST, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_GENERICTRAINER, 2, GenericTrainerBurglarOrson, EVENT_RADIO_TOWER_ROCKET_TAKEOVER
+	object_event  9, 12, SPRITE_BURGLAR, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 2, GenericTrainerBurglarDuncan, EVENT_RADIO_TOWER_ROCKET_TAKEOVER
+	object_event  4,  8, SPRITE_BURGLAR, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 2, GenericTrainerBurglarOrson, EVENT_RADIO_TOWER_ROCKET_TAKEOVER
 	object_event 17,  2, SPRITE_ROCKET, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 3, GenericTrainerGruntM13, EVENT_RADIO_TOWER_ROCKET_TAKEOVER
 	object_event 11,  2, SPRITE_ROCKET, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 3, GenericTrainerGruntM11, EVENT_RADIO_TOWER_ROCKET_TAKEOVER
 	object_event  3,  2, SPRITE_ROCKET, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 3, GenericTrainerGruntM25, EVENT_RADIO_TOWER_ROCKET_TAKEOVER
-	object_event 19, 12, SPRITE_ROCKET_GIRL, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_GENERICTRAINER, 1, GenericTrainerGruntF3, EVENT_RADIO_TOWER_ROCKET_TAKEOVER
-	object_event  3, 25, SPRITE_TEACHER, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UndergroundPathSwitchRoomEntrances_TeacherText, -1
-	object_event  8, 24, SPRITE_SUPER_NERD, SPRITEMOVEDATA_WALK_UP_DOWN, 2, 0, -1, -1, PAL_NPC_BROWN, PERSONTYPE_COMMAND, jumptextfaceplayer, UndergroundPathSwitchRoomEntrances_SuperNerd1Text, -1
-	object_event 19, 25, SPRITE_SUPER_NERD, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UndergroundPathSwitchRoomEntrances_SuperNerd2Text, -1
+	object_event 19, 12, SPRITE_ROCKET_GIRL, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_GENERICTRAINER, 1, GenericTrainerGruntF3, EVENT_RADIO_TOWER_ROCKET_TAKEOVER
+	object_event  3, 25, SPRITE_POKEFAN_F, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_RED, PERSONTYPE_COMMAND, jumptextfaceplayer, UndergroundPathSwitchRoomEntrances_TeacherText, -1
+	object_event  8, 24, SPRITE_SUPER_NERD, SPRITEMOVEDATA_WALK_UP_DOWN, 2, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UndergroundPathSwitchRoomEntrances_SuperNerd1Text, -1
+	object_event 19, 25, SPRITE_BUG_MANIAC, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_COMMAND, jumptextfaceplayer, UndergroundPathSwitchRoomEntrances_SuperNerd2Text, -1
 	itemball_event  1, 12, SMOKE_BALL, 1, EVENT_UNDERGROUND_PATH_SWITCH_ROOM_ENTRANCES_SMOKE_BALL
 	itemball_event 14,  9, FULL_HEAL, 1, EVENT_UNDERGROUND_PATH_SWITCH_ROOM_ENTRANCES_FULL_HEAL
 
@@ -279,9 +279,9 @@ Switch1Script:
 	writetext SwitchRoomText_OffTurnOn
 	yesorno
 	iffalse UndergroundPathSwitchRoomEntrances_DontToggle
-	copybytetovar UndergroundSwitchPositions
+	copybytetovar wUndergroundSwitchPositions
 	addvar 1
-	copyvartobyte UndergroundSwitchPositions
+	copyvartobyte wUndergroundSwitchPositions
 	setevent EVENT_SWITCH_1
 	jump UndergroundPathSwitchRoomEntrances_UpdateDoors
 
@@ -289,9 +289,9 @@ Switch1Script:
 	writetext SwitchRoomText_OnTurnOff
 	yesorno
 	iffalse UndergroundPathSwitchRoomEntrances_DontToggle
-	copybytetovar UndergroundSwitchPositions
+	copybytetovar wUndergroundSwitchPositions
 	addvar -1
-	copyvartobyte UndergroundSwitchPositions
+	copyvartobyte wUndergroundSwitchPositions
 	clearevent EVENT_SWITCH_1
 	jump UndergroundPathSwitchRoomEntrances_UpdateDoors
 
@@ -304,9 +304,9 @@ Switch2Script:
 	writetext SwitchRoomText_OffTurnOn
 	yesorno
 	iffalse UndergroundPathSwitchRoomEntrances_DontToggle
-	copybytetovar UndergroundSwitchPositions
+	copybytetovar wUndergroundSwitchPositions
 	addvar 2
-	copyvartobyte UndergroundSwitchPositions
+	copyvartobyte wUndergroundSwitchPositions
 	setevent EVENT_SWITCH_2
 	jump UndergroundPathSwitchRoomEntrances_UpdateDoors
 
@@ -314,9 +314,9 @@ Switch2Script:
 	writetext SwitchRoomText_OnTurnOff
 	yesorno
 	iffalse UndergroundPathSwitchRoomEntrances_DontToggle
-	copybytetovar UndergroundSwitchPositions
+	copybytetovar wUndergroundSwitchPositions
 	addvar -2
-	copyvartobyte UndergroundSwitchPositions
+	copyvartobyte wUndergroundSwitchPositions
 	clearevent EVENT_SWITCH_2
 	jump UndergroundPathSwitchRoomEntrances_UpdateDoors
 
@@ -329,9 +329,9 @@ Switch3Script:
 	writetext SwitchRoomText_OffTurnOn
 	yesorno
 	iffalse UndergroundPathSwitchRoomEntrances_DontToggle
-	copybytetovar UndergroundSwitchPositions
+	copybytetovar wUndergroundSwitchPositions
 	addvar 3
-	copyvartobyte UndergroundSwitchPositions
+	copyvartobyte wUndergroundSwitchPositions
 	setevent EVENT_SWITCH_3
 	jump UndergroundPathSwitchRoomEntrances_UpdateDoors
 
@@ -339,9 +339,9 @@ Switch3Script:
 	writetext SwitchRoomText_OnTurnOff
 	yesorno
 	iffalse UndergroundPathSwitchRoomEntrances_DontToggle
-	copybytetovar UndergroundSwitchPositions
+	copybytetovar wUndergroundSwitchPositions
 	addvar -3
-	copyvartobyte UndergroundSwitchPositions
+	copyvartobyte wUndergroundSwitchPositions
 	clearevent EVENT_SWITCH_3
 	jump UndergroundPathSwitchRoomEntrances_UpdateDoors
 
@@ -355,7 +355,7 @@ EmergencySwitchScript:
 	yesorno
 	iffalse UndergroundPathSwitchRoomEntrances_DontToggle
 	writebyte 7
-	copyvartobyte UndergroundSwitchPositions
+	copyvartobyte wUndergroundSwitchPositions
 	setevent EVENT_EMERGENCY_SWITCH
 	setevent EVENT_SWITCH_1
 	setevent EVENT_SWITCH_2
@@ -367,7 +367,7 @@ EmergencySwitchScript:
 	yesorno
 	iffalse UndergroundPathSwitchRoomEntrances_DontToggle
 	writebyte 0
-	copyvartobyte UndergroundSwitchPositions
+	copyvartobyte wUndergroundSwitchPositions
 	clearevent EVENT_EMERGENCY_SWITCH
 	clearevent EVENT_SWITCH_1
 	clearevent EVENT_SWITCH_2
@@ -378,7 +378,7 @@ UndergroundPathSwitchRoomEntrances_DontToggle:
 	endtext
 
 UndergroundPathSwitchRoomEntrances_UpdateDoors:
-	copybytetovar UndergroundSwitchPositions
+	copybytetovar wUndergroundSwitchPositions
 	ifequal 0, .Position0
 	ifequal 1, .Position1
 	ifequal 2, .Position2
@@ -491,7 +491,7 @@ UndergroundPathSwitchRoomEntrances_UpdateDoors:
 	reloadmappart
 	closetext
 	writebyte 6
-	copyvartobyte UndergroundSwitchPositions
+	copyvartobyte wUndergroundSwitchPositions
 	end
 
 .Set4:

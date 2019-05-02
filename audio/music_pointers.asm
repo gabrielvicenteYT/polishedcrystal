@@ -87,6 +87,7 @@ Music:
 	dba Music_ChampionBattle
 	dba Music_HallOfFame
 	dba Music_SSAqua
+	dba Music_SurfingRBY
 	dba Music_VermilionCity
 	dba Music_KantoGymBattle
 	dba Music_LavenderTownRBY
@@ -94,6 +95,7 @@ Music:
 	dba Music_LavenderTown
 	dba Music_KantoWildBattle
 	dba Music_CeruleanCityHGSS
+	dba Music_BicycleRB
 	dba Music_NuggetBridgeHGSS
 	dba Music_MagnetTrain
 	dba Music_BlackCityBW
@@ -134,6 +136,7 @@ Music:
 	dba Music_FrontierBrainBattleRSE
 	dba Music_ZinniaEncounterORAS
 	dba Music_Route205DPPt
+	dba Music_SurfRSE
 	dba Music_WildBattleSM
 	dba Music_SunyshoreCityDPPt
 	dba Music_TrainerBattleSM

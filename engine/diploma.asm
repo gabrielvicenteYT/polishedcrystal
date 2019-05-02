@@ -10,18 +10,18 @@ _Diploma: ; 1dd702
 	ld hl, DiplomaTilemap
 	decoord 0, 0
 	ld bc, SCREEN_WIDTH * SCREEN_HEIGHT
-	call CopyBytes
+	rst CopyBytes
 	ld de, .PlayerString
 	hlcoord 2, 5
 	call PlaceString
-	ld de, PlayerName
+	ld de, wPlayerName
 	hlcoord 9, 5
 	call PlaceString
 	ld de, .DiplomaString
 	hlcoord 2, 8
 	call PlaceString
 	call EnableLCD
-	call WaitBGMap
+	call ApplyTilemapInVBlank
 	ld b, CGB_DIPLOMA
 	call GetCGBLayout
 	call SetPalettes

@@ -5,7 +5,7 @@ Script_BattleWhiteout:: ; 0x124c1
 
 Script_OverworldWhiteout:: ; 0x124c8
 	refreshscreen
-	callasm OverworldBGMap
+	callasm OverworldWhiteoutFade
 
 Script_Whiteout: ; 0x124ce
 	callasm LoseMoney
@@ -50,13 +50,14 @@ Script_Whiteout: ; 0x124ce
 	text_jump WhiteoutToTrainerText
 	db "@"
 
-OverworldBGMap: ; 124fa
-	call ClearPalettes
-	call ClearScreen
-	call WaitBGMap2
-	call HideSprites
-	jp RotateThreePalettesLeft
-; 1250a
+OverworldWhiteoutFade
+	farcall FadeOutPalettes
+	call ClearTileMap
+	call ClearSprites
+	ld b, CGB_DIPLOMA
+	call GetCGBLayout
+	jp SetPalettes
+
 
 BattleBGMap: ; 1250a
 	ld b, CGB_BATTLE_GRAYSCALE
@@ -69,7 +70,7 @@ BattleBGMap: ; 1250a
 LoseMoney: ; 12513
 	xor a
 	ld [wSpinning], a
-	ld hl, Money
+	ld hl, wMoney
 	ld a, [hli]
 	or [hl]
 	inc hl
@@ -77,7 +78,7 @@ LoseMoney: ; 12513
 	ld a, 0 ; not xor a; preserve carry flag
 	jr z, .load
 	; 806e1
-	ld hl, Badges
+	ld hl, wBadges
 	ld b, 2
 	call CountSetBits
 	cp 9
@@ -89,10 +90,10 @@ LoseMoney: ; 12513
 	add hl, bc
 	ld a, [hl]
 	ld [hMultiplier], a
-	ld a, [PartyCount]
+	ld a, [wPartyCount]
 	ld c, a
 	ld b, 0
-	ld hl, PartyMon1Level
+	ld hl, wPartyMon1Level
 	ld de, PARTYMON_STRUCT_LENGTH
 .loop
 	ld a, [hl]
@@ -112,13 +113,13 @@ LoseMoney: ; 12513
 	ld de, hMoneyTemp
 	ld hl, hProduct + 1
 	call .copy
-	ld de, Money
+	ld de, wMoney
 	ld bc, hMoneyTemp
 	push bc
 	push de
 	farcall CompareMoney
 	jr nc, .nonzero
-	ld hl, Money
+	ld hl, wMoney
 	ld de, hMoneyTemp
 	call .copy
 .nonzero
@@ -127,7 +128,7 @@ LoseMoney: ; 12513
 	farcall TakeMoney
 	ld a, 1
 .load
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 .copy
@@ -157,7 +158,7 @@ DetermineWildBattlePanic:
 	ld hl, wWildBattlePanic
 	ld a, [hl]
 	and $1
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	xor a
 	ld [hl], a
 	ret
@@ -174,6 +175,6 @@ GetWhiteoutSpawn: ; 12527
 	xor a ; SPAWN_HOME
 
 .yes
-	ld [DefaultSpawnpoint], a
+	ld [wDefaultSpawnpoint], a
 	ret
 ; 1253d

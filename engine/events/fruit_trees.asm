@@ -3,7 +3,7 @@ FruitTreeScript:: ; 44000
 	writetext FruitBearingTreeText
 	buttonsound
 	callasm TryResetFruitTrees
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	callasm CheckFruitTree
 	iffalse PickBerryScript
 	writetext NothingHereText
@@ -14,33 +14,33 @@ FruitTreeScript:: ; 44000
 	yesorno
 	iffalse_endtext
 	takeitem MULCH
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	callasm FertilizedFruitTree
 	jumpopenedtext UsedMulchText
 
 PickBerryScript:
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	ifless NUM_APRICORNS+1, PickApricornScript
 	itemtotext $0, $0
 	writetext HeyItsFruitText
 	callasm GetFruitTreeCount
 	ifequal $1, .try_one
 	ifequal $2, .try_two
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	giveitem ITEM_FROM_MEM, 3
 	iffalse .try_two
 	buttonsound
 	writetext ObtainedThreeFruitText
 	jump .continue
 .try_two
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	giveitem ITEM_FROM_MEM, 2
 	iffalse .try_one
 	buttonsound
 	writetext ObtainedTwoFruitText
 	jump .continue
 .try_one
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	giveitem ITEM_FROM_MEM
 	iffalse .packisfull
 	buttonsound
@@ -60,27 +60,27 @@ PickBerryScript:
 PickApricornScript:
 	checkitem APRICORN_BOX
 	iffalse_jumpopenedtext NoApricornBoxText
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	callasm .get_name
 	writetext HeyItsFruitText
 	callasm GetFruitTreeCount
 	ifequal $1, .try_one
 	ifequal $2, .try_two
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	giveapricorn ITEM_FROM_MEM, 3
 	iffalse .try_two
 	buttonsound
 	writetext ObtainedThreeFruitText
 	jump .continue
 .try_two
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	giveapricorn ITEM_FROM_MEM, 2
 	iffalse .try_one
 	buttonsound
 	writetext ObtainedTwoFruitText
 	jump .continue
 .try_one
-	copybytetovar CurFruit
+	copybytetovar wCurFruit
 	giveapricorn ITEM_FROM_MEM
 	iffalse .packisfull
 	buttonsound
@@ -95,24 +95,24 @@ PickApricornScript:
 	jumpopenedtext FruitPackIsFullText
 
 .get_name:
-	ld a, [ScriptVar]
+	ld a, [wScriptVar]
 	ld [wd265], a
 	call GetApricornName
-	ld de, StringBuffer1
-	ld hl, StringBuffer3
+	ld de, wStringBuffer1
+	ld hl, wStringBuffer3
 	jp CopyName2
 
 TryResetFruitTrees: ; 4404c
-	ld hl, DailyFlags
+	ld hl, wDailyFlags
 	bit 4, [hl] ; ENGINE_ALL_FRUIT_TREES
 	ret nz
 	xor a
-	ld hl, FruitTreeFlags
+	ld hl, wFruitTreeFlags
 rept (NUM_FRUIT_TREES + 7) / 8 - 1
 	ld [hli], a
 endr
 	ld [hl], a
-	ld hl, DailyFlags
+	ld hl, wDailyFlags
 	set 4, [hl] ; ENGINE_ALL_FRUIT_TREES
 	ret
 ; 44078
@@ -121,7 +121,7 @@ CheckFruitTree: ; 44055
 	ld b, CHECK_FLAG
 	call GetFruitTreeFlag
 	ld a, c
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 ; 4405f
 
@@ -135,11 +135,11 @@ FertilizedFruitTree:
 GetFruitTreeFlag: ; 44078
 	push hl
 	push de
-	ld a, [CurFruitTree]
+	ld a, [wCurFruitTree]
 	dec a
 	ld e, a
 	ld d, 0
-	ld hl, FruitTreeFlags
+	ld hl, wFruitTreeFlags
 	call FlagAction
 	pop de
 	pop hl
@@ -150,7 +150,7 @@ GetFruitTreeCount:
 	ld a, 3
 	call RandomRange
 	inc a
-	ld [ScriptVar], a
+	ld [wScriptVar], a
 	ret
 
 FruitBearingTreeText: ; 440b5

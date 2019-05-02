@@ -37,7 +37,7 @@ FishingGuruScript_0x9e0e0:
 	waitsfx
 	pause 10
 	special FadeInPalettes
-	copybytetovar CurPartySpecies
+	copybytetovar wCurPartySpecies
 	pokepic 0, 1
 	cry 0
 	waitsfx
@@ -86,7 +86,7 @@ PhotoStudioPrestoText:
 	text "Presto! All done."
 
 	para "Your @"
-	text_from_ram StringBuffer3
+	text_from_ram wStringBuffer3
 	text ""
 	line "looks happier!"
 	done

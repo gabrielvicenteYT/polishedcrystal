@@ -12,6 +12,7 @@ Pokémon Polished Crystal would never have been finished without the help of man
 ## Code
 
 * FIQ for multiple feature code contributions (specifically: abilities, natures affecting stats, better AI, various item and move effects, and other battle engine features; and porting TPP's caught data stats screen).
+* luckytyphlosion for performance optimizations leading to a better performing game engine, and a 60FPS overworld.
 * The TPP Anniversary Crystal 251 dev team for making their code publically usable (specifically: the Move Relearner, Stats Judge, automatic box swtching, Gen VI money loss, and caught data stats page code).
 * Sanqui for the music player with piano roll visualization.
 * ax6 for porting the xorshift+ PRNG from Prism.
@@ -27,11 +28,12 @@ Pokémon Polished Crystal would never have been finished without the help of man
 ## Music
 
 * Mmmmmm for many music covers from RSE, DPPt, HGSS, BW, B2W2, and XY.
-* FroggestSpirit for ported and demixed music from RBY, HGSS, DPPt, and BW.
-* Pum for the Hoenn, Sinnoh, and Kalos Gym Leader battle music.
+* FroggestSpirit for many music covers from RBY, HGSS, DPPt, and BW.
+* Pum for the BW and XY Gym Leader battle music.
 * ShantyTown for the XY Power Plant and Bicycle music.
 * Pigu and GACT for some battle music (used in TPP Anniversary Crystal 251).
 * ShockSlayer for some Pokémon Go and Pokémon Stadium battle music.
+* Monstarules for the RSE Surf music.
 * LevusBevus, GRonnoc, Cat333Pokemon, and KoolBoyMan for some music from Pokémon Prism (available in the music player).
 
 
@@ -52,6 +54,7 @@ Pokémon Polished Crystal would never have been finished without the help of man
 * Twilir for Lyra's back sprite.
 * Danny-E for Lorelei's sprite.
 * Nic7C5 for Yellow's sprite.
+* Maddalena for Imakuni's sprite.
 * Kage for Walker's sprite.
 * Pyro for Tamer's sprite.
 * Constantine for Nurse's sprite.

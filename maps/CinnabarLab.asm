@@ -24,12 +24,12 @@ CinnabarLab_MapScriptHeader:
 
 	db 9 ; object events
 	object_event 15,  6, SPRITE_GIOVANNI, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, -1
-	object_event 15,  4, SPRITE_ARMORED_MEWTWO, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, ObjectEvent, -1
+	object_event 15,  4, SPRITE_ARMORED_MEWTWO, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, -1
 	object_event 11,  6, SPRITE_SCIENTIST, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, -1
 	object_event 20,  5, SPRITE_SCIENTIST, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CINNABAR_LAB_SCIENTIST1
 	object_event 11,  4, SPRITE_SCIENTIST, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CINNABAR_LAB_SCIENTIST2
 	object_event 15,  7, SPRITE_MEWTWO, SPRITEMOVEDATA_STANDING_DOWN, 0, 0, -1, -1, PAL_NPC_PURPLE, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CINNABAR_LAB_MEWTWO
-	object_event 14,  8, SPRITE_CELEBI, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, PAL_NPC_GREEN, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CINNABAR_LAB_CELEBI
+	object_event 14,  8, SPRITE_CELEBI, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CINNABAR_LAB_CELEBI
 	object_event 15,  8, SPRITE_CHRIS, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CINNABAR_LAB_CHRIS
 	object_event 15,  8, SPRITE_KRIS, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, -1, 0, PERSONTYPE_SCRIPT, 0, ObjectEvent, EVENT_CINNABAR_LAB_KRIS
 
@@ -231,12 +231,12 @@ CinnabarLabPlayerStepsBackMovementData:
 	step_end
 
 CinnabarLabPan1MovementData:
-	big_step_left
-	big_step_left
-	big_step_left
-	big_step_up
-	big_step_up
-	big_step_up
+	run_step_left
+	run_step_left
+	run_step_left
+	run_step_up
+	run_step_up
+	run_step_up
 	step_end
 
 CinnabarLabScientist1Thrown1MovementData:
@@ -246,7 +246,7 @@ CinnabarLabScientist1Thrown1MovementData:
 	step_up
 	remove_fixed_facing
 	remove_sliding
-	big_step_left
+	run_step_left
 	step_end
 
 CinnabarLabScientist1Thrown2MovementData:
@@ -255,12 +255,12 @@ CinnabarLabScientist1Thrown2MovementData:
 	step_end
 
 CinnabarLabPan2MovementData:
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
-	big_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
+	run_step_right
 	step_end
 
 CinnabarLabScientist2Thrown1MovementData:
@@ -270,7 +270,7 @@ CinnabarLabScientist2Thrown1MovementData:
 	step_up
 	remove_fixed_facing
 	remove_sliding
-	big_step_right
+	run_step_right
 	step_end
 
 CinnabarLabScientist2Thrown2MovementData:

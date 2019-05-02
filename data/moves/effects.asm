@@ -1,7 +1,5 @@
 MoveEffects:
 
-BugBite: ; TODO
-GyroBall: ; TODO
 NormalHit:
 AerialAce:
 Aeroblast:
@@ -62,8 +60,8 @@ XScissor:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -84,8 +82,8 @@ SuckerPunch:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -112,8 +110,8 @@ DrainPunch:
 	criticaltext
 	supereffectivetext
 	draintarget
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -135,8 +133,8 @@ SwitchHit:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	switchout
 	endmove
@@ -170,8 +168,8 @@ FuryStrikes:
 	criticaltext
 	cleartext
 	supereffectivelooptext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	endloop
 	pickpocket
 	raisesub
@@ -199,8 +197,8 @@ BraveBird:
 	criticaltext
 	supereffectivetext
 	recoil
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -214,7 +212,6 @@ Headbutt:
 HyperFang:
 IcicleCrash:
 IronHead:
-LowKick:
 RockSlide:
 Waterfall:
 ZenHeadbutt:
@@ -223,19 +220,19 @@ ZenHeadbutt:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	flinchtarget
 	pickpocket
 	endmove
@@ -250,19 +247,19 @@ GunkShot:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	poisontarget
 	pickpocket
 	endmove
@@ -277,19 +274,19 @@ FireBlast:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	burntarget
 	pickpocket
 	endmove
@@ -299,7 +296,6 @@ Lick:
 Thundershock:
 Spark:
 Thunderpunch:
-BodySlam:
 Dragonbreath:
 Thunderbolt:
 ZapCannon:
@@ -308,19 +304,43 @@ ZapCannon:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
+	paralyzetarget
+	pickpocket
+	endmove
+
+BodySlam:
+	checkobedience
+	usedmovetext
+	doturn
+	pressure
+	critical
+	effectchance
+	damagestats
+	damagecalc
+	stab
+	damagevariation
+	doubleminimizedamage
+	checkhit
+	hittarget
+	failuretext
+	checkfaint
+	criticaltext
+	supereffectivetext
+	postfainteffects
+	posthiteffects
 	paralyzetarget
 	pickpocket
 	endmove
@@ -331,19 +351,19 @@ SleepHit:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	sleeptarget
 	pickpocket
 	endmove
@@ -357,19 +377,19 @@ Blizzard:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	freezetarget
 	pickpocket
 	endmove
@@ -386,19 +406,19 @@ Hurricane:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	confusetarget
 	pickpocket
 	endmove
@@ -410,19 +430,19 @@ MetalClaw:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	attackup
 	statupmessage
 	pickpocket
@@ -435,19 +455,19 @@ SteelWing:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	defenseup
 	statupmessage
 	pickpocket
@@ -460,19 +480,19 @@ Ancientpower:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	allstatsup
 	pickpocket
 	endmove
@@ -484,19 +504,19 @@ AuroraBeam:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	attackdown
 	statdownmessage
 	pickpocket
@@ -505,25 +525,50 @@ AuroraBeam:
 DefenseDownHit:
 Crunch:
 IronTail:
-RockSmash:
 	checkobedience
 	usedmovetext
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
+	defensedown
+	statdownmessage
+	pickpocket
+	endmove
+
+BrickBreak:
+	checkobedience
+	usedmovetext
+	doturn
+	pressure
+	critical
+	effectchance
+	resettypematchup
+	brickbreak
+	damagestats
+	damagecalc
+	stab
+	damagevariation
+	checkhit
+	hittarget
+	failuretext
+	checkfaint
+	criticaltext
+	supereffectivetext
+	postfainteffects
+	posthiteffects
 	defensedown
 	statdownmessage
 	pickpocket
@@ -538,19 +583,19 @@ Bulldoze:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	speeddown
 	statdownmessage
 	pickpocket
@@ -563,19 +608,19 @@ Moonblast:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	specialattackdown
 	statdownmessage
 	pickpocket
@@ -595,19 +640,19 @@ ShadowBall:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	specialdefensedown
 	statdownmessage
 	pickpocket
@@ -621,19 +666,19 @@ Octazooka:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	accuracydown
 	statdownmessage
 	pickpocket
@@ -645,19 +690,19 @@ EvasionDownHit:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	evasiondown
 	statdownmessage
 	pickpocket
@@ -669,20 +714,20 @@ CloseCombat:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
 	closecombat
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -702,13 +747,25 @@ SuperFang:
 	hittarget
 	failuretext
 	checkfaint
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
 DoPoison:
 Poisonpowder:
+	checkobedience
+	usedmovetext
+	doturn
+	pressure
+	checkpowder
+	checkhit
+	bounceback
+	stab
+	checksafeguard
+	poison
+	endmove
+
 Toxic:
 	checkobedience
 	usedmovetext
@@ -718,7 +775,7 @@ Toxic:
 	bounceback
 	stab
 	checksafeguard
-	poison
+	toxic
 	endmove
 
 DoBurn:
@@ -742,7 +799,7 @@ Glare:
 	usedmovetext
 	doturn
 	pressure
-	stab
+	checkpowder
 	checkhit
 	bounceback
 	checksafeguard
@@ -758,6 +815,7 @@ Spore:
 	usedmovetext
 	doturn
 	pressure
+	checkpowder
 	checkhit
 	bounceback
 	checksafeguard
@@ -1291,8 +1349,8 @@ Outrage:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1317,8 +1375,8 @@ Whirlpool:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	traptarget
 	pickpocket
 	endmove
@@ -1341,8 +1399,8 @@ Explosion:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	endmove
 
 DreamEater:
@@ -1362,8 +1420,8 @@ DreamEater:
 	criticaltext
 	supereffectivetext
 	eatdream
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1418,8 +1476,8 @@ PayDay:
 	criticaltext
 	supereffectivetext
 	payday
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1441,9 +1499,31 @@ KnockOff:
 	criticaltext
 	supereffectivetext
 	knockoff
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
+	endmove
+
+BugBite:
+	checkobedience
+	usedmovetext
+	doturn
+	pressure
+	critical
+	damagestats
+	damagecalc
+	stab
+	damagevariation
+	checkhit
+	conditionalboost
+	hittarget
+	failuretext
+	bugbite ; before checkfaint to steal HP berries before they take effect
+	checkfaint
+	criticaltext
+	supereffectivetext
+	postfainteffects
+	posthiteffects
 	endmove
 
 TriAttack:
@@ -1462,8 +1542,8 @@ TriAttack:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	tristatuschance
 	pickpocket
 	endmove
@@ -1501,8 +1581,8 @@ GigaImpact:
 	criticaltext
 	supereffectivetext
 	rechargenextturn
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1523,8 +1603,8 @@ Rage:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1570,8 +1650,8 @@ Counter:
 	hittarget
 	failuretext
 	checkfaint
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	endmove
 
 Encore:
@@ -1628,8 +1708,8 @@ Reversal:
 	failuretext
 	checkfaint
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1650,8 +1730,8 @@ FalseSwipe:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1683,8 +1763,8 @@ TripleKick:
 	criticaltext
 	cleartext
 	supereffectivelooptext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	kickcounter
 	endloop
 	raisesub
@@ -1697,21 +1777,21 @@ Thief:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
 	; Yes, thief is 100% but this makes Sheer Force and Substitute be handled correctly
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
 	thief
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1730,20 +1810,20 @@ FlameWheel:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
 	defrost
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	burntarget
 	pickpocket
 	endmove
@@ -1836,8 +1916,8 @@ Rollout:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1883,8 +1963,8 @@ ConditionalBoostHit:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1915,8 +1995,8 @@ Return:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1926,20 +2006,20 @@ SacredFire:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
 	defrost
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	burntarget
 	pickpocket
 	endmove
@@ -1962,8 +2042,52 @@ Magnitude:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
+	pickpocket
+	endmove
+
+GyroBall:
+	checkobedience
+	usedmovetext
+	doturn
+	pressure
+	critical
+	damagestats
+	gyroball
+	damagecalc
+	stab
+	damagevariation
+	checkhit
+	hittarget
+	failuretext
+	checkfaint
+	criticaltext
+	supereffectivetext
+	postfainteffects
+	posthiteffects
+	pickpocket
+	endmove
+
+LowKick:
+	checkobedience
+	usedmovetext
+	doturn
+	pressure
+	critical
+	damagestats
+	lowkick
+	damagecalc
+	stab
+	damagevariation
+	checkhit
+	hittarget
+	failuretext
+	checkfaint
+	criticaltext
+	supereffectivetext
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -1991,8 +2115,8 @@ Pursuit:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -2013,8 +2137,8 @@ RapidSpin:
 	criticaltext
 	supereffectivetext
 	clearhazards
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -2041,8 +2165,8 @@ HiddenPower:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -2075,8 +2199,8 @@ MirrorCoat:
 	hittarget
 	failuretext
 	checkfaint
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	endmove
 
 Earthquake:
@@ -2085,20 +2209,20 @@ Earthquake:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	doubleundergrounddamage
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -2116,8 +2240,8 @@ FutureSight:
 	hittargetnosub
 	failuretext
 	checkfaint
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	endmove
 
 Gust:
@@ -2137,8 +2261,8 @@ Gust:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -2148,20 +2272,20 @@ Stomp:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	doubleminimizedamage
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	flinchtarget
 	pickpocket
 	endmove
@@ -2185,8 +2309,8 @@ SolarBeam:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -2196,11 +2320,11 @@ Thunder:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	thunderaccuracy
 	checkhit
-	effectchance
 	stab
 	damagevariation
 	hittarget
@@ -2208,8 +2332,8 @@ Thunder:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	paralyzetarget
 	pickpocket
 	endmove
@@ -2241,8 +2365,8 @@ Dig:
 	checkfaint
 	criticaltext
 	supereffectivetext
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	pickpocket
 	endmove
 
@@ -2265,12 +2389,12 @@ FlareBlitz:
 	doturn
 	pressure
 	critical
+	effectchance
 	damagestats
 	damagecalc
 	stab
 	damagevariation
 	checkhit
-	effectchance
 	hittarget
 	failuretext
 	checkfaint
@@ -2278,8 +2402,8 @@ FlareBlitz:
 	supereffectivetext
 	recoil
 	defrost
-	checkdestinybond
-	buildopponentrage
+	postfainteffects
+	posthiteffects
 	burntarget
 	pickpocket
 	endmove

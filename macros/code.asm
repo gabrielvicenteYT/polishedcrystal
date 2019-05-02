@@ -35,9 +35,9 @@ jumptable: MACRO
 	jp hl
 ENDM
 
-eventflagset   EQUS "flagset EventFlags,"
-eventflagreset EQUS "flagreset EventFlags,"
-eventflagcheck EQUS "flagcheck EventFlags,"
+eventflagset   EQUS "flagset wEventFlags,"
+eventflagreset EQUS "flagreset wEventFlags,"
+eventflagcheck EQUS "flagcheck wEventFlags,"
 
 flagset: MACRO
 	ld hl, \1 + (\2 >> 3)
@@ -57,7 +57,7 @@ ENDM
 changebridgeblock: macro
 	; lb de, \1 + 4, \2 + 4
 	; call GetBlockLocation
-	ld hl, OverworldMap + (\2 / 2 + 3) * (\4_WIDTH + 6) + \1 / 2 + 3
+	ld hl, wOverworldMap + (\2 / 2 + 3) * (\4_WIDTH + 6) + \1 / 2 + 3
 	; hard-coding the above calculation for efficiency
 	ld [hl], \3
 ENDM

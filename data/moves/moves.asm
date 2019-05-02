@@ -3,9 +3,9 @@ move: MACRO
 	db \2 ; effect
 	db \3 ; power
 	db \4 ; type
-	db \5 percent ; accuracy
+	db \5 ; accuracy
 	db \6 ; pp
-	db \7 percent ; effect chance
+	db \7 ; effect chance
 	db \8 ; category
 ENDM
 
@@ -38,7 +38,7 @@ else
 	move FLY,          EFFECT_FLY,                90, FLYING,    100, 15,   0, PHYSICAL
 endc
 	move DAZZLINGLEAM, EFFECT_NORMAL_HIT,         80, FAIRY,     100, 10,   0, SPECIAL
-	move VOLT_SWITCH,  EFFECT_SWITCH_HIT,         70, ELECTRIC,   70, 20,   0, SPECIAL
+	move VOLT_SWITCH,  EFFECT_SWITCH_HIT,         70, ELECTRIC,  100, 20,   0, SPECIAL
 	move VINE_WHIP,    EFFECT_NORMAL_HIT,         45, GRASS,     100, 25,   0, PHYSICAL
 	move STOMP,        EFFECT_STOMP,              65, NORMAL,    100, 20,  30, PHYSICAL
 	move DOUBLE_KICK,  EFFECT_DOUBLE_HIT,         30, FIGHTING,  100, 30,   0, PHYSICAL
@@ -51,7 +51,7 @@ endc
 	move TRICK,        EFFECT_TRICK,               0, PSYCHIC,   100, 10,   0, STATUS
 	move HEX,          EFFECT_CONDITIONAL_BOOST,  65, GHOST,     100, 10,   0, SPECIAL
 	move TACKLE,       EFFECT_NORMAL_HIT,         40, NORMAL,    100, 35,   0, PHYSICAL
-	move BODY_SLAM,    EFFECT_PARALYZE_HIT,       85, NORMAL,    100, 15,  30, PHYSICAL
+	move BODY_SLAM,    EFFECT_BODY_SLAM,          85, NORMAL,    100, 15,  30, PHYSICAL
 	move WRAP,         EFFECT_TRAP,               15, NORMAL,     90, 20,   0, PHYSICAL
 if DEF(FAITHFUL)
 	move TAKE_DOWN,    EFFECT_RECOIL_HIT,         90, NORMAL,     85, 20,   0, PHYSICAL
@@ -93,7 +93,7 @@ endc
 	move PECK,         EFFECT_NORMAL_HIT,         35, FLYING,    100, 35,   0, PHYSICAL
 	move DRILL_PECK,   EFFECT_NORMAL_HIT,         80, FLYING,    100, 20,   0, PHYSICAL
 	move CLOSE_COMBAT, EFFECT_CLOSE_COMBAT,      120, FIGHTING,  100,  5,   0, PHYSICAL
-	move LOW_KICK,     EFFECT_FLINCH_HIT,         50, FIGHTING,  100, 20,  30, PHYSICAL
+	move LOW_KICK,     EFFECT_LOW_KICK,            1, FIGHTING,  100, 20,  30, PHYSICAL
 	move COUNTER,      EFFECT_COUNTER,             1, FIGHTING,  100, 20,   0, PHYSICAL
 	move SEISMIC_TOSS, EFFECT_LEVEL_DAMAGE,        1, FIGHTING,  100, 20,   0, PHYSICAL
 if DEF(FAITHFUL)
@@ -111,7 +111,7 @@ endc
 	move STUN_SPORE,   EFFECT_PARALYZE,            0, GRASS,      75, 30,   0, STATUS
 	move SLEEP_POWDER, EFFECT_SLEEP,               0, GRASS,      75, 15,   0, STATUS
 	move PETAL_DANCE,  EFFECT_RAMPAGE,           120, GRASS,     100, 10,   0, SPECIAL
-	move STRING_SHOT,  EFFECT_SPEED_DOWN,          0, BUG,        95, 40,   0, STATUS
+	move STRING_SHOT,  EFFECT_SPEED_DOWN_2,        0, BUG,        95, 40,   0, STATUS
 	move DRAGON_RAGE,  EFFECT_STATIC_DAMAGE,      40, DRAGON,    100, 10,   0, SPECIAL
 if DEF(FAITHFUL)
 	move FIRE_SPIN,    EFFECT_TRAP,               35, FIRE,       85, 15,   0, SPECIAL
@@ -314,7 +314,7 @@ endc
 if DEF(FAITHFUL)
 	move ROCK_SMASH,   EFFECT_DEFENSE_DOWN_HIT,   40, FIGHTING,  100, 15,  50, PHYSICAL
 else
-	move ROCK_SMASH,   EFFECT_DEFENSE_DOWN_HIT,   60, FIGHTING,  100, 15,  50, PHYSICAL
+	move BRICK_BREAK,  EFFECT_BRICK_BREAK,        75, FIGHTING,  100, 15,   0, PHYSICAL
 endc
 if DEF(FAITHFUL)
 	move WHIRLPOOL,    EFFECT_TRAP,               35, WATER,      85, 15,   0, SPECIAL

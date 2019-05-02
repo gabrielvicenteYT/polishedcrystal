@@ -1,9 +1,6 @@
-
 RunCallback_05_03: ; 1045b0
-	call ResetMapBufferEventFlags
-	call ResetFlashIfOutOfCave
+	call ResetOWMapState
 	call GetCurrentMapTrigger
-	call ResetBikeFlags
 	ld a, MAPCALLBACK_NEWMAP
 	call RunMapCallback
 RunCallback_03: ; 1045c4
@@ -12,6 +9,26 @@ RunCallback_03: ; 1045c4
 	call RunMapCallback
 	call GetMapHeaderTimeOfDayNybble
 	ld [wMapTimeOfDay], a
+	ret
+
+ResetOWMapState:
+; reset flash if out of cave
+	ld a, [wPermission]
+	cp ROUTE
+	jr z, .reset_flash
+	cp TOWN
+	jr nz, .keep_flash
+.reset_flash
+	ld hl, wStatusFlags
+	res 2, [hl]
+.keep_flash
+	xor a
+; reset map buffer event flags
+	ld [wEventFlags], a
+; reset ow state
+	ld hl, wOWState
+	ld [hli], a
+	ld [hl], a
 	ret
 
 
@@ -31,24 +48,24 @@ EnterMapConnection: ; 1045d6
 
 
 EnterWestConnection: ; 1045ed
-	ld a, [WestConnectedMapGroup]
-	ld [MapGroup], a
-	ld a, [WestConnectedMapNumber]
-	ld [MapNumber], a
-	ld a, [WestConnectionStripXOffset]
-	ld [XCoord], a
-	ld a, [WestConnectionStripYOffset]
-	ld hl, YCoord
+	ld a, [wWestConnectedMapGroup]
+	ld [wMapGroup], a
+	ld a, [wWestConnectedMapNumber]
+	ld [wMapNumber], a
+	ld a, [wWestConnectionStripXOffset]
+	ld [wXCoord], a
+	ld a, [wWestConnectionStripYOffset]
+	ld hl, wYCoord
 	add [hl]
 	ld [hl], a
 	ld c, a
-	ld hl, WestConnectionWindow
+	ld hl, wWestConnectionWindow
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	srl c
 	jr z, .skip_to_load
-	ld a, [WestConnectedMapWidth]
+	ld a, [wWestConnectedMapWidth]
 	add 6
 	ld e, a
 	ld d, 0
@@ -68,24 +85,24 @@ EnterWestConnection: ; 1045ed
 
 
 EnterEastConnection: ; 104629
-	ld a, [EastConnectedMapGroup]
-	ld [MapGroup], a
-	ld a, [EastConnectedMapNumber]
-	ld [MapNumber], a
-	ld a, [EastConnectionStripXOffset]
-	ld [XCoord], a
-	ld a, [EastConnectionStripYOffset]
-	ld hl, YCoord
+	ld a, [wEastConnectedMapGroup]
+	ld [wMapGroup], a
+	ld a, [wEastConnectedMapNumber]
+	ld [wMapNumber], a
+	ld a, [wEastConnectionStripXOffset]
+	ld [wXCoord], a
+	ld a, [wEastConnectionStripYOffset]
+	ld hl, wYCoord
 	add [hl]
 	ld [hl], a
 	ld c, a
-	ld hl, EastConnectionWindow
+	ld hl, wEastConnectionWindow
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
 	srl c
 	jr z, .skip_to_load
-	ld a, [EastConnectedMapWidth]
+	ld a, [wEastConnectedMapWidth]
 	add 6
 	ld e, a
 	ld d, 0
@@ -105,18 +122,18 @@ EnterEastConnection: ; 104629
 
 
 EnterNorthConnection: ; 104665
-	ld a, [NorthConnectedMapGroup]
-	ld [MapGroup], a
-	ld a, [NorthConnectedMapNumber]
-	ld [MapNumber], a
-	ld a, [NorthConnectionStripYOffset]
-	ld [YCoord], a
-	ld a, [NorthConnectionStripXOffset]
-	ld hl, XCoord
+	ld a, [wNorthConnectedMapGroup]
+	ld [wMapGroup], a
+	ld a, [wNorthConnectedMapNumber]
+	ld [wMapNumber], a
+	ld a, [wNorthConnectionStripYOffset]
+	ld [wYCoord], a
+	ld a, [wNorthConnectionStripXOffset]
+	ld hl, wXCoord
 	add [hl]
 	ld [hl], a
 	ld c, a
-	ld hl, NorthConnectionWindow
+	ld hl, wNorthConnectionWindow
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -132,18 +149,18 @@ EnterNorthConnection: ; 104665
 
 
 EnterSouthConnection: ; 104696
-	ld a, [SouthConnectedMapGroup]
-	ld [MapGroup], a
-	ld a, [SouthConnectedMapNumber]
-	ld [MapNumber], a
-	ld a, [SouthConnectionStripYOffset]
-	ld [YCoord], a
-	ld a, [SouthConnectionStripXOffset]
-	ld hl, XCoord
+	ld a, [wSouthConnectedMapGroup]
+	ld [wMapGroup], a
+	ld a, [wSouthConnectedMapNumber]
+	ld [wMapNumber], a
+	ld a, [wSouthConnectionStripYOffset]
+	ld [wYCoord], a
+	ld a, [wSouthConnectionStripXOffset]
+	ld hl, wXCoord
 	add [hl]
 	ld [hl], a
 	ld c, a
-	ld hl, SouthConnectionWindow
+	ld hl, wSouthConnectionWindow
 	ld a, [hli]
 	ld h, [hl]
 	ld l, a
@@ -166,11 +183,11 @@ LoadWarpData: ; 1046c6
 	call .SaveDigWarp
 	call .SetSpawn
 	ld a, [wNextWarp]
-	ld [WarpNumber], a
+	ld [wWarpNumber], a
 	ld a, [wNextMapGroup]
-	ld [MapGroup], a
+	ld [wMapGroup], a
 	ld a, [wNextMapNumber]
-	ld [MapNumber], a
+	ld [wMapNumber], a
 	ret
 
 .SaveDigWarp: ; 1046df (41:46df)
@@ -219,8 +236,7 @@ LoadWarpData: ; 1046c6
 	cp TILESET_POKECENTER
 	jr z, .pokecenter_pokecom
 	cp TILESET_POKECOM_CENTER
-	jr z, .pokecenter_pokecom
-	ret
+	ret nz
 .pokecenter_pokecom
 	ld a, [wPrevMapGroup]
 	ld [wLastSpawnMapGroup], a
@@ -229,15 +245,38 @@ LoadWarpData: ; 1046c6
 	ret
 
 LoadMapTimeOfDay: ; 104750
-	ld hl, VramState
+	ld hl, wVramState
 	res 6, [hl]
 	ld a, $1
 	ld [wSpriteUpdatesEnabled], a
 	farcall ReplaceTimeOfDayPals
 	farcall UpdateTimeOfDayPal
-	call OverworldTextModeSwitch
+	call LoadMapPart
 	call .ClearBGMap
-	jp .PushAttrMap
+	decoord 0, 0
+	call .copy
+	decoord 0, 0, wAttrMap
+	ld a, $1
+	ld [rVBK], a
+.copy
+	hlbgcoord 0, 0
+	lb bc, SCREEN_HEIGHT, SCREEN_WIDTH
+.row
+	push bc
+.column
+	ld a, [de]
+	inc de
+	ld [hli], a
+	dec c
+	jr nz, .column
+	ld bc, BG_MAP_WIDTH - SCREEN_WIDTH
+	add hl, bc
+	pop bc
+	dec b
+	jr nz, .row
+	xor a
+	ld [rVBK], a
+	ret
 
 .ClearBGMap: ; 104770 (41:4770)
 	ld a, VBGMap0 / $100
@@ -262,41 +301,13 @@ LoadMapTimeOfDay: ; 104750
 	hlbgcoord 0, 0
 	jp ByteFill
 
-.PushAttrMap: ; 1047a3 (41:47a3)
-	decoord 0, 0
-	call .copy
-	decoord 0, 0, AttrMap
-	ld a, $1
-	ld [rVBK], a
-.copy
-	hlbgcoord 0, 0
-	lb bc, SCREEN_HEIGHT, SCREEN_WIDTH
-.row
-	push bc
-.column
-	ld a, [de]
-	inc de
-	ld [hli], a
-	dec c
-	jr nz, .column
-	ld bc, BG_MAP_WIDTH - SCREEN_WIDTH
-	add hl, bc
-	pop bc
-	dec b
-	jr nz, .row
-	xor a
-	ld [rVBK], a
-	ret
-
 LoadGraphics: ; 1047cf
 	call LoadTilesetHeader
 	call LoadTileset
 	xor a
 	ld [hMapAnims], a
 	ld [hTileAnimFrame], a
-	farcall RefreshSprites
-	call LoadFontsExtra
-	farjp LoadOverworldFont
+	farjp ReloadVisibleSprites
 
 LoadMapPalettes: ; 1047eb
 	ld b, CGB_MAPPALS
@@ -305,6 +316,9 @@ LoadMapPalettes: ; 1047eb
 
 RefreshMapSprites: ; 1047f0
 	call ClearSprites
+	xor a
+	ld [hBGMapMode], a
+
 	farcall ReturnFromMapSetupScript
 	call GetMovementPermissions
 	farcall RefreshPlayerSprite
@@ -312,7 +326,7 @@ RefreshMapSprites: ; 1047f0
 	ld hl, wPlayerSpriteSetupFlags
 	bit 6, [hl]
 	jr nz, .skip
-	ld hl, VramState
+	ld hl, wVramState
 	set 0, [hl]
 	call SafeUpdateSprites
 .skip
@@ -337,10 +351,10 @@ CheckMovingOffEdgeOfMap:: ; 104820 (41:4820)
 	ret
 
 .down
-	ld a, [PlayerStandingMapY]
+	ld a, [wPlayerStandingMapY]
 	sub 4
 	ld b, a
-	ld a, [MapHeight]
+	ld a, [wMapHeight]
 	add a
 	cp b
 	jr z, .ok
@@ -348,7 +362,7 @@ CheckMovingOffEdgeOfMap:: ; 104820 (41:4820)
 	ret
 
 .up
-	ld a, [PlayerStandingMapY]
+	ld a, [wPlayerStandingMapY]
 	sub 4
 	cp -1
 	jr z, .ok
@@ -356,7 +370,7 @@ CheckMovingOffEdgeOfMap:: ; 104820 (41:4820)
 	ret
 
 .left
-	ld a, [PlayerStandingMapX]
+	ld a, [wPlayerStandingMapX]
 	sub $4
 	cp -1
 	jr z, .ok
@@ -364,10 +378,10 @@ CheckMovingOffEdgeOfMap:: ; 104820 (41:4820)
 	ret
 
 .right
-	ld a, [PlayerStandingMapX]
+	ld a, [wPlayerStandingMapX]
 	sub 4
 	ld b, a
-	ld a, [MapWidth]
+	ld a, [wMapWidth]
 	add a
 	cp b
 	jr z, .ok
@@ -380,8 +394,8 @@ CheckMovingOffEdgeOfMap:: ; 104820 (41:4820)
 
 
 GetCoordOfUpperLeftCorner:: ; 10486d
-	ld hl, OverworldMap
-	ld a, [XCoord]
+	ld hl, wOverworldMap
+	ld a, [wXCoord]
 	bit 0, a
 	jr nz, .increment_then_halve1
 	srl a
@@ -396,11 +410,11 @@ GetCoordOfUpperLeftCorner:: ; 10486d
 	ld c, a
 	ld b, $0
 	add hl, bc
-	ld a, [MapWidth]
+	ld a, [wMapWidth]
 	add $6
 	ld c, a
 	ld b, $0
-	ld a, [YCoord]
+	ld a, [wYCoord]
 	bit 0, a
 	jr nz, .increment_then_halve2
 	srl a
@@ -412,15 +426,15 @@ GetCoordOfUpperLeftCorner:: ; 10486d
 	srl a
 
 .resume2
-	call AddNTimes
+	rst AddNTimes
 	ld a, l
 	ld [wOverworldMapAnchor], a
 	ld a, h
 	ld [wOverworldMapAnchor + 1], a
-	ld a, [YCoord]
+	ld a, [wYCoord]
 	and $1
 	ld [wMetatileStandingY], a
-	ld a, [XCoord]
+	ld a, [wXCoord]
 	and $1
 	ld [wMetatileStandingX], a
 	ret
